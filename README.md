@@ -6,6 +6,7 @@
 An example of wsclean for the sun, it is better to keep the parameter **-multiscale** on for the solar image CLEAN, because the solar radio emission is always extended.
 
 A small cheatsheet for solar wsclean:
+
 | Command        | Parameter      | Comment                                                                                      |
 |----------------|----------------|----------------------------------------------------------------------------------------------|
 | -j             | 20             | Number of thread used for CLEAN.  (can be equal to the number of cores)                      |
