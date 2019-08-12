@@ -1,4 +1,25 @@
 #!/usr/bin/python
+
+'''
+    File name: display_lofar_sun.py
+    Author: Peijin Zhang, Pietro Zucca
+    Acknowledge: Sarrvesh Seethapuram Sridhar
+    Date created: 2019-Aug
+    Python Version: 3.4 3.5
+    
+    Attenuation : This module can be used under 
+    old version of python, but no longer maintained,
+    please use the display_lofar_sun_py37.py with
+    Python 3.7
+
+    To plot the fits file produced by wsclean
+    The coordinate transform is included
+
+    Output flux unit : Jy/Beam
+'''
+
+
+
 import numpy as np
 import os,sys
 import argparse

@@ -1,7 +1,7 @@
 #!/usr/bin/pyhton2
 
 '''
-    File name: get_datetime_index.py
+    File name: auto_sun_calib.py
     Author: Peijin Zhang, Pietro Zucca
     Acknowledge: Sarrvesh Seethapuram Sridhar
     Date created: 2019-Aug
