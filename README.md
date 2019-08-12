@@ -23,6 +23,13 @@ A small cheatsheet for solar wsclean:
 
 for the interval index, one can use the get\_datetime\_index.py to find out the starting and ending index
 
+wsclean will produce the CLEANed radio image in the form of fits file. The flux intensity is in the form of Jy/Beam, Which can be converted to The brightness temperature with the Equation given in [Flux intensity](https://science.nrao.edu/facilities/vla/proposing/TBconv)
+
+In python, this can be done with:
+```python
+data_Tb = data_Jy_beam*(300/freq_cur)**2/2/(1.38e-23)/1e26/beamArea
+```
+
 ## auto\_sun\_calib.py
 
  This script automized the calibration of interferometry, it generates the parset file for the calibration and run the corresponding NDPPP commad.
