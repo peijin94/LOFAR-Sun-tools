@@ -64,3 +64,8 @@ python auto_sun_calib.py
 ## LOFAR\_h5\_to\_fits.py
 
 To convert huge HDF5 file to a bunch of small fits file with json and quickview png
+
+
+## display\_lofar\_sun(\_py37).py
+
+To transform the coordinate of RA,DEC into the heliocentric coordinate for the plot
