@@ -1,4 +1,22 @@
 #!/usr/bin/python3
+
+
+
+'''
+    File name: LOFAR_h5_to_fits.py
+    Author: Peijin Zhang, Pietro Zucca
+    Acknowledge: Sarrvesh Seethapuram Sridhar
+    Date created: 2019-Aug
+    Python Version: 3.4
+
+    Split and down sample the dynamic spectrum of LOFAR observation
+
+    Input  :  Huge hdf5 file of LOFAR Tied array beam formed observation
+    Output :  Small fits file with json and png quickview
+'''
+
+
+
 from __future__ import absolute_import, division
 import glob
 import os
@@ -26,17 +44,12 @@ out_dir = '/data/scratch/zhang/h5_to_fits_json/output/'
 
 
 
-print("""
-Split and down sample the dynamic spectrum of LOFAR observation
-
-Input  :  Huge hdf5 file of LOFAR Tied array beam formed observation
-Output :  Small fits file with json and png quickview
-
-============
-by Peijin.Zhang & Pietro Zucca 2019.08
-""")
 
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
+    """
+    The process bar function.
+    To see the process while processing
+    """
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
