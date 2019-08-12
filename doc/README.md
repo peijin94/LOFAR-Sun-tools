@@ -36,4 +36,4 @@ beamArea = (b_maj/180*np.pi)*(b_min/180*np.pi)*np.pi /(4*np.log(2))
 data_Tb = data_Jy_beam*(300/freq_cur)**2/2/(1.38e-23)/1e26/beamArea
 ```
 
-Where the **freq_cur** is the current frequency in MHz, 1.38e-23 is the Boltzman constant, beamArea is the solid angle of fitted beam
+Where the **freq_cur** is the current frequency in MHz, 1.38e-23 is the Boltzman constant, **beamArea** is the solid angle of fitted beam
