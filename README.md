@@ -72,4 +72,4 @@ To transform the coordinate of RA,DEC into the heliocentric coordinate for the p
 
 ## Quick View the LOFAR beamform
 
-[QuickView](src\BeamformedQuickView\)
+[QuickView](src\BeamformedQuickView\README.md)
