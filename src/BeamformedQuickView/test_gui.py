@@ -4,6 +4,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.uic import loadUi
+from PyQt5.QtCore import Qt
 from pylab import get_current_fig_manager
 import matplotlib
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
@@ -37,6 +38,7 @@ class MatplotlibWidget(QMainWindow):
         self.y_select = 0
         self.selected = False
         self.interpset = 'cubic'
+        self.keyaval = False
 
         self.interp_nearest.setChecked(False)
         self.interp_linear.setChecked(False)
@@ -54,10 +56,17 @@ class MatplotlibWidget(QMainWindow):
         self.pointing.clicked.connect(self.showPointing)
         self.loadsav.triggered.connect(self.update_lofarBF)
 
+        self.t_idx_select = 0
+        self.f_idx_select = 0
+
         self.interp_nearest.toggled.connect(lambda:self.btnstate(self.interp_nearest))
         self.interp_linear.toggled.connect(lambda:self.btnstate(self.interp_linear))
         self.interp_cubic.toggled.connect(lambda:self.btnstate(self.interp_cubic))
 
+        QShortcut(Qt.Key_Up, self, self.keyUp)
+        QShortcut(Qt.Key_Down, self, self.keyDown)
+        QShortcut(Qt.Key_Left, self, self.keyLeft)
+        QShortcut(Qt.Key_Right, self, self.keyRight)
 
     def btnstate(self,b):
         self.interpset = (b.text().lower())
@@ -116,14 +125,15 @@ class MatplotlibWidget(QMainWindow):
             self.y_select = event.ydata
             self.input_t.setText(mdates.num2date(self.x_select).strftime('%H:%M:%S.%f'))
             self.input_f.setText('{:06.3f}'.format(self.y_select))
-            self.t_idx_select =  (np.abs(self.dataset.time_ds  - self.x_select)).argmin()
-            self.f_idx_select =  (np.abs(self.dataset.freqs_ds - self.y_select)).argmin()
+            self.t_idx_select = (np.abs(self.dataset.time_ds - self.x_select)).argmin()
+            self.f_idx_select = (np.abs(self.dataset.freqs_ds - self.y_select)).argmin()
 
             if self.selected:
                 self.mplw.canvas.axes.lines.remove(self.mplw.canvas.axes.lines[0])
             self.mplw.canvas.axes.plot(self.x_select, self.y_select, 'w+', markersize=25, linewidth=2)
             self.mplw.canvas.draw()
             self.selected = True
+            self.keyaval = True
             if plt.fignum_exists(4):
                 self.showBeamForm()
 
@@ -138,6 +148,38 @@ class MatplotlibWidget(QMainWindow):
             ax.set_aspect('equal', 'box')
 
             plt.show()
+
+    def keyUp(self):
+        self.stepNear(1,0)
+
+    def keyDown(self):
+        self.stepNear(-1,0)
+
+
+    def keyLeft(self):
+        self.stepNear(0,-1)
+
+    def keyRight(self):
+        self.stepNear(0,1)
+
+    def stepNear(self,f_move,t_move):
+        if self.keyaval:
+            self.t_idx_select = self.t_idx_select + t_move
+            self.f_idx_select = self.f_idx_select + f_move
+            self.x_select = self.dataset.time_ds[self.t_idx_select]
+            self.y_select = self.dataset.freqs_ds[self.f_idx_select]
+            self.input_t.setText(mdates.num2date(self.x_select).strftime('%H:%M:%S.%f'))
+            self.input_f.setText('{:06.3f}'.format(self.y_select))
+
+            if self.selected:
+                self.mplw.canvas.axes.lines.remove(self.mplw.canvas.axes.lines[0])
+            self.mplw.canvas.axes.plot(self.x_select, self.y_select, 'w+', markersize=25, linewidth=2)
+            self.mplw.canvas.draw()
+            self.selected = True
+            self.keyaval = True
+            if plt.fignum_exists(4):
+                self.showBeamForm()
+
 
     def showBeamForm(self):
         print(self.selected)
