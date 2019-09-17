@@ -69,3 +69,7 @@ To convert huge HDF5 file to a bunch of small fits file with json and quickview 
 ## display\_lofar\_sun(\_py37).py
 
 To transform the coordinate of RA,DEC into the heliocentric coordinate for the plot
+
+## Quick View the LOFAR beamform
+
+[QuickView](src\BeamformedQuickView\)
