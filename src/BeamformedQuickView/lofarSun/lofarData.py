@@ -3,6 +3,12 @@ from scipy.io import readsav
 import matplotlib.dates as mdates
 from lofarSun.lofarJ2000xySun import j2000xy
 import datetime
+import sys
+import glob
+import os
+from astropy.io import fits as fits
+import numpy as np
+import matplotlib.pyplot as plt
 
 class LofarData:
     def __init__(self):
