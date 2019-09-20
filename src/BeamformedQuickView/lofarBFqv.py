@@ -5,17 +5,16 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt
-from pylab import get_current_fig_manager
 import matplotlib
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.io import readsav
 from scipy.interpolate import griddata
 from skimage import measure
 import datetime
 import matplotlib.dates as mdates
-
+from lofarSun.lofarJ2000xySun import j2000xy
+from lofarSun.lofarData import LofarData
 
 matplotlib.use('TkAgg')
 
@@ -55,6 +54,7 @@ class MatplotlibWidget(QMainWindow):
         self.button_gen.clicked.connect(self.showBeamForm)
         self.pointing.clicked.connect(self.showPointing)
         self.loadsav.triggered.connect(self.update_lofarBF)
+        self.loadcube.triggered.connect(self.update_lofar_cube)
 
         self.t_idx_select = 0
         self.f_idx_select = 0
@@ -81,21 +81,32 @@ class MatplotlibWidget(QMainWindow):
     def update_lofarBF(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
+        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
                                                   "","All Files (*);;Python Files (*.py)",
                                                   options=options)
-        if fileName:
-            print(fileName)
+        if self.dataset.fname:
+            print(self.dataset.fname)
 
-        self.dataset.load_sav(fileName)
-
+        self.dataset.load_sav(self.dataset.fname)
         self.mplw.canvas.axes.clear()
+        self.draw_ds_after_load()
 
-        data_beam = self.dataset.data_cube[0, 0, :]
-        x = np.linspace(-3000, 3000, 400)
-        y = np.linspace(-3000, 3000, 400)
-        X, Y = np.meshgrid(x, y)
-        method = 'nearest'  # 'cubic'
+    def update_lofar_cube(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
+                                                  "","All Files (*);;Python Files (*.py)",
+                                                  options=options)
+        if self.dataset.fname:
+            print(self.dataset.fname)
+
+        self.dataset.load_sav_cube(self.dataset.fname)
+        self.mplw.canvas.axes.clear()
+        self.draw_ds_after_load()
+
+
+
+    def draw_ds_after_load(self):
         data_ds = self.dataset.data_cube[:, :, 0]
         self.mplw.canvas.axes.imshow(data_ds, aspect='auto', origin='lower',
                   vmin=(np.mean(data_ds) - 2 * np.std(data_ds)),
@@ -110,10 +121,9 @@ class MatplotlibWidget(QMainWindow):
             tick.set_rotation(25)
         self.mplw.canvas.axes.set_position([0.1,0.15,0.85,0.8])
         self.mplw.canvas.draw()
-
         self.mplw.canvas.mpl_connect('button_release_event', self.onclick)
-        action_prefix = "<span style=\" font-size:12pt; font-weight:600; color:#18B608;\" >[Action] </span>"
-        self.log.append(self.action_prefix+'Load : '+fileName)
+        self.log.append(self.action_prefix+'Load : '+self.dataset.fname)
+
 
     def onclick(self,event):
         if ~event.dblclick and event.button==1:
@@ -241,30 +251,8 @@ class MatplotlibWidget(QMainWindow):
 
             plt.show()
 
-class LofarData:
-    def __init__(self):
-        self.fname = ''
-        self.havedata = False
 
-        self.title = ''
-        self.data_cube = 0
-        self.freqs_ds = 0
-        self.time_ds = 0
-        self.xb = 0
-        self.yb = 0
 
-    def load_sav(self, fname):
-        self.fname = fname
-        self.havedata = True
-
-        data = readsav(fname, python_dict=True)
-
-        self.title = data['ds'][0]['TITLE']
-        self.data_cube = data['ds'][0]['CUBE']
-        self.freqs_ds = data['ds'][0]['FREQS']
-        self.time_ds = (data['ds'][0]['TIME']) / 3600 / 24 + mdates.date2num(datetime.datetime(1979, 1, 1))
-        self.xb = data['ds'][0]['XB']
-        self.yb = data['ds'][0]['YB']
 
 
 app = QApplication([])

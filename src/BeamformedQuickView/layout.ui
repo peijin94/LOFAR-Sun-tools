@@ -269,6 +269,7 @@ p, li { white-space: pre-wrap; }
      <string>File</string>
     </property>
     <addaction name="loadsav"/>
+    <addaction name="loadcube"/>
     <addaction name="loadfits"/>
     <addaction name="actionClear"/>
    </widget>
@@ -288,6 +289,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionClear">
    <property name="text">
     <string>Clear</string>
+   </property>
+  </action>
+  <action name="loadcube">
+   <property name="text">
+    <string>Load cube.sav data</string>
    </property>
   </action>
  </widget>

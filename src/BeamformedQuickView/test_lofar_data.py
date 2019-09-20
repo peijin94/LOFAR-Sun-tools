@@ -10,15 +10,18 @@ import matplotlib.dates as mdates
 from skimage import measure
 
 f_name = '../data/L599747_20170712_084137_short_data.sav'
+f_name = '../data/cube_ds_0012kHz_01dt20170712_0842_20170712_0843.sav'
 
 data = readsav(f_name, python_dict=True)
 
-title = data['ds'][0]['TITLE']
-data_cube = data['ds'][0]['CUBE']
-freqs_ds = data['ds'][0]['FREQS']
-time_ds = (data['ds'][0]['TIME'])/3600/24 + mdates.date2num(datetime.datetime(1979,1,1))
-xb = data['ds'][0]['XB']
-yb = data['ds'][0]['YB']
+header_name = 'cube_ds'
+
+title = data[header_name][0]['TITLE']
+data_cube = data[header_name][0]['CUBE']
+freqs_ds = data[header_name][0]['FREQS']
+time_ds = (data[header_name][0]['TIME'])/3600/24 + mdates.date2num(datetime.datetime(1979,1,1))
+xb = data[header_name][0]['XB']
+yb = data[header_name][0]['YB']
 
 data_beam = data_cube[20,130,:]
 x = np.linspace(-1,1,100)
