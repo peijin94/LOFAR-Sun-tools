@@ -11,10 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import griddata
 from skimage import measure
-import datetime
 import matplotlib.dates as mdates
-from lofarSun.lofarJ2000xySun import j2000xy
-from lofarSun.lofarData import LofarData
+from lofarData import LofarData
 
 matplotlib.use('TkAgg')
 
