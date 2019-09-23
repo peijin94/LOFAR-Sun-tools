@@ -12,7 +12,7 @@ import numpy as np
 from scipy.interpolate import griddata
 from skimage import measure
 import matplotlib.dates as mdates
-from lofarData import LofarData
+from lofarSun.lofarData import LofarDataBF
 
 matplotlib.use('TkAgg')
 
@@ -27,7 +27,7 @@ class MatplotlibWidget(QMainWindow):
         self.init_graph()
         self.setWindowIcon(QIcon("resource/lofar.png"))
         self.addToolBar(NavigationToolbar(self.mplw.canvas, self))
-        self.dataset = LofarData()
+        self.dataset = LofarDataBF()
 
         self.asecpix = 15
 
@@ -36,6 +36,7 @@ class MatplotlibWidget(QMainWindow):
         self.selected = False
         self.interpset = 'cubic'
         self.keyaval = False
+        self.extrapolate = True
 
         self.interp_nearest.setChecked(False)
         self.interp_linear.setChecked(False)
@@ -84,10 +85,10 @@ class MatplotlibWidget(QMainWindow):
                                                   options=options)
         if self.dataset.fname:
             print(self.dataset.fname)
-
-        self.dataset.load_sav(self.dataset.fname)
-        self.mplw.canvas.axes.clear()
-        self.draw_ds_after_load()
+            if len(self.dataset.fname):
+                self.dataset.load_sav(self.dataset.fname)
+                self.mplw.canvas.axes.clear()
+                self.draw_ds_after_load()
 
     def update_lofar_cube(self):
         options = QFileDialog.Options()
@@ -97,10 +98,10 @@ class MatplotlibWidget(QMainWindow):
                                                   options=options)
         if self.dataset.fname:
             print(self.dataset.fname)
-
-        self.dataset.load_sav_cube(self.dataset.fname)
-        self.mplw.canvas.axes.clear()
-        self.draw_ds_after_load()
+            if len(self.dataset.fname):        
+                self.dataset.load_sav_cube(self.dataset.fname)
+                self.mplw.canvas.axes.clear()
+                self.draw_ds_after_load()
 
 
 
@@ -194,14 +195,12 @@ class MatplotlibWidget(QMainWindow):
         if not self.selected:
             QMessageBox.about(self, "Attention", "Select a time-frequency point!")
         elif self.dataset.havedata:
-            data_beam=self.dataset.data_cube[self.f_idx_select,self.t_idx_select,:]
-            x = np.arange(-3000, 3000, self.asecpix)
-            y = np.arange(-3000, 3000, self.asecpix)
-            X, Y = np.meshgrid(x, y)
-            method = self.interpset
-            data_bf = griddata((self.dataset.xb, self.dataset.yb), data_beam,
-                               (X, Y), method=method, fill_value=np.min(data_beam))
 
+            [X,Y,data_bf] = self.dataset.bf_image_by_idx(self.f_idx_select,\
+                            self.t_idx_select,fov=3000,asecpix=self.asecpix,\
+                            extrap=self.extrapolate,interpm=self.interpset)
+
+            
             self.log.append(self.action_prefix+' Beam Form at'+
                             mdates.num2date(self.x_select).strftime('%H:%M:%S.%f') +' of '
                             '{:06.3f}'.format(self.y_select)+'MHz')
@@ -212,18 +211,18 @@ class MatplotlibWidget(QMainWindow):
 
             fig.clear()
             ax = plt.gca()
-            im = ax.imshow(data_bf, cmap='hot',
+            im = ax.imshow(data_bf, cmap='gist_heat',
                       origin='lower',extent=[np.min(X),np.max(X),np.min(Y),np.max(Y)])
             ax.set_xlabel('X (Arcsec)')
             ax.set_ylabel('Y (Arcsec)')
             ax.set_aspect('equal', 'box')
             plt.colorbar(im)
             print(np.min(data_bf)+(np.max(data_bf)-np.min(data_bf))/2.0)
-            if self.show_FWHM.isChecked():
-                ax.contour(X,Y,data_bf,levels=[np.min(data_bf)+(np.max(data_bf)-np.min(data_bf))/2.0],colors=['deepskyblue'])
-
-            FWHM_thresh = np.min(data_bf)+(np.max(data_bf)-np.min(data_bf))/2.0
+            
+            FWHM_thresh = np.max(data_bf)/2.0 #np.min(data_bf)+(np.max(data_bf)-np.min(data_bf))/2.0
             img_bi = data_bf > FWHM_thresh
+            if self.show_FWHM.isChecked():
+                ax.contour(X,Y,data_bf,levels=[FWHM_thresh,FWHM_thresh*2*0.9],colors=['deepskyblue','forestgreen'])
             bw_lb = measure.label(img_bi)
             rg_lb = measure.regionprops(bw_lb)
             x_peak = X[np.where(data_bf == np.max(data_bf))]

@@ -12,7 +12,7 @@ def j2000xy(RA,DEC,t_sun):
     rotate_angel = sun_coord.P(t_sun)
 
     # shift the center and transfer into arcsec
-    x_shift = (RA  - RA_sun.degree)  * 3600
+    x_shift = -(RA  - RA_sun.degree)  * 3600
     y_shift = (DEC - DEC_sun.degree) * 3600
 
     # rotate xy according to the position angle
