@@ -77,11 +77,10 @@ class LofarDataBF:
         [X,Y,data_bf] = self.bf_image_by_idx(self,f_idx_select,t_idx_select,fov=fov,asecpix=asecpix,extrap=extrap,interpm=interpm)
         return [X,Y,data_bf]
 
-    def write_fits(self,dir,file_name,cutdata=1):
+    def write_fits(self,dir,file_prefix,t_idx,f_idx):
         """
             write the data into fits files
         """
         if self.havedata:
-            pass
-
+            cube_ds = self.data_cube[f_idx,t_idx,:]
 
