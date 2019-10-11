@@ -10,7 +10,10 @@ from astropy.io import fits as fits
 import numpy as np
 from skimage import measure
 from scipy.interpolate import griddata
+from scipy.interpolate import interp2d
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+import cv2
 
 class LofarDataBF:
     def __init__(self):
@@ -52,7 +55,7 @@ class LofarDataBF:
         dec_beam = data[header_name][0]['DEC']
         [self.xb, self.yb] = j2000xy(ra_beam, dec_beam, mdates.num2date(self.time_ds[0]))
 
-    def bf_image_by_idx(self,f_idx,t_idx,fov=3000,asecpix=60,extrap=True,interpm='cubic'):
+    def bf_image_by_idx(self,f_idx,t_idx,fov=3000,asecpix=20,extrap=True,interpm='cubic'):
         data_beam=self.data_cube[f_idx,t_idx,:]
         x = np.arange(-fov, fov, asecpix)
         y = np.arange(-fov, fov, asecpix)
@@ -70,13 +73,20 @@ class LofarDataBF:
             data_beam_bf = data_beam
         data_bf = griddata((bf_xb, bf_yb), data_beam_bf,
                     (X, Y), method=method, fill_value=np.min(data_beam))
+        Ibeam = data_beam
+        return X,Y,data_bf,x,y,Ibeam
+
+    def bf_image_by_freq_time(self,freq,time,fov=3000,asecpix=20,extrap=True,interpm='cubic'):
+        t_idx_select = (np.abs(self.time_ds - time)).argmin()
+        f_idx_select = (np.abs(self.freqs_ds - freq)).argmin()
+        X,Y,data_bf = self.bf_image_by_idx(self,f_idx_select,t_idx_select,fov=fov,asecpix=asecpix,extrap=extrap,interpm=interpm)
         return [X,Y,data_bf]
 
-    def bf_image_by_freq_time(self,freq,time,fov=3000,asecpix=60,extrap=True,interpm='cubic'):
-        t_idx_select = (np.abs(self.time_ds - time)).argmin()
-        f_idx_select = (np.abs(self.freqs_ds - time)).argmin()
-        [X,Y,data_bf] = self.bf_image_by_idx(self,f_idx_select,t_idx_select,fov=fov,asecpix=asecpix,extrap=extrap,interpm=interpm)
-        return [X,Y,data_bf]
+    def bf_time_to_idx(self,time):
+        return (np.abs(self.time_ds - time)).argmin()
+
+    def bf_freq_to_idx(self,freq):
+        return (np.abs(self.freqs_ds - freq)).argmin()
 
     def bf_peak_size(self,X,Y,data_bf,asecpix):
         FWHM_thresh = np.max(data_bf)/2.0 #np.min(data_bf)+(np.max(data_bf)-np.min(data_bf))/2.0
@@ -90,11 +100,77 @@ class LofarDataBF:
 
         return x_peak,y_peak,area_peak
 
+    def bf_fit_gauss_source_by_idx(self,f_idx,t_idx):
+        X,Y,data_bf,x,y,Ibeam = self.bf_image_by_idx(f_idx,t_idx)
+        FWHM_thresh = np.max(data_bf)*0.7 #np.min(data_bf)+(np.max(data_bf)-np.min(data_bf))/2.0
+        img_bi = data_bf > FWHM_thresh
+        bw_lb = measure.label(img_bi)
+        rg_lb = measure.regionprops(bw_lb)
+        x_peak = X[np.where(data_bf == np.max(data_bf))]
+        y_peak = Y[np.where(data_bf == np.max(data_bf))]
+        rg_id = bw_lb[np.where(data_bf == np.max(data_bf))]
+        area_peak = rg_lb[int(rg_id)-1].area
+        bw_peak_area = (np.array(abs(bw_lb-rg_id)<0.1)*255).astype(np.uint8)
 
+        dilate_size = int(x.size/30)
+
+        kernel = np.ones((dilate_size,dilate_size),np.uint8)
+        imdilate = cv2.dilate(bw_peak_area,kernel,iterations = 1)
+
+        fbeams = interp2d(x,y,imdilate,kind='linear')
+        peaks_in = np.array([fbeams(self.xb[tmp_id],self.yb[tmp_id]) for tmp_id in range(len(self.xb))]).reshape(-1)
+        
+        fit_xb = self.xb[peaks_in>0.5]
+        fit_yb = self.yb[peaks_in>0.5]
+        fit_Ib = Ibeam[peaks_in>0.5]
+
+        print(fit_Ib)
+
+        def func_gaussian(xdata,s0,x_cent,y_cent,tile,x_sig,y_sig):
+            x,y=xdata  
+            xp = (x-x_cent) * np.cos(tile) - (y-y_cent) * np.sin(tile)
+            yp = (x-x_cent) * np.sin(tile) + (y-y_cent) * np.cos(tile)
+    
+            flux  = s0 * ( np.exp( -(xp**2)/(2*x_sig**2) - (yp**2)/(2*y_sig**2) ) )
+            return flux
+        p0  = [np.max(fit_Ib), np.mean(fit_xb), np.mean(fit_yb),np.pi, np.std(fit_xb), np.std(fit_yb)]
+        popt, pcov = curve_fit(func_gaussian, (fit_xb,fit_yb) , fit_Ib,p0=p0)
+        bf_res={}
+        bf_res["s0"]=popt[0]
+        bf_res["x_cent"]=popt[1]
+        bf_res["y_cent"]=popt[2]
+        bf_res["tile"]=popt[3]
+        bf_res["x_sig"]=popt[4]
+        bf_res["y_sig"]=popt[5]
+
+        bf_err={}
+        bf_err["s0"]=pcov[0][0]
+        bf_err["x_cent"]=pcov[1][1]
+        bf_err["y_cent"]=pcov[2][2]
+        bf_err["tile"]=pcov[3][3]
+        bf_err["x_sig"]=pcov[4][4]
+        bf_err["y_sig"]=pcov[5][5]
+        
+        tmp_theta = np.linspace(0,np.pi*2,100)
+        tmp_xp = bf_res["x_sig"]*np.cos(tmp_theta)
+        tmp_yp = bf_res["y_sig"]*np.sin(tmp_theta)
+        tmp_x = bf_res["x_cent"]+tmp_xp*np.cos(-bf_res['tile']) - tmp_yp*np.sin(-bf_res['tile'])
+        tmp_y = bf_res["y_cent"]+tmp_xp*np.sin(-bf_res['tile']) + tmp_yp*np.cos(-bf_res['tile'])
+
+
+        ax = plt.gca()
+        im = ax.imshow(data_bf, cmap='gist_heat',
+                 origin='lower',extent=[np.min(X),np.max(X),np.min(Y),np.max(Y)])
+        ax.plot(self.xb,self.yb,'k.')
+        ax.plot(tmp_x,tmp_y,'k-')
+        ax.plot(bf_res["x_cent"],bf_res["y_cent"],"k+")
+        plt.savefig('test.pdf')
+
+        return bf_res,bf_err
 
     def plot_bf_image_by_idx(self,f_idx,t_idx):
         if True:
-            [X,Y,data_bf] = self.bf_image_by_idx(f_idx,t_idx,fov=3000,asecpix=20)
+            X,Y,data_bf = self.bf_image_by_idx(f_idx,t_idx,fov=3000,asecpix=20)
             ax = plt.gca()
             im = ax.imshow(data_bf, cmap='gist_heat',
                       origin='lower',extent=[np.min(X),np.max(X),np.min(Y),np.max(Y)])
@@ -107,7 +183,6 @@ class LofarDataBF:
             ax.contour(X,Y,data_bf,levels=[FWHM_thresh,FWHM_thresh*2*0.9],colors=['deepskyblue','forestgreen'])
             x_peak = X[np.where(data_bf == np.max(data_bf))]
             y_peak = Y[np.where(data_bf == np.max(data_bf))]
-            
             ax.plot(960*np.sin(np.arange(0,2*np.pi,0.001)),
                         960*np.cos(np.arange(0,2*np.pi,0.001)),'w')
             ax.plot(x_peak,y_peak,'k+')

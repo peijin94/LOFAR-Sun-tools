@@ -1,0 +1,2 @@
+include *.ui lofarBFqv.py mplw.py
+include resource/*

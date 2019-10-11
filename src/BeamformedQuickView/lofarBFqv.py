@@ -12,6 +12,7 @@ import numpy as np
 from scipy.interpolate import griddata
 from skimage import measure
 import matplotlib.dates as mdates
+import resource_rc
 from lofarSun.lofarData import LofarDataBF
 
 matplotlib.use('TkAgg')
@@ -25,11 +26,11 @@ class MatplotlibWidget(QMainWindow):
 
         self.move(10,30)
         self.init_graph()
-        self.setWindowIcon(QIcon("resource/lofar.png"))
+        self.setWindowIcon(QIcon(":/GUI/resource/lofar.png"))
         self.addToolBar(NavigationToolbar(self.mplw.canvas, self))
         self.dataset = LofarDataBF()
 
-        self.asecpix = 15
+        self.asecpix = 20
 
         self.x_select = 0
         self.y_select = 0
@@ -196,7 +197,7 @@ class MatplotlibWidget(QMainWindow):
             QMessageBox.about(self, "Attention", "Select a time-frequency point!")
         elif self.dataset.havedata:
 
-            [X,Y,data_bf] = self.dataset.bf_image_by_idx(self.f_idx_select,\
+            X,Y,data_bf = self.dataset.bf_image_by_idx(self.f_idx_select,\
                             self.t_idx_select,fov=3000,asecpix=self.asecpix,\
                             extrap=self.extrapolate,interpm=self.interpset)
 
