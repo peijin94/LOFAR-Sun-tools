@@ -124,7 +124,7 @@ class LofarDataBF:
         fit_yb = self.yb[peaks_in>0.5]
         fit_Ib = Ibeam[peaks_in>0.5]
 
-        print(fit_Ib)
+        #print(fit_Ib)
 
         def func_gaussian(xdata,s0,x_cent,y_cent,tile,x_sig,y_sig):
             x,y=xdata  
@@ -196,8 +196,8 @@ class LofarDataBF:
             cube_ds = self.data_cube[f_idx,:,:][:,t_idx,:]
             hdu_lofar = fits.PrimaryHDU()
             hdu_lofar.data = cube_ds.astype('float32')
+            print("Data shape:")
             print(self.data_cube.shape)
-            print(cube_ds.shape)
             hdu_lofar.header['SIMPLE']    =                    True          
             hdu_lofar.header['BITPIX']    =                    8 
             hdu_lofar.header['NAXIS ']    =                    3          
