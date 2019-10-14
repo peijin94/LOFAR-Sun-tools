@@ -14,7 +14,9 @@ from skimage import measure
 import matplotlib.dates as mdates
 import resource_rc
 from lofarSun.lofarData import LofarDataBF
+from pandas.plotting import register_matplotlib_converters
 
+register_matplotlib_converters()
 matplotlib.use('TkAgg')
 
 class MatplotlibWidget(QMainWindow):
@@ -55,6 +57,7 @@ class MatplotlibWidget(QMainWindow):
         self.pointing.clicked.connect(self.showPointing)
         self.loadsav.triggered.connect(self.update_lofarBF)
         self.loadcube.triggered.connect(self.update_lofar_cube)
+        self.loadfits.triggered.connect(self.update_lofar_fits)
 
         self.t_idx_select = 0
         self.f_idx_select = 0
@@ -82,7 +85,7 @@ class MatplotlibWidget(QMainWindow):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
-                                                  "","All Files (*);;Python Files (*.py)",
+                                                  "","IDL Files (*.sav);;All Files (*)",
                                                   options=options)
         if self.dataset.fname:
             print(self.dataset.fname)
@@ -95,7 +98,7 @@ class MatplotlibWidget(QMainWindow):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
-                                                  "","All Files (*);;Python Files (*.py)",
+                                                  "","IDL Files (*.sav);;All Files (*)",
                                                   options=options)
         if self.dataset.fname:
             print(self.dataset.fname)
@@ -104,10 +107,26 @@ class MatplotlibWidget(QMainWindow):
                 self.mplw.canvas.axes.clear()
                 self.draw_ds_after_load()
 
+    
+
+    def update_lofar_fits(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
+                                                  "","Fits Files (*.fits);;All Files (*)",
+                                                  options=options)
+        if self.dataset.fname:
+            print(self.dataset.fname)
+            if len(self.dataset.fname):        
+                self.dataset.load_fits(self.dataset.fname)
+                self.mplw.canvas.axes.clear()
+                self.draw_ds_after_load()
+
 
 
     def draw_ds_after_load(self):
-        data_ds = self.dataset.data_cube[:, :, 0]
+        data_ds = np.array(self.dataset.data_cube[:, :, 0])
+        #print(self.dataset.time_ds)
         self.mplw.canvas.axes.imshow(data_ds, aspect='auto', origin='lower',
                   vmin=(np.mean(data_ds) - 2 * np.std(data_ds)),
                   vmax=(np.mean(data_ds) + 3 * np.std(data_ds)),
@@ -197,7 +216,7 @@ class MatplotlibWidget(QMainWindow):
             QMessageBox.about(self, "Attention", "Select a time-frequency point!")
         elif self.dataset.havedata:
 
-            X,Y,data_bf = self.dataset.bf_image_by_idx(self.f_idx_select,\
+            X,Y,data_bf,x,y,Ibeam = self.dataset.bf_image_by_idx(self.f_idx_select,\
                             self.t_idx_select,fov=3000,asecpix=self.asecpix,\
                             extrap=self.extrapolate,interpm=self.interpset)
 

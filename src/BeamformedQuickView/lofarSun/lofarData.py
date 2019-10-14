@@ -1,4 +1,3 @@
-
 from scipy.io import readsav
 import matplotlib.dates as mdates
 from lofarSun.lofarJ2000xySun import j2000xy
@@ -54,6 +53,19 @@ class LofarDataBF:
         ra_beam = data[header_name][0]['RA']
         dec_beam = data[header_name][0]['DEC']
         [self.xb, self.yb] = j2000xy(ra_beam, dec_beam, mdates.num2date(self.time_ds[0]))
+
+
+    def load_fits(self, fname):
+        self.fname = fname
+        self.havedata = True
+
+        hdu = fits.open(fname)
+        self.title = 'LOFAR BFcube'
+        self.data_cube = hdu[0].data
+        self.freqs_ds = hdu[1].data['FREQ'][:]
+        self.time_ds = hdu[2].data['TIME'][:]
+        self.xb = hdu[3].data['X']
+        self.yb = hdu[3].data['Y']
 
     def bf_image_by_idx(self,f_idx,t_idx,fov=3000,asecpix=20,extrap=True,interpm='cubic'):
         data_beam=self.data_cube[f_idx,t_idx,:]
@@ -232,12 +244,13 @@ class LofarDataBF:
             hdu_lofar.header['CRPIX3']    =                    0 
             hdu_lofar.header['CTYPE3']    = 'BEAM'    
             hdu_lofar.header['CDELT3']    =                    1  
+            hdu_lofar.header['TITLE']     = self.title.decode('ascii')
             hdu_lofar.header['HISTORY']   = '        '    
 
-            col_f = fits.Column(name='FREQ',array=self.freqs_ds[f_idx],format="E")
-            col_t = fits.Column(name='TIME',array=self.time_ds[t_idx],format="E")
-            col_x = fits.Column(name='X',array=self.xb,format="E")
-            col_y = fits.Column(name='Y',array=self.yb,format="E")
+            col_f = fits.Column(name='FREQ',array=self.freqs_ds[f_idx],format="D")
+            col_t = fits.Column(name='TIME',array=self.time_ds[t_idx],format="D")
+            col_x = fits.Column(name='X',array=self.xb,format="D")
+            col_y = fits.Column(name='Y',array=self.yb,format="D")
             hdu_f = fits.BinTableHDU.from_columns([col_f],name="FREQ")
             hdu_t = fits.BinTableHDU.from_columns([col_t],name="TIME")
             hdu_xy = fits.BinTableHDU.from_columns([col_x,col_y],name="BeamXY")
