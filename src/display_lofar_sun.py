@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# note that this file is deprecated use the py_37 one
+
 '''
     File name: display_lofar_sun.py
     Author: Peijin Zhang, Pietro Zucca

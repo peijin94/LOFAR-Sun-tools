@@ -261,3 +261,13 @@ class LofarDataBF:
     def write_fits_full(self,fdir,fprefix):
         if self.havedata:
             self.write_fits(fdir,fprefix,np.arange(len(self.freqs_ds)),np.arange(len(self.time_ds)))
+
+class LofarDataCleaned:
+    def __init__(self):
+        self.havedata = False
+
+    def load_fits(self,fname):
+        if len(fname)>0:
+            self.havedata = True
+    
+    #TODO: put display lofar_sun into this class 
