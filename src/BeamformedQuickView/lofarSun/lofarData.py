@@ -2,7 +2,6 @@ from scipy.io import readsav
 import matplotlib.dates as mdates
 from lofarSun.lofarJ2000xySun import j2000xy
 import datetime
-import sys
 import glob
 import os
 from astropy.io import fits as fits
@@ -13,6 +12,13 @@ from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import cv2
+import sunpy
+import sunpy.sun
+from sunpy.coordinates.sun import sky_position as sun_position
+import sunpy.coordinates.sun as sun_coord
+import scipy
+import scipy.ndimage
+from matplotlib.patches import Ellipse
 
 class LofarDataBF:
     def __init__(self):
@@ -32,7 +38,7 @@ class LofarDataBF:
 
         data = readsav(fname, python_dict=True)
 
-        self.title = data['ds'][0]['TITLE']
+        self.title = str(data['ds'][0]['TITLE'],'utf-8')
         self.data_cube = data['ds'][0]['CUBE']
         self.freqs_ds = data['ds'][0]['FREQS']
         self.time_ds = (data['ds'][0]['TIME']) / 3600 / 24 + mdates.date2num(datetime.datetime(1979, 1, 1))
@@ -46,7 +52,7 @@ class LofarDataBF:
         data = readsav(fname, python_dict=True)
         header_name  = 'cube_ds'
 
-        self.title = data[header_name][0]['TITLE']
+        self.title = str(data[header_name][0]['TITLE'],'utf-8')
         self.data_cube = data[header_name][0]['CUBE']
         self.freqs_ds = data[header_name][0]['FREQS']
         self.time_ds = (data[header_name][0]['TIME']) / 3600 / 24 + mdates.date2num(datetime.datetime(1979, 1, 1))
@@ -210,6 +216,7 @@ class LofarDataBF:
             hdu_lofar.data = cube_ds.astype('float32')
             print("Data shape:")
             print(self.data_cube.shape)
+
             hdu_lofar.header['SIMPLE']    =                    True          
             hdu_lofar.header['BITPIX']    =                    8 
             hdu_lofar.header['NAXIS ']    =                    3          
@@ -244,7 +251,7 @@ class LofarDataBF:
             hdu_lofar.header['CRPIX3']    =                    0 
             hdu_lofar.header['CTYPE3']    = 'BEAM'    
             hdu_lofar.header['CDELT3']    =                    1  
-            hdu_lofar.header['TITLE']     = self.title.decode('ascii')
+            hdu_lofar.header['TITLE']     =  self.title
             hdu_lofar.header['HISTORY']   = '        '    
 
             col_f = fits.Column(name='FREQ',array=self.freqs_ds[f_idx],format="D")
@@ -269,5 +276,138 @@ class LofarDataCleaned:
     def load_fits(self,fname):
         if len(fname)>0:
             self.havedata = True
+            self.fname = fname
+            hdulist = fits.open(fname)
+            hdu = hdulist[0]
+            self.header = hdu.header
+            self.t_obs = sunpy.time.parse_time(self.header['DATE-OBS']).datetime
+            self.freq = hdu.header['CRVAL3']/1e6
+            data=np.zeros((hdu.header[3],hdu.header[4]), dtype=int)
+            data = hdu.data
+            self.data=data[0,0,:,:]
+            [RA_sun,DEC_sun] = self.get_cur_solar_centroid(t_obs=self.t_obs)
+            [RA_obs,DEC_obs] = self.get_obs_image_centroid(self.header)
+            [RA_ax ,DEC_ax ] = self.get_axis_obs(self.header)
+
+            [self.xx,self.yy] = self.RA_DEC_shift_xy0(RA_ax,DEC_ax,RA_obs,DEC_obs)
+            self.data_xy = self.sun_coord_trasform(self.data,self.header)
+
     
-    #TODO: put display lofar_sun into this class 
+    def get_cur_solar_centroid(self,t_obs):
+            # use the observation time to get the solar center
+        [RA,DEC] = sun_position(t=t_obs)
+        return [RA.degree%360,DEC.degree%360]
+
+    def get_obs_image_centroid(self,header):
+        # get the RA DEC center of the image from the solar center
+        RA_obs = header['CRVAL1']
+        DEC_obs = header['CRVAL2']
+        return [RA_obs%360,DEC_obs%360]
+
+    def get_axis_obs(self,header):
+        # make the header with the image
+        # refer to https://www.atnf.csiro.au/computing/software/miriad/progguide/node33.html
+        if self.havedata:
+            [RA_c,DEC_c] = self.get_obs_image_centroid(self.header)
+            RA_ax_obs   = RA_c + ((np.arange(header['NAXIS1'])+1) 
+                                -header['CRPIX1'])*header['CDELT1']/np.cos(header['CRVAL2'])
+            DEC_ax_obs  = DEC_c+ ((np.arange(header['NAXIS2'])+1) 
+                                -header['CRPIX2'])*header['CDELT2']
+            return [RA_ax_obs,DEC_ax_obs]
+        else:
+            print("No data loaded")
+            
+    def RA_DEC_shift_xy0(self,RA,DEC,RA_cent,DEC_cent):
+        # transformation between the observed coordinate and the solar x-y coordinate
+        # including the x-y shift
+        x_geo = -(RA  -  RA_cent)*np.cos(DEC_cent)*3600
+        y_geo = -(DEC_cent - DEC)*3600
+        # (in arcsec)
+        # the rotation angle of the sun accoording to the date
+        return [x_geo,y_geo]
+
+    def sun_coord_trasform(self,data,header,act_r=True,act_s=False):
+        # act_r : rotation operation
+        # act_s : shift operation
+        if self.havedata:
+            [RA_sun,DEC_sun] = self.get_cur_solar_centroid(self.t_obs);
+            [RA_obs,DEC_obs] = self.get_obs_image_centroid(header);
+            x_shift_pix = (RA_sun  - RA_obs) /header['CDELT1']
+            y_shift_pix = (DEC_sun - DEC_obs)/header['CDELT2']
+            if act_s==False:
+                x_shift_pix = 0
+                y_shift_pix = 0
+            rotate_angel = sun_coord.P(self.t_obs).degree
+            if act_r==False:
+                rotate_angel = 0
+            data_tmp = scipy.ndimage.shift(data,(x_shift_pix,y_shift_pix))
+            data_new = scipy.ndimage.rotate(data_tmp,rotate_angel,reshape=False)
+            return data_new
+        else:
+            print("No data loaded")
+                        
+
+    #def make_lofar_sun_map(fname):
+# TODO : to make a map data structure which will be compatible with SUNPY
+    #     return 0
+        
+    def get_beam(self):
+        if self.havedata:
+            solar_PA = sun_coord.P(self.t_obs).degree
+            b_maj =  self.header['BMAJ']
+            b_min  = self.header['BMIN']
+            b_ang = self.header['BPA']+solar_PA # should consider the beam for the data
+            return [b_maj,b_min,b_ang]
+        else:
+            print("No data loaded")
+            
+
+    def plot_image(self,vmax_set=np.nan,log_scale=False):
+        if self.havedata:
+            t_cur_datetime = self.t_obs
+            solar_PA = sun_coord.P(self.t_obs).degree
+            freq_cur = self.freq
+            [b_maj,b_min,b_angel] = self.get_beam()
+            b_maj = b_maj*3600
+            b_min = b_min*3600
+            data_new = self.data_xy
+            xx = self.xx
+            yy = self.yy
+
+            #print(b_major,b_min,b_angel+solar_PA)
+            fig=plt.figure()#num=None, figsize=(8, 6),dpi=120)
+            ax = plt.gca()
+            cmap_now = 'CMRmap_r'
+            cmap_now = 'gist_ncar_r'
+            cmap_now = 'gist_heat'
+            vmin_now = 0
+            if log_scale:
+                data_new = 10*np.log10(data_new)
+            if vmax_set>0:
+                vmax_now = vmax_set
+            else:
+                vmax_now = 1.2*np.nanmax(data_new)
+            ax.text(1400,1800, str(int(freq_cur)) + 'MHz',color='w')
+            circle1 = plt.Circle((0,0), 960, color='r',fill=False)
+            beam0 = Ellipse((-500, -1800), b_maj, b_min, b_angel ,color='w')
+            print(b_angel)
+            ax.text(-600,-1800,'Beam shape:',horizontalalignment='right',verticalalignment='center' ,color='w')
+            ax.add_artist(circle1)
+            ax.add_artist(beam0)
+            plt.xlabel('X (ArcSec)')
+            plt.ylabel('Y (ArcSec)')
+            
+            plt.imshow(data_new,vmin=vmin_now, vmax=vmax_now , 
+                            interpolation='nearest',cmap=cmap_now, origin='lower',
+                            extent=(min(xx),max(xx),min(yy),max(yy)))
+            plt.colorbar()
+            plt.xlim([-2500,2500])
+            plt.ylim([-2500,2500])
+            plt.title(str(t_cur_datetime))
+
+            plt.show()
+
+        else:
+            print("No data loaded")
+            
+
