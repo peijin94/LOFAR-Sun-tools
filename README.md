@@ -76,11 +76,12 @@ To transform the coordinate of RA,DEC into the heliocentric coordinate for the p
 
 ## Set up enviroment
 
-```bash
-conda env create -f environment.yml
-```
 
-install lofarSun
+install lofarSun by git
 ```bash
 git clone https://github.com/Pjer-zhang/LOFAR_Solar
+```
+
+```bash
+conda env create -f src/BeamformedQuickView/lofarbf.yml
 ```
