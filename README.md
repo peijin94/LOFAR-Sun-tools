@@ -83,5 +83,5 @@ git clone https://github.com/Pjer-zhang/LOFAR_Solar
 ```
 
 ```bash
-conda env create -f src/BeamformedQuickView/lofarbf.yml
+pip install -r req.txt
 ```
