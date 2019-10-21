@@ -84,4 +84,11 @@ git clone https://github.com/Pjer-zhang/LOFAR_Solar
 
 ```bash
 pip install -r req.txt
+pip install PyQt5
+```
+
+
+```bash
+cd src/BeamformedQuickView/
+python lofarBFqv.py
 ```
