@@ -60,11 +60,9 @@ Run the code simply  with:
 python auto_sun_calib.py
 ```
 
-
 ## LOFAR\_h5\_to\_fits.py
 
 To convert huge HDF5 file to a bunch of small fits file with json and quickview png
-
 
 ## display\_lofar\_sun(\_py37).py
 
@@ -75,3 +73,14 @@ To transform the coordinate of RA,DEC into the heliocentric coordinate for the p
 [QuickView](src\BeamformedQuickView\README.md)
 
 ![demo](https://raw.githubusercontent.com/Pjer-zhang/LOFAR_Solar/master/src/img/demo.gif)
+
+## Set up enviroment
+
+```bash
+conda env create -f environment.yml
+```
+
+install lofarSun
+```bash
+git clone https://github.com/Pjer-zhang/LOFAR_Solar
+```
