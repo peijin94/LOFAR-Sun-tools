@@ -109,3 +109,14 @@ jupyter notebook
 ```
 
 open demo.ipynb in notebook
+
+## Tunneling
+
+```bash
+ssh -L 1234:localhost:1234 zhang@portal.lofar.eu -t ssh -L 1234:localhost:1234 zhang@lhd001 -t ssh -L 1234:localhost:1234 zhang@lof001
+
+source /data/scratch/zhang/conda_start.sh
+
+python -m jupyter notebook --no-browser --port=1234
+```
+
