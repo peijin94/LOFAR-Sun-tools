@@ -76,19 +76,32 @@ To transform the coordinate of RA,DEC into the heliocentric coordinate for the p
 
 ## Set up enviroment
 
+Install lofarSun by git
 
-install lofarSun by git
 ```bash
 git clone https://github.com/Pjer-zhang/LOFAR_Solar
 ```
+
+Install dependency
 
 ```bash
 pip install -r req.txt
 pip install PyQt5
 ```
 
+Test gui
 
 ```bash
 cd src/BeamformedQuickView/
 python lofarBFqv.py
 ```
+
+Run data inspection in notebook:
+
+in bash
+
+```bash
+jupyter notebook
+```
+
+run demo.ipynb in notebook
