@@ -89,12 +89,16 @@ pip install -r req.txt
 pip install PyQt5
 ```
 
-Test gui
+Test gui 
 
 ```bash
 cd src/BeamformedQuickView/
 python lofarBFqv.py
 ```
+
+The gui doesn't work for MacOS, but Mac users can still use the code in python script and jupyter,
+
+example :
 
 Run data inspection in notebook:
 
@@ -104,4 +108,4 @@ in bash
 jupyter notebook
 ```
 
-run demo.ipynb in notebook
+open demo.ipynb in notebook
