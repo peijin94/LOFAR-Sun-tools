@@ -1,4 +1,4 @@
-#!/usr/bin/pyhton2
+#!/usr/bin/python2
 
 '''
     File name: auto_sun_calib.py

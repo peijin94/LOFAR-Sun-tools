@@ -290,12 +290,12 @@ class LofarDataCleaned:
             [RA_ax ,DEC_ax ] = self.get_axis_obs(self.header)
 
             [self.xx,self.yy] = self.RA_DEC_shift_xy0(RA_ax,DEC_ax,RA_obs,DEC_obs)
-            self.data_xy = self.sun_coord_trasform(self.data,self.header)
+            self.data_xy = self.sun_coord_trasform(self.data,self.header,True,True)
 
     
     def get_cur_solar_centroid(self,t_obs):
             # use the observation time to get the solar center
-        [RA,DEC] = sun_position(t=t_obs)
+        [RA,DEC] = sun_position(t=t_obs, equinox_of_date=False)
         return [RA.degree%360,DEC.degree%360]
 
     def get_obs_image_centroid(self,header):
