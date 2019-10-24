@@ -15,9 +15,16 @@ import matplotlib.dates as mdates
 import resource_rc
 from lofarSun.lofarData import LofarDataBF
 from pandas.plotting import register_matplotlib_converters
+import platform
 
 register_matplotlib_converters()
-matplotlib.use('TkAgg')
+
+if platform.system() != "Darwin":
+    matplotlib.use('TkAgg')
+else:
+    print("Detected MacOS, using the default matplotlib backend: " +
+          matplotlib.get_backend())
+
 
 class MatplotlibWidget(QMainWindow):
 
@@ -73,6 +80,14 @@ class MatplotlibWidget(QMainWindow):
 
     def btnstate(self,b):
         self.interpset = (b.text().lower())
+
+    @staticmethod
+    def move_window(window, dx, dy):
+        """Move a matplotlib window to a given x and y offset, independent of backend"""
+        if matplotlib.get_backend() == "Qt5Agg":
+            window.move(dx, dy)
+        else:
+            window.wm_geometry("+{dx}+{dy}".format(dx=dx, dy=dy))
 
     def init_graph(self):
 
@@ -169,7 +184,7 @@ class MatplotlibWidget(QMainWindow):
     def showPointing(self):
         if self.dataset.havedata:
             plt.figure(5)
-            plt.get_current_fig_manager().window.wm_geometry("+1150+550")
+            self.move_window(plt.get_current_fig_manager().window, 1150, 550)
             plt.plot(self.dataset.xb,self.dataset.yb,'kx')
             ax = plt.gca()
             ax.set_xlabel('X (Arcsec)')
@@ -226,8 +241,7 @@ class MatplotlibWidget(QMainWindow):
                             '{:06.3f}'.format(self.y_select)+'MHz')
 
             fig = plt.figure(4)
-            plt.get_current_fig_manager().window.wm_geometry("+1150+50")
-            #fig.canvas.manager.window.move(1200, 70)
+            self.move_window(plt.get_current_fig_manager().window, 1150, 50)
 
             fig.clear()
             ax = plt.gca()
