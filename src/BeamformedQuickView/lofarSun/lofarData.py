@@ -291,6 +291,12 @@ class LofarDataCleaned:
 
             [self.xx,self.yy] = self.RA_DEC_shift_xy0(RA_ax,DEC_ax,RA_obs,DEC_obs)
             self.data_xy = self.sun_coord_trasform(self.data,self.header,True,True)
+            [b_maj,b_min,b_ang] = self.get_beam()
+            self.beamArea = (b_maj/180*np.pi)*(b_min/180*np.pi)*np.pi /(4*np.log(2))
+            self.data_xy_calib = self.data_xy*(300/self.freq)**2/2/(1.38e-23)/1e26/self.beamArea
+            
+            
+    
 
     
     def get_cur_solar_centroid(self,t_obs):
@@ -370,10 +376,11 @@ class LofarDataCleaned:
             [b_maj,b_min,b_angel] = self.get_beam()
             b_maj = b_maj*3600
             b_min = b_min*3600
-            data_new = self.data_xy
+            data_new = self.data_xy_calib
             xx = self.xx
             yy = self.yy
 
+           
             #print(b_major,b_min,b_angel+solar_PA)
             fig=plt.figure()#num=None, figsize=(8, 6),dpi=120)
             ax = plt.gca()
