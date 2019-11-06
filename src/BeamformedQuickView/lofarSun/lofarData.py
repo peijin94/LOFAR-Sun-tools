@@ -316,7 +316,7 @@ class LofarDataCleaned:
         if self.havedata:
             [RA_c,DEC_c] = self.get_obs_image_centroid(self.header)
             RA_ax_obs   = RA_c + ((np.arange(header['NAXIS1'])+1) 
-                                -header['CRPIX1'])*header['CDELT1']/np.cos(header['CRVAL2'])
+                                -header['CRPIX1'])*header['CDELT1']/np.cos((header['CRVAL2'])/180.*np.pi)
             DEC_ax_obs  = DEC_c+ ((np.arange(header['NAXIS2'])+1) 
                                 -header['CRPIX2'])*header['CDELT2']
             return [RA_ax_obs,DEC_ax_obs]
@@ -326,13 +326,13 @@ class LofarDataCleaned:
     def RA_DEC_shift_xy0(self,RA,DEC,RA_cent,DEC_cent):
         # transformation between the observed coordinate and the solar x-y coordinate
         # including the x-y shift
-        x_geo = -(RA  -  RA_cent)*np.cos(DEC_cent)*3600
+        x_geo = -(RA  -  RA_cent)*np.cos(DEC_cent/180.*np.pi)*3600
         y_geo = -(DEC_cent - DEC)*3600
         # (in arcsec)
         # the rotation angle of the sun accoording to the date
         return [x_geo,y_geo]
 
-    def sun_coord_trasform(self,data,header,act_r=True,act_s=False):
+    def sun_coord_trasform(self,data,header,act_r=True,act_s=True):
         # act_r : rotation operation
         # act_s : shift operation
         if self.havedata:
