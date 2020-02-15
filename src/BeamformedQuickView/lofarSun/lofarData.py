@@ -411,7 +411,7 @@ class LofarDataCleaned:
 
             if FWHM:
                 FWHM_thresh=0.5*(np.max(data_new))
-                ax.contour(data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
+                ax.contour(xx,yy,data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
                 
             plt.colorbar()
             plt.xlim([-2500,2500])
