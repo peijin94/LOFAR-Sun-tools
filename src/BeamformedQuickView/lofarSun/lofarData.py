@@ -396,7 +396,7 @@ class LofarDataCleaned:
                 vmax_now = 1.2*np.nanmax(data_new)
             ax.text(1400,1800, str(int(freq_cur)) + 'MHz',color='w')
             circle1 = plt.Circle((0,0), 960, color='r',fill=False)
-            beam0 = Ellipse((-500, -1800), b_maj, b_min, b_angel ,color='w')
+            beam0 = Ellipse((-500, -1800), b_maj, b_min, -b_angel ,color='w')
             print(b_angel)
             ax.text(-600,-1800,'Beam shape:',horizontalalignment='right',verticalalignment='center' ,color='w')
             ax.add_artist(circle1)
@@ -413,6 +413,7 @@ class LofarDataCleaned:
             plt.title(str(t_cur_datetime))
 
             plt.show()
+            return [fig,ax]
 
         else:
             print("No data loaded")
