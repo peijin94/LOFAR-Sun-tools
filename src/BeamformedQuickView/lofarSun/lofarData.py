@@ -8,6 +8,7 @@ from astropy.io import fits as fits
 import numpy as np
 from skimage import measure
 from scipy.interpolate import griddata
+from scipy.ndimage import gaussian_filter
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
@@ -368,7 +369,7 @@ class LofarDataCleaned:
             print("No data loaded")
             
 
-    def plot_image(self,vmax_set=np.nan,log_scale=False):
+    def plot_image(self,vmax_set=np.nan,log_scale=False,FWHM=False):
         if self.havedata:
             t_cur_datetime = self.t_obs
             solar_PA = sun_coord.P(self.t_obs).degree
@@ -376,7 +377,7 @@ class LofarDataCleaned:
             [b_maj,b_min,b_angel] = self.get_beam()
             b_maj = b_maj*3600
             b_min = b_min*3600
-            data_new = self.data_xy_calib
+            data_new = gaussian_filter(self.data_xy_calib,sigma=9)
             xx = self.xx
             yy = self.yy
 
@@ -407,6 +408,11 @@ class LofarDataCleaned:
             plt.imshow(data_new,vmin=vmin_now, vmax=vmax_now , 
                             interpolation='nearest',cmap=cmap_now, origin='lower',
                             extent=(min(xx),max(xx),min(yy),max(yy)))
+
+            if FWHM:
+                FWHM_thresh=0.5*(np.max(data_new))
+                ax.contour(data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
+                
             plt.colorbar()
             plt.xlim([-2500,2500])
             plt.ylim([-2500,2500])
