@@ -369,7 +369,7 @@ class LofarDataCleaned:
             print("No data loaded")
             
 
-    def plot_image(self,vmax_set=np.nan,log_scale=False,FWHM=False):
+    def plot_image(self,vmax_set=np.nan,log_scale=False,fov=2500,FWHM=False):
         if self.havedata:
             t_cur_datetime = self.t_obs
             solar_PA = sun_coord.P(self.t_obs).degree
@@ -414,8 +414,8 @@ class LofarDataCleaned:
                 ax.contour(xx,yy,data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
                 
             plt.colorbar()
-            plt.xlim([-2500,2500])
-            plt.ylim([-2500,2500])
+            plt.xlim([-fov,fov])
+            plt.ylim([-fov,fov])
             plt.title(str(t_cur_datetime))
 
             plt.show()
