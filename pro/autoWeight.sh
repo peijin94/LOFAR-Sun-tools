@@ -3,6 +3,8 @@
 
 # Note : make sure there is enough storage!
 
+module load dp3 # load NDPPP 
+
 DIR='./'  # better use absolute directory
 PREFIX='L700177_'
 
