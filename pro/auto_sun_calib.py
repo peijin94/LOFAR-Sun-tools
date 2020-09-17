@@ -33,7 +33,7 @@ base_dir = '/data/scratch/zhang/'
 sources  = 'TauAGG'  # source type
 sourcedb = base_dir+'taurus_1.sourcedb' # path to the source
 
-sun_MS_dir   = base_dir+'MS/' # path to the dir contain sun's MS 
+sun_MS_dir   = base_dir+'MS/' # path to the dir contain sun's MS
 calib_MS_dir = base_dir+'MS/' # path to the dir contain calibrator's MS
 # better use the full directory
 
@@ -65,13 +65,14 @@ sun_sb_arr   = np.arange(idx_range_sun[0],   idx_range_sun[1] +1 , idx_range_sun
 calib_sb_arr = np.arange(idx_range_cali[0] , idx_range_cali[1]+1 , idx_range_cali[2])
 
 # to overwrite the subband index when the subband is not linearly distributed
-sun_sb_arr   = [21 ] 
+sun_sb_arr   = [21 ]
 calib_sb_arr = [81 ]
 
 # generate subband list
 fill3zero = lambda x: 'SB'+str(x).zfill(3)
-subband_sun    = map(fill3zero,sun_sb_arr)
-subband_calibs = map(fill3zero,calib_sb_arr)
+subband_sun    = list(map(fill3zero,sun_sb_arr))
+subband_calibs = list(map(fill3zero,calib_sb_arr))
+
 
 print(subband_sun)
 print(subband_calibs)
@@ -88,7 +89,7 @@ msout=.
 steps=[gaincal]
 
 gaincal.usebeammodel=True
-gaincal.solint=4 
+gaincal.solint=4
 gaincal.sources={{{2}}}
 gaincal.sourcedb={{{3}}}
 gaincal.onebeamperpatch=True
@@ -111,9 +112,9 @@ applycal.updateweights=True
 apply_beam_template = """
 msin={{{1}}}
 msout=.
-msin.datacolumn=CORR_NO_BEAM 
-msout.datacolumn=CORRECTED_DATA 
-steps =[applybeam] 
+msin.datacolumn=CORR_NO_BEAM
+msout.datacolumn=CORRECTED_DATA
+steps =[applybeam]
 applybeam.updateweights=True
 """
 
@@ -128,8 +129,8 @@ if 0 in run_step:
         print('predict : '+subbd)
         # use the dir and the id to construct the file name
         MS_name = calib_MS_dir + obs_id_calib + obs_calib_sap + '_' +subbd+obs_calib_prefix+'_uv.MS'
-    
-        # use the template and the file name to make a 'XXXX.parset' file 
+
+        # use the template and the file name to make a 'XXXX.parset' file
         parset_content = predict_parset_template.replace('{{{1}}}',
                              MS_name).replace('{{{2}}}',
                              sources).replace('{{{3}}}',sourcedb)
@@ -150,14 +151,14 @@ if 1 in run_step:
         # use the dir and the id to construct the file name
         MS_sun  = sun_MS_dir   + obs_id_sun   + obs_sun_sap   + '_'+subbd+obs_sun_prefix+'_uv.MS'
         MS_cali = calib_MS_dir + obs_id_calib + obs_calib_sap + '_'+subband_calibs[idx_cur]+obs_calib_prefix+'_uv.MS'
-        # use the template and the file name to make a 'XXXX.parset' file 
-        
+        # use the template and the file name to make a 'XXXX.parset' file
+
         apcal_content = apply_cal_template.replace('{{{1}}}',
-                                   MS_sun).replace('{{{2}}}',MS_cali)                                          
+                                   MS_sun).replace('{{{2}}}',MS_cali)
         tfile = open(apcal_dir+subbd+'_applycal.parset', "w")
         tfile.write(apcal_content)
         tfile.close()
-                                                   
+
         # call the NDPPP from system
         os.system('NDPPP '+apcal_dir+subbd+'_applycal.parset')
         idx_cur = idx_cur+1
@@ -171,7 +172,7 @@ if 2 in run_step:
             print('applybeam : '+subbd)
             # use the dir and the id to construct the file name
             MS_sun  = sun_MS_dir   + obs_id_sun   + obs_sun_sap   + '_'+subbd+obs_sun_prefix+'_uv.MS'
-            # use the template and the file name to make a 'XXXX.parset' file 
+            # use the template and the file name to make a 'XXXX.parset' file
             apbm_content = apply_beam_template.replace('{{{1}}}',MS_sun)
             tfile = open(apbm_dir+subbd+'_applybeam.parset', "w")
             tfile.write(apbm_content)
