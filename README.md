@@ -74,8 +74,8 @@ To convert huge HDF5 file to a bunch of small fits file with json and quickview 
 ## Quick View the LOFAR beamform
 
 [QuickView](src\BeamformedQuickView\README.md)
-i
-![demo](https://raw.githubusercontent.com/Pjer-zhang/LOFAR_Solar/master/src/img/demo.gif)
+
+![demo](https://raw.githubusercontent.com/Pjer-zhang/LOFAR_Solar/master/pro/img/demo.gif)
 
 ## Set up enviroment
 
