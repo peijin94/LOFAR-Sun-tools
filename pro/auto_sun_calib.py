@@ -45,7 +45,7 @@ obs_id_sun   = 'L701913' # obsid of the sun
 obs_id_calib = 'L701913' # obsid of the calibrator
 
 obs_sun_prefix   = '_autow' # prefix of the sun
-obs_calib_prefix = '_autow' # prefix of the calibrator
+obs_calib_prefix = '_autow' # prefix of the calibrator '_autow' for autoweighted data
 
 idx_range_sun  = [23,43,10] # index range of the subband of the Sun
 idx_range_cali = [83,103,10] # index range of the subband of the Sun
@@ -72,11 +72,12 @@ fill3zero = lambda x: 'SB'+str(x).zfill(3)
 subband_sun    = list(map(fill3zero,sun_sb_arr))
 subband_calibs = list(map(fill3zero,calib_sb_arr))
 
-
+print(' ')
+print('Input subbands of the sun')
 print(subband_sun)
+print(' ')
+print('Input subbands of teh calibrator')
 print(subband_calibs)
-
-# output ['SB092',......'SB099']
 
 # template of the predict files
 # msin.autoweight=true

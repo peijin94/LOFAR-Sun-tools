@@ -1,7 +1,9 @@
-# LOFAR Solar
- Handy scripts for the LOFAR solar data processing
+# LOFAR Sun Tools
+ Handy scripts and modules for the LOFAR data processing for Solar and Space Weather.
 
-## wsclean\_script.sh
+## WSClean Script
+
+wsclean\_script.sh
 
 An example of wsclean for the sun, it is better to keep the parameter **-multiscale** on for the solar image CLEAN, because the solar radio emission is always extended.
 
@@ -21,10 +23,13 @@ A small cheatsheet for solar wsclean:
 | -intervals-out | 85             | How many images you want to produce                                                          |
 | -interval      | 3000 4000      | The index range for the CLEAN                                                                |
 
+
 for the interval index, one can use the get\_datetime\_index.py to find out the starting and ending index
 
 
-## auto\_sun\_calib.py
+## Calibration script
+
+ auto\_sun\_calib.py
 
  This script automized the calibration of interferometry, it generates the parset file for the calibration and run the corresponding NDPPP commad.
 
@@ -34,6 +39,7 @@ for the interval index, one can use the get\_datetime\_index.py to find out the 
 
 ```bash
  module load lofar
+ module load dp3
 ```
 
 Revice the configuration lines in the code:
@@ -64,14 +70,11 @@ python auto_sun_calib.py
 
 To convert huge HDF5 file to a bunch of small fits file with json and quickview png
 
-## display\_lofar\_sun(\_py37).py
-
-To transform the coordinate of RA,DEC into the heliocentric coordinate for the plot
 
 ## Quick View the LOFAR beamform
 
 [QuickView](src\BeamformedQuickView\README.md)
-
+i
 ![demo](https://raw.githubusercontent.com/Pjer-zhang/LOFAR_Solar/master/src/img/demo.gif)
 
 ## Set up enviroment
@@ -79,13 +82,14 @@ To transform the coordinate of RA,DEC into the heliocentric coordinate for the p
 Install lofarSun by git
 
 ```bash
-git clone https://github.com/Pjer-zhang/LOFAR_Solar
+https://git.astron.nl/ssw-ksp/lofar-sun-tools.git
+source lofar-sun-tools/pro/src/setup.py
 ```
 
 Install dependency
 
 ```bash
-pip install -r req.txt
+pip install -r requirement.txt
 pip install PyQt5
 ```
 
@@ -113,7 +117,7 @@ open demo.ipynb in notebook
 ## Tunneling
 
 ```bash
-ssh -L 1234:localhost:1234 zhang@portal.lofar.eu -t ssh -L 1234:localhost:1234 zhang@lhd001 -t ssh -L 1234:localhost:1234 zhang@lof001
+ssh -L 1234:localhost:1234 username@portal.lofar.eu -t ssh -L 1234:localhost:1234 username@lhd001 -t ssh -L 1234:localhost:1234 username@lof001
 
 source /data/scratch/zhang/conda_start.sh
 
