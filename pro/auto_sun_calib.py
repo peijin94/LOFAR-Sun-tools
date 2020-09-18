@@ -27,7 +27,7 @@ print = logger.info
 print('Logging_start')
 
 ###############  the configurations
-base_dir = '/data/scratch/zhang/'
+base_dir = './'
 
 sources  = 'TauAGG'  # source type
 sourcedb = base_dir+'taurus_1.sourcedb' # path to the source
@@ -65,7 +65,7 @@ calib_sb_arr = np.arange(idx_range_cali[0] , idx_range_cali[1]+1 , idx_range_cal
 
 # to overwrite the subband index when the subband is not linearly distributed
 sun_sb_arr   = [21 ]
-calib_sb_arr = [x+60 for x in sub_sb_arr ]
+calib_sb_arr = [x+60 for x in sun_sb_arr ]
 
 # generate subband list
 fill3zero = lambda x: 'SB'+str(x).zfill(3)
