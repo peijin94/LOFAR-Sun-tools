@@ -14,4 +14,4 @@ do
     NDPPP msin=$MSfile msout=${MSfile/uv/autow_uv} steps=[] msin.autoweight=True && rm -r $MSfile
 done
 
-
+python autoCalib.py
