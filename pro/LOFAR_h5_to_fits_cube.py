@@ -1,4 +1,4 @@
-i"""
+"""
 Split and down sample the dynamic spectrum of LOFAR observation
 
 Input  :  Huge hdf5 files of LOFAR Tied array beam formed observation
@@ -21,12 +21,12 @@ import h5py
 import datetime
 import numpy as np
 import re
-from lofar2000xySun import j2000xy
+from lofarSun.lofarJ2000xySun import j2000xy
 import matplotlib.pyplot as plt
 
 
 
-datadir = '/data001/scratch/Zucca-Morosan/TiedArray' # and dir contains only h5 target data
+datadir = '/mnt/PROC/peijin/L700909/' # and dir contains only h5 target data
 t_downsamp = datetime.timedelta(seconds=2) # time averaging length
 f_downsamp_n = 2 # freq averaging index range
 t_cut_start_ratio = 0
@@ -35,7 +35,7 @@ t_cut_end_ratio = 0.1
 
 os.chdir(datadir)  # the dir contains the h5
 fnames_DS = sorted(glob.glob('*SAP000*.h5')) # find all the h5 file of this observation
-out_fname = '/data001/scratch/zhang/h5_to_fits_json/test_mini_cube.fits'
+out_fname = 'test_mini_cube.fits'
 
 # gather everything from the h5 files
 for this_f_index in np.arange(len(fnames_DS)):
@@ -127,7 +127,7 @@ print("Data shape:")
 print(cube_ds.shape)
 
 hdu_lofar.header['SIMPLE']    =                    True          
-            hdu_lofar.header['BITPIX']    =                    8 
+hdu_lofar.header['BITPIX']    =                    8 
 hdu_lofar.header['NAXIS ']    =                    3          
 hdu_lofar.header['NAXIS1']    =                 cube_ds.shape[0]      
 hdu_lofar.header['NAXIS2']    =                 cube_ds.shape[1]      
