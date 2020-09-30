@@ -40,9 +40,9 @@
     <property name="geometry">
      <rect>
       <x>980</x>
-      <y>20</y>
+      <y>10</y>
       <width>121</width>
-      <height>61</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -53,9 +53,9 @@
     <property name="geometry">
      <rect>
       <x>840</x>
-      <y>20</y>
-      <width>121</width>
-      <height>61</height>
+      <y>10</y>
+      <width>131</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -252,6 +252,47 @@
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Consolas'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="beamSet">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>70</y>
+      <width>71</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QPushButton" name="spectroPlot">
+    <property name="geometry">
+     <rect>
+      <x>980</x>
+      <y>57</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Single Beam</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>840</x>
+      <y>70</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Bm-ID</string>
     </property>
    </widget>
   </widget>

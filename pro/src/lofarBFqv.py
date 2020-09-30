@@ -65,6 +65,7 @@ class MatplotlibWidget(QMainWindow):
         self.loadsav.triggered.connect(self.update_lofarBF)
         self.loadcube.triggered.connect(self.update_lofar_cube)
         self.loadfits.triggered.connect(self.update_lofar_fits)
+        self.spectroPlot.clicked.connect(self.spectroPlot_func)
 
         self.t_idx_select = 0
         self.f_idx_select = 0
@@ -108,6 +109,8 @@ class MatplotlibWidget(QMainWindow):
                 self.dataset.load_sav(self.dataset.fname)
                 self.mplw.canvas.axes.clear()
                 self.draw_ds_after_load()
+                self.beamSet.clear()
+                self.beamSet.addItems([str(x).rjust(3,'0') for x in range(self.dataset.xb.shape[0])])
 
     def update_lofar_cube(self):
         options = QFileDialog.Options()
@@ -121,8 +124,8 @@ class MatplotlibWidget(QMainWindow):
                 self.dataset.load_sav_cube(self.dataset.fname)
                 self.mplw.canvas.axes.clear()
                 self.draw_ds_after_load()
-
-    
+                self.beamSet.clear()
+                self.beamSet.addItems([str(x).rjust(3,'0') for x in range(self.dataset.xb.shape[0])])
 
     def update_lofar_fits(self):
         options = QFileDialog.Options()
@@ -136,11 +139,13 @@ class MatplotlibWidget(QMainWindow):
                 self.dataset.load_fits(self.dataset.fname)
                 self.mplw.canvas.axes.clear()
                 self.draw_ds_after_load()
+                self.beamSet.clear()
+                self.beamSet.addItems([str(x).rjust(3,'0') for x in range(self.dataset.xb.shape[0])])
 
 
 
-    def draw_ds_after_load(self):
-        data_ds = np.array(self.dataset.data_cube[:, :, 0])
+    def draw_ds_after_load(self,idx_cur=0,conn_click=True):
+        data_ds = np.array(self.dataset.data_cube[:, :, idx_cur])
         #print(self.dataset.time_ds)
         self.mplw.canvas.axes.imshow(data_ds, aspect='auto', origin='lower',
                   vmin=(np.mean(data_ds) - 2 * np.std(data_ds)),
@@ -156,8 +161,13 @@ class MatplotlibWidget(QMainWindow):
         self.mplw.canvas.axes.set_position([0.1,0.15,0.85,0.8])
         self.mplw.canvas.draw()
         self.mplw.canvas.mpl_connect('button_release_event', self.onclick)
-        self.log.append(self.action_prefix+'Load : '+self.dataset.fname)
+        self.log.append(self.action_prefix+'Load : '+self.dataset.fname+' Beam-'+str(idx_cur))
 
+    def spectroPlot_func(self):
+        self.mplw.canvas.axes.clear()
+        this_idx = self.beamSet.currentIndex()
+        print(this_idx)
+        self.draw_ds_after_load(idx_cur=this_idx)
 
     def onclick(self,event):
         if ~event.dblclick and event.button==1:
@@ -173,7 +183,8 @@ class MatplotlibWidget(QMainWindow):
             self.f_idx_select = (np.abs(self.dataset.freqs_ds - self.y_select)).argmin()
 
             if self.selected:
-                self.mplw.canvas.axes.lines.remove(self.mplw.canvas.axes.lines[0])
+                if len(self.mplw.canvas.axes.lines)>0:
+                    self.mplw.canvas.axes.lines.remove(self.mplw.canvas.axes.lines[0])
             self.mplw.canvas.axes.plot(self.x_select, self.y_select, 'w+', markersize=25, linewidth=2)
             self.mplw.canvas.draw()
             self.selected = True
@@ -185,7 +196,9 @@ class MatplotlibWidget(QMainWindow):
         if self.dataset.havedata:
             plt.figure(5)
             self.move_window(plt.get_current_fig_manager().window, 1150, 550)
-            plt.plot(self.dataset.xb,self.dataset.yb,'kx')
+            plt.plot(self.dataset.xb,self.dataset.yb,'b.')
+            for idx in list(range(self.dataset.xb.shape[0])):
+                plt.text(self.dataset.xb[idx],self.dataset.yb[idx],str(idx))
             ax = plt.gca()
             ax.set_xlabel('X (Arcsec)')
             ax.set_ylabel('Y (Arcsec)')
