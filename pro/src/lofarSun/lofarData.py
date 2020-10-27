@@ -382,7 +382,6 @@ class LofarDataCleaned:
             yy = self.yy
 
            
-            #print(b_major,b_min,b_angel+solar_PA)
             fig=plt.figure()#num=None, figsize=(8, 6),dpi=120)
             ax = plt.gca()
             cmap_now = 'CMRmap_r'
@@ -397,8 +396,9 @@ class LofarDataCleaned:
                 vmax_now = 1.2*np.nanmax(data_new)
             ax.text(1400,1800, str(int(freq_cur)) + 'MHz',color='w')
             circle1 = plt.Circle((0,0), 960, color='r',fill=False)
-            beam0 = Ellipse((-500, -1800), b_maj, b_min, -b_angel ,color='w')
-            print(b_angel)
+            beam0 = Ellipse((-500, -1800), b_maj, b_min, b_angel+solar_PA,color='w')
+            
+            #print(b_maj,b_min,b_angel,solar_PA)
             ax.text(-600,-1800,'Beam shape:',horizontalalignment='right',verticalalignment='center' ,color='w')
             ax.add_artist(circle1)
             ax.add_artist(beam0)
