@@ -19,9 +19,10 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import cv2
 import sunpy
-import sunpy.sun
-from sunpy.coordinates.sun import sky_position as sun_position
+import sunpy.map
 import sunpy.coordinates.sun as sun_coord
+from sunpy.coordinates.sun import sky_position as sun_position
+from sunpy.coordinates import frames
 import scipy
 import scipy.ndimage
 from matplotlib.patches import Ellipse
@@ -103,8 +104,8 @@ class LofarDataBF:
     def bf_image_by_freq_time(self,freq,time,fov=3000,asecpix=20,extrap=True,interpm='cubic'):
         t_idx_select = (np.abs(self.time_ds - time)).argmin()
         f_idx_select = (np.abs(self.freqs_ds - freq)).argmin()
-        X,Y,data_bf = self.bf_image_by_idx(self,f_idx_select,t_idx_select,fov=fov,asecpix=asecpix,extrap=extrap,interpm=interpm)
-        return [X,Y,data_bf]
+        X,Y,data_bf,x,y,Ibeam = self.bf_image_by_idx(f_idx_select,t_idx_select,fov=fov,asecpix=asecpix,extrap=extrap,interpm=interpm)
+        return [X,Y,data_bf,x,y,Ibeam]
 
     def bf_time_to_idx(self,time):
         return (np.abs(self.time_ds - time)).argmin()
@@ -368,16 +369,19 @@ class LofarDataCleaned:
 
     def make_map(self):
         # still in beta version, use with caution
+        # ref : https://gist.github.com/hayesla/42596c72ab686171fe516f9ab43300e2
+        hdu = fits.open(self.fname)
         header = hdu[0].header
+        data = np.squeeze(hdu[0].data)
         data = np.squeeze(hdu[0].data)
         obstime = Time(header['date-obs'])
         frequency = header['crval3']*u.Hz
         reference_coord = SkyCoord(header['crval1']*u.deg, header['crval2']*u.deg,
                            frame='gcrs',
                            obstime=obstime,
-                           distance=sun.earth_distance(obstime),
+                           distance=sun_coord.earth_distance(obstime),
                            equinox='J2000')
-        lofar_loc = EarthLocation(lat=52.905329712*u.deg, lon=6.867996528*u.deg)
+        lofar_loc = EarthLocation(lat=52.905329712*u.deg, lon=6.867996528*u.deg) # location of the center of LOFAR
         lofar_coord = SkyCoord(lofar_loc.get_itrs(Time(obstime)))
         reference_coord_arcsec = reference_coord.transform_to(frames.Helioprojective(observer=lofar_coord))
         cdelt1 = (np.abs(header['cdelt1'])*u.deg).to(u.arcsec)
@@ -391,10 +395,9 @@ class LofarDataCleaned:
                                            observatory='LOFAR')
         lofar_map = sunpy.map.Map(data, new_header)
         lofar_map_rotate = lofar_map.rotate()
-        bl = SkyCoord(-1500*u.arcsec, -1500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
-        tr = SkyCoord(1500*u.arcsec, 1500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
+        bl = SkyCoord(-2500*u.arcsec, -2500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
+        tr = SkyCoord(2500*u.arcsec, 2500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
         lofar_submap = lofar_map_rotate.submap(bl, tr)
-                
         return lofar_submap
 
 

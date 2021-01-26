@@ -23,7 +23,25 @@ conda activate lofarsun
 ## Install dependencies
 
 ```bash
-conda install -c conda-forge sunpy==2.0.6 matplotlib jupyterlab
+conda install -c conda-forge sunpy==2.0.6 matplotlib jupyterlab opencv
 ```
 
 note : pip higher priority than conda
+
+## Install lofarSun
+
+From pip
+
+```bash
+python -m pip install lofarSun
+```
+
+From git
+
+```bash
+git clone https://git.astron.nl/ssw-ksp/lofar-sun-tools.git
+cd lofar-sun-tools/pro/src
+python setup.py install
+```
+
+~Enjoy~
