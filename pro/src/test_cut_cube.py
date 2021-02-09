@@ -7,8 +7,11 @@ from scipy.io import readsav
 from scipy.interpolate import griddata,interp2d
 import datetime
 import matplotlib.dates as mdates
-mdates.set_epoch("0000-12-31T00:00:00")
 from skimage import measure
+
+
+import matplotlib as mpl
+mpl.rcParams['date.epoch']="0000-12-31T00:00:00"
 
 
 class lofar_data:
