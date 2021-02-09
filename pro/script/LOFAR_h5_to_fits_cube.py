@@ -16,6 +16,7 @@ import glob
 import os
 import json
 from astropy.io import fits as fits
+import lofarSun
 import matplotlib.dates as mdates
 import h5py
 import datetime
@@ -24,6 +25,8 @@ import re
 from lofarSun.lofarJ2000xySun import j2000xy
 import matplotlib.pyplot as plt
 
+import matplotlib as mpl
+mpl.rcParams['date.epoch']="0000-12-31T00:00:00"
 
 
 datadir = '/mnt/PROC/peijin/L700909/' # and dir contains only h5 target data

@@ -20,5 +20,5 @@ for filename in glob.glob("*SAP*.tar*"):
   os.system('tar -xvf '+outname)
   os.system('rm -r '+outname )
 
-  print outname+' untarred.'
+  #print outname+' untarred.'
 

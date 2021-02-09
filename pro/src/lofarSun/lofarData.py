@@ -1,5 +1,8 @@
 from scipy.io import readsav
 import matplotlib.dates as mdates
+import matplotlib as mpl
+mpl.rcParams['date.epoch']="0000-12-31T00:00:00"
+
 from lofarSun.lofarJ2000xySun import j2000xy
 import datetime
 import glob

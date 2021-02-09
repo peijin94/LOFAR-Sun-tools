@@ -11,7 +11,7 @@ Install lofar-sun-tool from scratch.
 We recommend creating a standalone python enviroment for a more isolated and stable runtime.
 
 ```bash
-conda create -n lofarsun python=3.7.5
+conda create -n lofarsun python=3.8
 ```
 
 Then activate the enviroment:
@@ -23,7 +23,7 @@ conda activate lofarsun
 ## Install dependencies
 
 ```bash
-conda install -c conda-forge sunpy==2.0.6 matplotlib jupyterlab opencv
+conda install -c conda-forge sunpy==2.0.6 matplotlib jupyterlab opencv scikit scikit-image hdf5 opencv
 ```
 
 note : pip higher priority than conda

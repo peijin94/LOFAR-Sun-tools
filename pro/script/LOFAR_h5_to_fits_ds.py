@@ -31,6 +31,9 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 this_dir = os.getcwd()
 
+import matplotlib as mpl
+mpl.rcParams['date.epoch']="0000-12-31T00:00:00"
+
 
 x_points = 900 # time sample points
 y_points = 400 # f samples
