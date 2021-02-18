@@ -9,5 +9,3 @@
 * (.h5) Beamformed data, HDF5 format. [doc/beamformed.md](doc/beamformed.md)
 * (xxx-cube.fits) Beamformed data, fits cube.[doc/beamformed.md](doc/beamformed.md)
 * (xxx-image.fits) Interferometry image data.[doc/interferometry.md](doc/interferometry.md)
-
-

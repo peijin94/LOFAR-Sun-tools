@@ -1,7 +1,6 @@
 from scipy.io import readsav
 import matplotlib.dates as mdates
 import matplotlib as mpl
-mpl.rcParams['date.epoch']="0000-12-31T00:00:00"
 
 from lofarSun.lofarJ2000xySun import j2000xy
 import datetime
@@ -29,6 +28,9 @@ from sunpy.coordinates import frames
 import scipy
 import scipy.ndimage
 from matplotlib.patches import Ellipse
+
+
+mpl.rcParams['date.epoch']="0000-12-31T00:00:00"
 
 class LofarDataBF:
     def __init__(self):

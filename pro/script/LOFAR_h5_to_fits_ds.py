@@ -89,9 +89,9 @@ f_lines = data_shape[1]
 tsamp = f["/SUB_ARRAY_POINTING_000/BEAM_000/COORDINATES/COORDINATE_0"].attrs["INCREMENT"]
 tint = f["/"].attrs["TOTAL_INTEGRATION_TIME"]
 
-t_start_bf = datetime.datetime.strptime(group.attrs["OBSERVATION_START_UTC"].decode("utf-8")[0:26]+' +0000',
+t_start_bf = datetime.datetime.strptime(group.attrs["OBSERVATION_START_UTC"][0:26]+' +0000',
                                            '%Y-%m-%dT%H:%M:%S.%f %z')
-t_end_bf = datetime.datetime.strptime(group.attrs["OBSERVATION_END_UTC"].decode("utf-8")[0:26]+' +0000',
+t_end_bf = datetime.datetime.strptime(group.attrs["OBSERVATION_END_UTC"][0:26]+' +0000',
                                            '%Y-%m-%dT%H:%M:%S.%f %z')
 
 # get the frequency axies
@@ -138,11 +138,11 @@ for idx_cur in np.arange(int(chunk_num)):
     hdu_lofar.header['NAXIS2']    =                 y_points          
     hdu_lofar.header['EXTEND']    =                    True               
     hdu_lofar.header['DATE']      =  t_start_fits.strftime("%Y-%m-%d")         
-    hdu_lofar.header['CONTENT']   =  t_start_fits.strftime("%Y/%m/%d") + ' Radio Flux Intensity LOFAR ' + group.attrs['ANTENNA_SET'].decode("utf-8")
+    hdu_lofar.header['CONTENT']   =  t_start_fits.strftime("%Y/%m/%d") + ' Radio Flux Intensity LOFAR ' + group.attrs['ANTENNA_SET']
     hdu_lofar.header['ORIGIN']    = 'ASTRON Netherlands'
-    hdu_lofar.header['TELESCOP']  =  group.attrs['TELESCOPE'].decode("utf-8")
-    hdu_lofar.header['INSTRUME']  =  group.attrs['ANTENNA_SET'].decode("utf-8")          
-    hdu_lofar.header['OBJECT']    =  group.attrs['TARGETS'][0].decode("utf-8")         
+    hdu_lofar.header['TELESCOP']  =  group.attrs['TELESCOPE']
+    hdu_lofar.header['INSTRUME']  =  group.attrs['ANTENNA_SET']          
+    hdu_lofar.header['OBJECT']    =  group.attrs['TARGETS'][0]         
     hdu_lofar.header['DATE-OBS']  =  t_start_fits.strftime("%Y/%m/%d")         
     hdu_lofar.header['TIME-OBS']  =  t_start_fits.strftime("%H:%M:%S.%f")       
     hdu_lofar.header['DATE-END']  =  t_end_fits.strftime("%Y/%m/%d")         
@@ -171,7 +171,7 @@ for idx_cur in np.arange(int(chunk_num)):
     
     
     
-    fname = t_start_fits.strftime("LOFAR_%Y%m%d_%H%M%S_")+group.attrs['ANTENNA_SET'].decode("utf-8")+'.fits'
+    fname = t_start_fits.strftime("LOFAR_%Y%m%d_%H%M%S_")+group.attrs['ANTENNA_SET']+'.fits'
     
     #full_hdu = fits.HDUList([hdu_lofar, hdu_lofar_axes])
     hdu_lofar.writeto(out_dir+fname,overwrite=True)
@@ -194,9 +194,9 @@ for idx_cur in np.arange(int(chunk_num)):
     lofar_json_dict = {}
 
     lofar_json_dict['telescope']= "LOFAR"
-    lofar_json_dict['instrume']  =  group.attrs['ANTENNA_SET'].decode("utf-8")
-    lofar_json_dict['projectID'] =  group.attrs['PROJECT_ID'].decode("utf-8")
-    lofar_json_dict['obsID'] =  group.attrs['OBSERVATION_ID'].decode("utf-8")
+    lofar_json_dict['instrume']  =  group.attrs['ANTENNA_SET']
+    lofar_json_dict['projectID'] =  group.attrs['PROJECT_ID']
+    lofar_json_dict['obsID'] =  group.attrs['OBSERVATION_ID']
     lofar_json_dict['source']=fname_DS
     lofar_json_dict['date']  = t_start_fits.strftime("%Y-%m-%d")
     lofar_json_dict['time']  =  t_start_fits.strftime("%H:%M:%S.%f")
