@@ -11,8 +11,12 @@ from skimage import measure
 
 
 import matplotlib as mpl
-mpl.rcParams['date.epoch']="0000-12-31T00:00:00"
-
+# try to use the precise epoch
+mpl.rcParams['date.epoch']='1970-01-01T00:00:00'
+try:
+    mdates.set_epoch('1970-01-01T00:00:00')
+except:
+    pass
 
 class lofar_data:
     pass
