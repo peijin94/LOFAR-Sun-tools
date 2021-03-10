@@ -41,6 +41,8 @@ t_downsamp = datetime.timedelta(seconds=2) # time averaging length
 f_downsamp_n = 2 # freq averaging index range
 t_cut_start_ratio = 0
 t_cut_end_ratio = 0.1
+y_points = 256
+x_points = 1024
 
 
 os.chdir(datadir)  # the dir contains the h5
