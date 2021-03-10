@@ -67,6 +67,7 @@ for this_f_index in np.arange(len(fnames_DS)):
     f["/SUB_ARRAY_POINTING_000/BEAM_"+beam_this].attrs['POINT_RA']
     
     tint = f["/"].attrs["TOTAL_INTEGRATION_TIME"]
+    group = f["/"]
     t_start_bf = datetime.datetime.strptime(group.attrs["OBSERVATION_START_UTC"][0:26]+' +0000',
                                                '%Y-%m-%dT%H:%M:%S.%f %z')
     t_end_bf = datetime.datetime.strptime(group.attrs["OBSERVATION_END_UTC"][0:26]+' +0000',
