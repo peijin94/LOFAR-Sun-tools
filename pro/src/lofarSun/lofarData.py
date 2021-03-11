@@ -222,6 +222,27 @@ class LofarDataBF:
             ax.plot(x_peak,y_peak,'k+')
             plt.show()
 
+    def plot_bf_dyspec(self,beam_idx=0,ax_cur=None):
+        if ax_cur is None:
+            plt.figure()    
+            ax_cur = plt.gca()
+        dyspec = np.log10(np.array(self.data_cube[:, :, beam_idx]))
+        data_ds=dyspec-np.tile(np.mean(dyspec,1).T,(dyspec.shape[1],1)).T
+
+        ax_cur.imshow(data_ds, aspect='auto', origin='lower',
+                  vmin=(np.mean(data_ds) - 2 * np.std(data_ds)),
+                  vmax=(np.mean(data_ds) + 3 * np.std(data_ds)),
+                  extent=[self.time_ds[0], self.time_ds[-1],
+                          self.freqs_ds[0], self.freqs_ds[-1]], cmap='inferno')
+        ax_cur.xaxis_date()
+        ax_cur.set_xlabel('Time (UT)')
+        ax_cur.set_ylabel('Frequency (MHz)')
+        ax_cur.set_title('LOFAR Beamform Observation ' + mdates.num2date(self.time_ds[0]).strftime('%Y/%m/%d'))
+        for tick in ax_cur.get_xticklabels():
+            tick.set_rotation(25)
+        
+        pass
+
     def write_fits(self,fdir,fprefix,f_idx,t_idx):
         """
             write the data into fits files

@@ -159,18 +159,8 @@ class MatplotlibWidget(QMainWindow):
     def draw_ds_after_load(self,idx_cur=0,conn_click=True):
         data_ds = np.array(self.dataset.data_cube[:, :, idx_cur])
         #print(self.dataset.time_ds)
-        self.mplw.canvas.axes.imshow(data_ds, aspect='auto', origin='lower',
-                  vmin=(np.mean(data_ds) - 2 * np.std(data_ds)),
-                  vmax=(np.mean(data_ds) + 3 * np.std(data_ds)),
-                  extent=[self.dataset.time_ds[0], self.dataset.time_ds[-1],
-                          self.dataset.freqs_ds[0], self.dataset.freqs_ds[-1]], cmap='inferno')
-        self.mplw.canvas.axes.xaxis_date()
-        self.mplw.canvas.axes.set_xlabel('Time (UT)')
-        self.mplw.canvas.axes.set_ylabel('Frequency (MHz)')
-        self.mplw.canvas.axes.set_title('LOFAR Beamform Observation ' + mdates.num2date(self.dataset.time_ds[0]).strftime('%Y/%m/%d'))
-        for tick in self.mplw.canvas.axes.get_xticklabels():
-            tick.set_rotation(25)
-        self.mplw.canvas.axes.set_position([0.1,0.15,0.85,0.8])
+        ax_cur = self.mplw.canvas.axes
+        self.dataset.plot_bf_dyspec(idx_cur,ax_cur)
         self.mplw.canvas.draw()
         self.mplw.canvas.mpl_connect('button_release_event', self.onclick)
         self.log.append(self.action_prefix+'Load : '+self.dataset.fname+' Beam-'+str(idx_cur))
