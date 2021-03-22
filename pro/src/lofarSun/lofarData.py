@@ -100,13 +100,13 @@ class LofarDataBF:
             theta = np.linspace(0,2*np.pi,36)
             bf_xb = np.hstack((self.xb,r*np.cos(theta)))
             bf_yb = np.hstack((self.yb,r*np.sin(theta)))
-            data_beam_bf = np.hstack((data_beam,np.ones(np.size(theta))*0))#np.min(data_beam)))
+            data_beam_bf = np.hstack((data_beam,np.ones(np.size(theta))*np.mean(data_beam)))
         else:
             bf_xb = self.xb
             bf_yb = self.yb
             data_beam_bf = data_beam
         data_bf = griddata((bf_xb, bf_yb), data_beam_bf,
-                    (X, Y), method=method, fill_value=np.min(data_beam))
+                    (X, Y), method=method, fill_value=np.mean(data_beam))
         Ibeam = data_beam
         return X,Y,data_bf,x,y,Ibeam
 
