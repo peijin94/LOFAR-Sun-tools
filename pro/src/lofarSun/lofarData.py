@@ -110,9 +110,11 @@ class LofarDataBF:
         Ibeam = data_beam
         return X,Y,data_bf,x,y,Ibeam
 
-    def bf_image_by_freq_time(self,freq,time,fov=3000,asecpix=20,extrap=True,interpm='cubic'):
+    def bf_image_by_freq_time(self,freq,time,fov=3000,asecpix=20,extrap=True,interpm='cubic',verbout=True):
         t_idx_select = (np.abs(self.time_ds - time)).argmin()
         f_idx_select = (np.abs(self.freqs_ds - freq)).argmin()
+        if verbout:
+            print([t_idx_select,f_idx_select])
         X,Y,data_bf,x,y,Ibeam = self.bf_image_by_idx(f_idx_select,t_idx_select,fov=fov,asecpix=asecpix,extrap=extrap,interpm=interpm)
         return [X,Y,data_bf,x,y,Ibeam]
 
@@ -178,12 +180,12 @@ class LofarDataBF:
         bf_res["y_sig"]=popt[5]
 
         bf_err={}
-        bf_err["s0"]=pcov[0][0]
-        bf_err["x_cent"]=pcov[1][1]
-        bf_err["y_cent"]=pcov[2][2]
-        bf_err["tile"]=pcov[3][3]
-        bf_err["x_sig"]=pcov[4][4]
-        bf_err["y_sig"]=pcov[5][5]
+        bf_err["s0_err"]=pcov[0][0]
+        bf_err["x_cent_err"]=pcov[1][1]
+        bf_err["y_cent_err"]=pcov[2][2]
+        bf_err["tile_err"]=pcov[3][3]
+        bf_err["x_sig_err"]=pcov[4][4]
+        bf_err["y_sig_err"]=pcov[5][5]
         
         tmp_theta = np.linspace(0,np.pi*2,100)
         tmp_xp = bf_res["x_sig"]*np.cos(tmp_theta)
@@ -195,7 +197,8 @@ class LofarDataBF:
         ax = plt.gca()
         im = ax.imshow(data_bf, cmap='gist_heat',
                  origin='lower',extent=[np.min(X),np.max(X),np.min(Y),np.max(Y)])
-        ax.plot(self.xb,self.yb,'k.')
+        ax.plot(self.xb,self.yb,'g.')
+        ax.plot(fit_xb,fit_yb,'b+')
         ax.plot(tmp_x,tmp_y,'k-')
         ax.plot(bf_res["x_cent"],bf_res["y_cent"],"k+")
         plt.savefig('test.pdf')
