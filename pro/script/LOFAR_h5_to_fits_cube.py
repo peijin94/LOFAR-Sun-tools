@@ -41,8 +41,8 @@ t_downsamp = datetime.timedelta(seconds=2) # time averaging length
 f_downsamp_n = 2 # freq averaging index range
 t_cut_start_ratio = 0
 t_cut_end_ratio = 0.1
-y_points = 256
-x_points = 1024
+
+x_points = 1024 # maximum gap
 
 
 os.chdir(datadir)  # the dir contains the h5
@@ -83,8 +83,7 @@ for this_f_index in np.arange(len(fnames_DS)):
     chunk_t  = t_downsamp
     chunk_num = ((t_end_bf-t_start_chunk)/chunk_t)
 
-    freq_select_idx = np.int32(np.linspace(0,f_lines-1,y_points))
-    f_fits = freq[freq_select_idx]
+
 
 
     idx_cur=0
@@ -131,6 +130,10 @@ for this_f_index in np.arange(len(fnames_DS)):
         dec_all = np.append(dec_all, this_dec)
         
 [xx,yy] = j2000xy(ra_all,dec_all,t_start_fits)    
+
+y_points = array_all_beam.shape[2]
+freq_select_idx = np.int32(np.linspace(0,f_lines-1,y_points))
+f_fits = freq[freq_select_idx]
 
 
 cube_ds = array_all_beam.swapaxes(0,2)
