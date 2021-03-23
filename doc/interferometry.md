@@ -62,7 +62,7 @@ python auto_sun_calib.py
 
 ## Clean
 
-An example of wsclean for the sun [wsclean_script.sh](../pro/src/wsclean_script.sh), it is better to keep the parameter **-multiscale** on for the solar image CLEAN, because the solar radio emission is always extended.
+An example of wsclean for the sun [wsclean_script.sh](../pro/script/wsclean_script.sh), it is better to keep the parameter **-multiscale** on for the solar image CLEAN, because the solar radio emission is always extended.
 
 A small cheatsheet for solar wsclean:
 
