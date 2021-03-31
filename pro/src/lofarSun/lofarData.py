@@ -68,7 +68,8 @@ class LofarDataBF:
         data = readsav(fname, python_dict=True)
         header_name  = 'cube_ds'
 
-        self.title = str(data[header_name][0]['TITLE'],'utf-8')
+        #self.title = str(data[header_name][0]['TITLE'],'utf-8')
+        self.title = 'LOFAR BFcube'
         self.data_cube = data[header_name][0]['CUBE']
         self.freqs_ds = data[header_name][0]['FREQS']
         self.time_ds = (data[header_name][0]['TIME']) / 3600 / 24 + mdates.date2num(datetime.datetime(1979, 1, 1))
@@ -136,7 +137,7 @@ class LofarDataBF:
 
         return x_peak,y_peak,area_peak
 
-    def bf_fit_gauss_source_by_idx(self,f_idx,t_idx):
+    def bf_fit_gauss_source_by_idx(self,f_idx,t_idx,drawfig=True,verb=True):
         X,Y,data_bf,x,y,Ibeam = self.bf_image_by_idx(f_idx,t_idx)
         FWHM_thresh = np.max(data_bf)*0.7 #np.min(data_bf)+(np.max(data_bf)-np.min(data_bf))/2.0
         img_bi = data_bf > FWHM_thresh
@@ -193,15 +194,18 @@ class LofarDataBF:
         tmp_x = bf_res["x_cent"]+tmp_xp*np.cos(-bf_res['tile']) - tmp_yp*np.sin(-bf_res['tile'])
         tmp_y = bf_res["y_cent"]+tmp_xp*np.sin(-bf_res['tile']) + tmp_yp*np.cos(-bf_res['tile'])
 
-
-        ax = plt.gca()
-        im = ax.imshow(data_bf, cmap='gist_heat',
-                 origin='lower',extent=[np.min(X),np.max(X),np.min(Y),np.max(Y)])
-        ax.plot(self.xb,self.yb,'g.')
-        ax.plot(fit_xb,fit_yb,'b+')
-        ax.plot(tmp_x,tmp_y,'k-')
-        ax.plot(bf_res["x_cent"],bf_res["y_cent"],"k+")
-        plt.savefig('test.pdf')
+        if drawfig:
+            ax = plt.gca()
+            im = ax.imshow(data_bf, cmap='gist_heat',
+                    origin='lower',extent=[np.min(X),np.max(X),np.min(Y),np.max(Y)])
+            ax.plot(self.xb,self.yb,'g.')
+            ax.plot(fit_xb,fit_yb,'b+')
+            ax.plot(tmp_x,tmp_y,'k-')
+            ax.plot(bf_res["x_cent"],bf_res["y_cent"],"k+")
+            plt.savefig('test.pdf')
+        if verb:
+            print(mdates.num2date(self.time_ds[t_idx]))
+            print(self.freqs_ds[f_idx])
 
         return bf_res,bf_err
 
