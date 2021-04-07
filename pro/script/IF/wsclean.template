@@ -1,0 +1,1 @@
+wsclean -j 40 -mem 30 -no-reorder -no-update-model-required -mgain 0.5 -weight briggs 1.5 -size 600 600 -scale 10asec -pol I -auto-mask 2 -multiscale -auto-threshold 0.1 -data-column CORRECTED_DATA -niter 100 -intervals-out {numint} -interval {ind0} {ind1} -fit-beam -make-psf -name {outfolder}/{outfits} {inms}
