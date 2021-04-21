@@ -1,0 +1,214 @@
+from scipy.io import readsav
+import matplotlib.dates as mdates
+import matplotlib as mpl
+import datetime
+import glob
+import os
+
+from astropy import units as u
+from astropy.coordinates import EarthLocation, SkyCoord
+from astropy.io import fits
+from astropy.time import Time
+
+import numpy as np
+from skimage import measure
+from scipy.ndimage import gaussian_filter
+import matplotlib.pyplot as plt
+import cv2
+import sunpy
+import sunpy.map
+import sunpy.coordinates.sun as sun_coord
+from sunpy.coordinates.sun import sky_position as sun_position
+from sunpy.coordinates import frames
+import scipy
+import scipy.ndimage
+from matplotlib.patches import Ellipse
+
+# try to use the precise epoch
+mpl.rcParams['date.epoch']='1970-01-01T00:00:00'
+try:
+    mdates.set_epoch('1970-01-01T00:00:00')
+except:
+    pass
+
+
+class IMdata:
+    def __init__(self):
+        self.havedata = False
+
+    def load_fits(self,fname):
+        if len(fname)>0:
+            self.havedata = True
+            self.fname = fname
+            hdulist = fits.open(fname)
+            hdu = hdulist[0]
+            self.header = hdu.header
+            self.t_obs = sunpy.time.parse_time(self.header['DATE-OBS']).datetime
+            self.freq = hdu.header['CRVAL3']/1e6
+            data=np.zeros((hdu.header[3],hdu.header[4]), dtype=int)
+            data = hdu.data
+            self.data=data[0,0,:,:]
+            [RA_sun,DEC_sun] = self.get_cur_solar_centroid(t_obs=self.t_obs)
+            [RA_obs,DEC_obs] = self.get_obs_image_centroid(self.header)
+            [RA_ax ,DEC_ax ] = self.get_axis_obs(self.header)
+
+            [self.xx,self.yy] = self.RA_DEC_shift_xy0(RA_ax,DEC_ax,RA_obs,DEC_obs)
+            self.data_xy = self.sun_coord_trasform(self.data,self.header,True,True)
+            [b_maj,b_min,b_ang] = self.get_beam()
+            self.beamArea = (b_maj/180*np.pi)*(b_min/180*np.pi)*np.pi /(4*np.log(2))
+            self.data_xy_calib = self.data_xy*(300/self.freq)**2/2/(1.38e-23)/1e26/self.beamArea
+
+    
+    def get_cur_solar_centroid(self,t_obs):
+            # use the observation time to get the solar center
+        [RA,DEC] = sun_position(t=t_obs, equinox_of_date=False)
+        return [RA.degree%360,DEC.degree%360]
+
+    def get_obs_image_centroid(self,header):
+        # get the RA DEC center of the image from the solar center
+        RA_obs = header['CRVAL1']
+        DEC_obs = header['CRVAL2']
+        return [RA_obs%360,DEC_obs%360]
+
+    def get_axis_obs(self,header):
+        # make the header with the image
+        # refer to https://www.atnf.csiro.au/computing/software/miriad/progguide/node33.html
+        if self.havedata:
+            [RA_c,DEC_c] = self.get_obs_image_centroid(self.header)
+            RA_ax_obs   = RA_c + ((np.arange(header['NAXIS1'])+1) 
+                                -header['CRPIX1'])*header['CDELT1']/np.cos((header['CRVAL2'])/180.*np.pi)
+            DEC_ax_obs  = DEC_c+ ((np.arange(header['NAXIS2'])+1) 
+                                -header['CRPIX2'])*header['CDELT2']
+            return [RA_ax_obs,DEC_ax_obs]
+        else:
+            print("No data loaded")
+            
+    def RA_DEC_shift_xy0(self,RA,DEC,RA_cent,DEC_cent):
+        # transformation between the observed coordinate and the solar x-y coordinate
+        # including the x-y shift
+        x_geo = -(RA  -  RA_cent)*np.cos(DEC_cent/180.*np.pi)*3600
+        y_geo = -(DEC_cent - DEC)*3600
+        # (in arcsec)
+        # the rotation angle of the sun accoording to the date
+        return [x_geo,y_geo]
+
+    def sun_coord_trasform(self,data,header,act_r=True,act_s=True):
+        # act_r : rotation operation
+        # act_s : shift operation
+        if self.havedata:
+            [RA_sun,DEC_sun] = self.get_cur_solar_centroid(self.t_obs);
+            [RA_obs,DEC_obs] = self.get_obs_image_centroid(header);
+            x_shift_pix = (RA_sun  - RA_obs) /header['CDELT1']
+            y_shift_pix = (DEC_sun - DEC_obs)/header['CDELT2']
+            if act_s==False:
+                x_shift_pix = 0
+                y_shift_pix = 0
+            rotate_angel = sun_coord.P(self.t_obs).degree
+            if act_r==False:
+                rotate_angel = 0
+            data_tmp = scipy.ndimage.shift(data,(x_shift_pix,y_shift_pix))
+            data_new = scipy.ndimage.rotate(data_tmp,rotate_angel,reshape=False)
+            return data_new
+        else:
+            print("No data loaded")
+                        
+        
+    def get_beam(self):
+        if self.havedata:
+            solar_PA = sun_coord.P(self.t_obs).degree
+            b_maj =  self.header['BMAJ']
+            b_min  = self.header['BMIN']
+            b_ang = self.header['BPA']+solar_PA # should consider the beam for the data
+            return [b_maj,b_min,b_ang]
+        else:
+            print("No data loaded")
+
+    def make_map(self):
+        # still in beta version, use with caution
+        # ref : https://gist.github.com/hayesla/42596c72ab686171fe516f9ab43300e2
+        hdu = fits.open(self.fname)
+        header = hdu[0].header
+        data = np.squeeze(hdu[0].data)
+        data = np.squeeze(hdu[0].data)
+        obstime = Time(header['date-obs'])
+        frequency = header['crval3']*u.Hz
+        reference_coord = SkyCoord(header['crval1']*u.deg, header['crval2']*u.deg,
+                           frame='gcrs',
+                           obstime=obstime,
+                           distance=sun_coord.earth_distance(obstime),
+                           equinox='J2000')
+        lofar_loc = EarthLocation(lat=52.905329712*u.deg, lon=6.867996528*u.deg) # location of the center of LOFAR
+        lofar_coord = SkyCoord(lofar_loc.get_itrs(Time(obstime)))
+        reference_coord_arcsec = reference_coord.transform_to(frames.Helioprojective(observer=lofar_coord))
+        cdelt1 = (np.abs(header['cdelt1'])*u.deg).to(u.arcsec)
+        cdelt2 = (np.abs(header['cdelt2'])*u.deg).to(u.arcsec)
+        P1 = sun_coord.P(obstime)
+        new_header = sunpy.map.make_fitswcs_header(data, reference_coord_arcsec,
+                                           reference_pixel=u.Quantity([header['crpix1']-1, header['crpix2']-1]*u.pixel),
+                                           scale=u.Quantity([cdelt1, cdelt2]*u.arcsec/u.pix),
+                                           rotation_angle=-P1,
+                                           wavelength=frequency.to(u.MHz),
+                                           observatory='LOFAR')
+        lofar_map = sunpy.map.Map(data, new_header)
+        lofar_map_rotate = lofar_map.rotate()
+        bl = SkyCoord(-2500*u.arcsec, -2500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
+        tr = SkyCoord(2500*u.arcsec, 2500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
+        lofar_submap = lofar_map_rotate.submap(bl, tr)
+        return lofar_submap
+
+
+    def plot_image(self,vmax_set=np.nan,log_scale=False,fov=2500,FWHM=False):
+        if self.havedata:
+            t_cur_datetime = self.t_obs
+            solar_PA = sun_coord.P(self.t_obs).degree
+            freq_cur = self.freq
+            [b_maj,b_min,b_angel] = self.get_beam()
+            b_maj = b_maj*3600
+            b_min = b_min*3600
+            data_new = gaussian_filter(self.data_xy_calib,sigma=9)
+            xx = self.xx
+            yy = self.yy
+
+           
+            fig=plt.figure()#num=None, figsize=(8, 6),dpi=120)
+            ax = plt.gca()
+            cmap_now = 'CMRmap_r'
+            cmap_now = 'gist_ncar_r'
+            cmap_now = 'gist_heat'
+            vmin_now = 0
+            if log_scale:
+                data_new = 10*np.log10(data_new)
+            if vmax_set>0:
+                vmax_now = vmax_set
+            else:
+                vmax_now = 1.2*np.nanmax(data_new)
+            ax.text(1400,1800, str(int(freq_cur)) + 'MHz',color='w')
+            circle1 = plt.Circle((0,0), 960, color='r',fill=False)
+            beam0 = Ellipse((-500, -1800), b_maj, b_min, b_angel+solar_PA,color='w')
+            
+            #print(b_maj,b_min,b_angel,solar_PA)
+            ax.text(-600,-1800,'Beam shape:',horizontalalignment='right',verticalalignment='center' ,color='w')
+            ax.add_artist(circle1)
+            ax.add_artist(beam0)
+            plt.xlabel('X (ArcSec)')
+            plt.ylabel('Y (ArcSec)')
+            
+            plt.imshow(data_new,vmin=vmin_now, vmax=vmax_now , 
+                            interpolation='nearest',cmap=cmap_now, origin='lower',
+                            extent=(min(xx),max(xx),min(yy),max(yy)))
+
+            if FWHM:
+                FWHM_thresh=0.5*(np.max(data_new))
+                ax.contour(xx,yy,data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
+                
+            plt.colorbar()
+            plt.xlim([-fov,fov])
+            plt.ylim([-fov,fov])
+            plt.title(str(t_cur_datetime))
+
+            plt.show()
+            return [fig,ax]
+
+        else:
+            print("No data loaded")
+            

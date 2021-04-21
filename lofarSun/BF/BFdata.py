@@ -1,10 +1,26 @@
+from scipy.io import readsav
+import matplotlib.dates as mdates
+import matplotlib as mpl
+
+from .lofarJ2000xySun import j2000xy
+import datetime
+import glob
+import os
+
+from astropy import units as u
+from astropy.io import fits
+from astropy.time import Time
+
+import numpy as np
+from skimage import measure
+from scipy.interpolate import griddata
+from scipy.ndimage import gaussian_filter
+from scipy.interpolate import interp2d
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import cv2
 import sunpy
 import sunpy.map
-import sunpy.coordinates.sun as sun_coord
-from sunpy.coordinates.sun import sky_position as sun_position
-from sunpy.coordinates import frames
 import scipy
 import scipy.ndimage
 from matplotlib.patches import Ellipse
@@ -16,7 +32,7 @@ try:
 except:
     pass
 
-class BF:
+class BFdata:
     def __init__(self):
         self.fname = ''
         self.havedata = False

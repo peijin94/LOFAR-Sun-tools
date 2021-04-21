@@ -1,1 +1,2 @@
-from BF import BF
+from .BFdata import BFdata
+from . import GUI

@@ -1,1 +1,2 @@
-__all__ = ['BF','IM']
+from .IM import IMdata
+from .BF import BFdata
