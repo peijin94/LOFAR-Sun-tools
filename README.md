@@ -2,6 +2,7 @@
 
  Handy scripts and modules for the LOFAR data processing for Solar and Space Weather.
  Installation guide [doc/install.md](doc/install.md)
+ For docker user: [lofarsundocker](https://github.com/Pjer-zhang/lofarsunDocker)
 
 ## Data Type
 
