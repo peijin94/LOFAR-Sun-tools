@@ -165,7 +165,7 @@ class IMdata:
             [b_maj,b_min,b_angel] = self.get_beam()
             b_maj = b_maj*3600
             b_min = b_min*3600
-            data_new = gaussian_filter(self.data_xy_calib,gaussian_sigma=9)
+            data_new = gaussian_filter(self.data_xy_calib,sigma=gaussian_sigma)
             xx = self.xx
             yy = self.yy
 
