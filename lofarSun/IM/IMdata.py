@@ -157,7 +157,7 @@ class IMdata:
         return lofar_submap
 
 
-    def plot_image(self,vmax_set=np.nan,log_scale=False,fov=2500,FWHM=False):
+    def plot_image(self,vmax_set=np.nan,log_scale=False,fov=2500,FWHM=False,gaussian_sigma=0):
         if self.havedata:
             t_cur_datetime = self.t_obs
             solar_PA = sun_coord.P(self.t_obs).degree
@@ -165,7 +165,7 @@ class IMdata:
             [b_maj,b_min,b_angel] = self.get_beam()
             b_maj = b_maj*3600
             b_min = b_min*3600
-            data_new = gaussian_filter(self.data_xy_calib,sigma=9)
+            data_new = gaussian_filter(self.data_xy_calib,gaussian_sigma=9)
             xx = self.xx
             yy = self.yy
 

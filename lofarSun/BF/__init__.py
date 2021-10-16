@@ -1,2 +1,2 @@
-from .BFdata import BFdata
-from . import GUI
+from lofarSun.BF.BFdata import BFdata
+import lofarSun.BF.GUI as GUI
