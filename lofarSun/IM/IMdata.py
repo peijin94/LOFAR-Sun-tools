@@ -123,7 +123,7 @@ class IMdata:
         else:
             print("No data loaded")
 
-    def make_map(self):
+    def make_map(self,fov=2500):
         # still in beta version, use with caution
         # ref : https://gist.github.com/hayesla/42596c72ab686171fe516f9ab43300e2
         hdu = fits.open(self.fname)
@@ -151,9 +151,9 @@ class IMdata:
                                            observatory='LOFAR')
         lofar_map = sunpy.map.Map(data, new_header)
         lofar_map_rotate = lofar_map.rotate()
-        bl = SkyCoord(-2500*u.arcsec, -2500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
-        tr = SkyCoord(2500*u.arcsec, 2500*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
-        lofar_submap = lofar_map_rotate.submap(bl, tr)
+        bl = SkyCoord(-fov*u.arcsec, -fov*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
+        tr = SkyCoord(fov*u.arcsec, fov*u.arcsec, frame=lofar_map_rotate.coordinate_frame)
+        lofar_submap = lofar_map_rotate.submap(bottom_left=bl, top_right=tr)
         return lofar_submap
 
 
