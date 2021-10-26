@@ -184,10 +184,10 @@ class IMdata:
                 vmax_now = 1.2*np.nanmax(data_new)
             ax.text(1400,1800, str(int(freq_cur)) + 'MHz',color='w')
             circle1 = plt.Circle((0,0), 960, color='r',fill=False)
-            beam0 = Ellipse((-500, -1800), b_maj, b_min, b_angel+solar_PA,color='w')
+            beam0 = Ellipse((-fov*0.3, -fov*0.9), b_maj, b_min, -(b_angel-solar_PA),color='w')
             
             #print(b_maj,b_min,b_angel,solar_PA)
-            ax.text(-600,-1800,'Beam shape:',horizontalalignment='right',verticalalignment='center' ,color='w')
+            ax.text(-fov*0.35, -fov*0.9,'Beam shape:',horizontalalignment='right',verticalalignment='center' ,color='w')
             ax.add_artist(circle1)
             ax.add_artist(beam0)
             plt.xlabel('X (ArcSec)')
