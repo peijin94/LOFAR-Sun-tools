@@ -130,9 +130,7 @@ class IMdata:
         header = hdu[0].header
         data_jybeam = np.squeeze(hdu[0].data)
 
-        [b_maj,b_min,b_ang] = self.get_beam()
-        self.beamArea = (b_maj/180*np.pi)*(b_min/180*np.pi)*np.pi /(4*np.log(2))
-        self.data = self.data_jybeam*(300/self.freq)**2/2/(1.38e-23)/1e26/self.beamArea
+        data = data_jybeam*(300/self.freq)**2/2/(1.38e-23)/1e26/self.beamArea
         # speed of light 3e8, MHz 1e6
 
 
