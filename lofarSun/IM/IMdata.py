@@ -128,8 +128,14 @@ class IMdata:
         # ref : https://gist.github.com/hayesla/42596c72ab686171fe516f9ab43300e2
         hdu = fits.open(self.fname)
         header = hdu[0].header
-        data = np.squeeze(hdu[0].data)
-        data = np.squeeze(hdu[0].data)
+        data_jybeam = np.squeeze(hdu[0].data)
+
+        [b_maj,b_min,b_ang] = self.get_beam()
+        self.beamArea = (b_maj/180*np.pi)*(b_min/180*np.pi)*np.pi /(4*np.log(2))
+        self.data = self.data_jybeam*(300/self.freq)**2/2/(1.38e-23)/1e26/self.beamArea
+        # speed of light 3e8, MHz 1e6
+
+
         obstime = Time(header['date-obs'])
         frequency = header['crval3']*u.Hz
         reference_coord = SkyCoord(header['crval1']*u.deg, header['crval2']*u.deg,
@@ -182,7 +188,7 @@ class IMdata:
                 vmax_now = vmax_set
             else:
                 vmax_now = 1.2*np.nanmax(data_new)
-            ax.text(1400,1800, str(int(freq_cur)) + 'MHz',color='w')
+            ax.text(fov*0.55, fov*0.87, str(round(freq_cur,2)).ljust(5,'0') + 'MHz',color='w')
             circle1 = plt.Circle((0,0), 960, color='r',fill=False)
             beam0 = Ellipse((-fov*0.3, -fov*0.9), b_maj, b_min, -(b_angel-solar_PA),color='w')
             
