@@ -12,15 +12,15 @@
 import glob
 import os
 import time
-import numpy as np
-import logging
+#import numpy as np
+#import logging
 import re
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-logger = logging.getLogger()
-logger.addHandler(logging.FileHandler('std.log', 'a'))
-print = logger.info
-print('Logging_start')
+#logging.basicConfig(level=logging.INFO, format='%(message)s')
+#logger = logging.getLogger()
+#logger.addHandler(logging.FileHandler('std.log', 'a'))
+#print = logger.info
+#print('Logging_start')
 
 ###############  the configurations
 base_dir = './'
