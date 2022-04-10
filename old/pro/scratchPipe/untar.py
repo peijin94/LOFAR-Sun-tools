@@ -14,7 +14,7 @@
 import os
 import glob
 
-for filename in glob.glob("*MS*.tar*"):
+for filename in glob.glob("*L*.tar*"):
   outname=filename.split("%")[-1]
   os.rename(filename, outname)
   os.system('tar -xvf '+outname)
