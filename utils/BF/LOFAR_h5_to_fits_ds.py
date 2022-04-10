@@ -47,7 +47,7 @@ y_points = -1 # f samples  (-1 for not down sampling, keep origional)
 chunk_t = datetime.timedelta(minutes=15)
 chop_off = True # chop every **interger** 15 minutes [00:15,00:30,00:45....]
 h5dir = '/data001/scratch/zhang/perih2019/'
-out_dir_base = '/data001/scratch/zhang/perih2019/output/' # should be absolute dir starting from '/'
+out_dir_base = '/data001/scratch/zhang/perih2019/output2/' # should be absolute dir starting from '/'
 
 
 
@@ -187,18 +187,18 @@ for fname_DS in glob.glob('./*.h5'):
         hdu_lofar.header['BEAM-DEC']   = this_dec    
 
 
-        col_freq = fits.Column(name='FREQUENCY', format='PD',
-                         array=[np.array(f_fits)])
-        col_time = fits.Column(name='TIME', format='PD',
-                         array=[np.array(t_fits)])
-        hdu_lofar_axes = fits.BinTableHDU.from_columns([col_freq, col_time])
-
-
+        col_freq = fits.Column(name='FREQ', format='D',array=f_fits)
+        col_time = fits.Column(name='TIME', format='D',array=t_fits)
+        
+        hdu_f = fits.BinTableHDU.from_columns([col_freq],name="FREQ")
+        hdu_t = fits.BinTableHDU.from_columns([col_time],name="TIME")
 
         fname = t_start_fits.strftime('LOFAR_%Y%m%d_%H%M%S_')+group.attrs['ANTENNA_SET']+'.fits'
 
         #full_hdu = fits.HDUList([hdu_lofar, hdu_lofar_axes])
-        hdu_lofar.writeto(out_dir+fname,overwrite=True)
+        
+        hdul = fits.HDUList([hdu_lofar,hdu_f,hdu_t])
+        hdul.writeto(out_dir+fname,overwrite=True)
         fig = plt.figure(figsize=(6, 4), dpi=120)
         ax = plt.gca()
 
