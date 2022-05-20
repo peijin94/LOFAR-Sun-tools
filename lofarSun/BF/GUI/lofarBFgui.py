@@ -17,7 +17,7 @@ from scipy.interpolate import griddata
 from skimage import measure
 import matplotlib.dates as mdates
 import resource_rc
-from lofarSun.lofarData import LofarDataBF
+from lofarSun.BF import BFdata as LofarDataBF
 from pandas.plotting import register_matplotlib_converters
 import platform
 
