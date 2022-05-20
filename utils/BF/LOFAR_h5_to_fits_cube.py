@@ -105,6 +105,7 @@ for this_f_index in np.arange(len(fnames_DS)):
                                                           - mdates.date2num(t_start_bf))
         idx_end = int(t_ratio_end*(t_lines-1))
         stokes = f["/SUB_ARRAY_POINTING_000/BEAM_"+beam_this+"/STOKES_0"][idx_start:idx_end:int((idx_end-idx_start)/x_points+1),:]
+        stokes = np.abs(stokes) + 1e-7
         array_this = np.mean(np.mean(stokes,0).reshape(-1,f_downsamp_n),1).T
 
         if idx_cur==0:

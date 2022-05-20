@@ -42,14 +42,12 @@ try:
 except:
     pass
 
-x_points = 1800 # time sample points
-y_points = -1 # f samples  (-1 for not down sampling, keep origional) 
-chunk_t = datetime.timedelta(minutes=15)
+x_points = 900 # time sample points
+y_points = 800 # f samples  (-1 for not down sampling, keep origional) 
+chunk_t = datetime.timedelta(minutes=5)
 chop_off = True # chop every **interger** 15 minutes [00:15,00:30,00:45....]
 h5dir = '/data001/scratch/zhang/perih2019/'
 out_dir_base = '/data001/scratch/zhang/perih2019/output2/' # should be absolute dir starting from '/'
-
-
 
 
 os.chdir(h5dir)  # the dir contains the h5
@@ -148,6 +146,7 @@ for fname_DS in glob.glob('./*.h5'):
         idx_end = int(t_ratio_end*(t_lines-1))
 
         stokes = f['/SUB_ARRAY_POINTING_000/BEAM_'+beam_this+'/STOKES_0'][idx_start:idx_end:int((idx_end-idx_start)/x_points+1),:]
+        stokes = np.abs(stokes) + 1e-7
         data_fits = 10.0*np.log10(stokes)[:,freq_select_idx]
         t_fits = np.linspace(mdates.date2num(t_start_fits),mdates.date2num(t_end_fits),data_fits.shape[0])
 
