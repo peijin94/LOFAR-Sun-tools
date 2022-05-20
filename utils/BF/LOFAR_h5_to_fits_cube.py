@@ -25,7 +25,7 @@ import h5py
 import datetime
 import numpy as np
 import re
-from lofarSun.lofarJ2000xySun import j2000xy
+from lofarSun.BF.lofarJ2000xySun import j2000xy
 import matplotlib.pyplot as plt
 
 import matplotlib as mpl
@@ -36,21 +36,25 @@ try:
 except:
     pass
 
-datadir = '/mnt/PROC/peijin/L700909/' # and dir contains only h5 target data
+datadir = '/data/scratch/zucca/EVENT_20220519/data/TAB/' # and dir contains only h5 target data
 t_downsamp = datetime.timedelta(seconds=2) # time averaging length
 f_downsamp_n = 2 # freq averaging index range
-t_cut_start_ratio = 0
-t_cut_end_ratio = 0.1
+t_cut_start_ratio = 0.55
+t_cut_end_ratio = 0.75
 
-x_points = 1024 # maximum gap
+x_points = 2000 # maximum gap
 
 
 os.chdir(datadir)  # the dir contains the h5
 fnames_DS = sorted(glob.glob('*SAP000*.h5')) # find all the h5 file of this observation
-out_fname = 'test_mini_cube.fits'
+out_fname = '/data001/scratch/zhang/EVENT_20220519/EVENT_20220519.fits'
+
+print('Loading hdf and raw')
+
 
 # gather everything from the h5 files
 for this_f_index in np.arange(len(fnames_DS)):
+    
     
     m = re.search('B[0-9]{3}', fnames_DS[this_f_index])
     m.group(0)
@@ -86,7 +90,7 @@ for this_f_index in np.arange(len(fnames_DS)):
 
 
 
-    idx_cur=0
+    idx_mark=0
     idx_for_t_averaging = np.arange(int(chunk_num*(t_cut_end_ratio-t_cut_start_ratio))) + \
                     int(chunk_num*t_cut_start_ratio)
 
@@ -108,8 +112,9 @@ for this_f_index in np.arange(len(fnames_DS)):
         stokes = np.abs(stokes) + 1e-7
         array_this = np.mean(np.mean(stokes,0).reshape(-1,f_downsamp_n),1).T
 
-        if idx_cur==0:
+        if idx_mark==0:
             array_all = array_this
+            idx_mark=1
             t_fits  = mdates.date2num(t_start_fits)
         else:
             array_all  = np.vstack((array_all,array_this))
