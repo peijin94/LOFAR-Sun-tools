@@ -28,6 +28,8 @@ try:
     mdates.set_epoch('1970-01-01T00:00:00')
 except:
     pass
+import os
+here = os.path.dirname(os.path.realpath(__file__))
 
 register_matplotlib_converters()
 
@@ -43,7 +45,7 @@ class MatplotlibWidget(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
-        loadUi("layout.ui", self)
+        loadUi(here+"/layout.ui", self)
 
         self.move(10,30)
         self.init_graph()
@@ -105,7 +107,7 @@ class MatplotlibWidget(QMainWindow):
     def init_graph(self):
 
         self.mplw.canvas.axes.clear()
-        self.mplw.canvas.axes.imshow(plt.imread('resource/login.png'))
+        self.mplw.canvas.axes.imshow(plt.imread(here+'/resource/login.png'))
         self.mplw.canvas.axes.set_axis_off()
         self.mplw.canvas.draw()
 
