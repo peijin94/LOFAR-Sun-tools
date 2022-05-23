@@ -21,6 +21,7 @@ from lofarSun.BF import BFdata as LofarDataBF
 from pandas.plotting import register_matplotlib_converters
 import platform
 
+
 import matplotlib as mpl
 # try to use the precise epoch
 mpl.rcParams['date.epoch']='1970-01-01T00:00:00'
@@ -38,7 +39,7 @@ if platform.system() != "Darwin":
 else:
     print("Detected MacOS, using the default matplotlib backend: " +
           matplotlib.get_backend())
-
+matplotlib.use('Qt5Agg')
 
 class MatplotlibWidget(QMainWindow):
 
@@ -105,7 +106,6 @@ class MatplotlibWidget(QMainWindow):
             window.wm_geometry("+{dx}+{dy}".format(dx=dx, dy=dy))
 
     def init_graph(self):
-
         self.mplw.canvas.axes.clear()
         self.mplw.canvas.axes.imshow(plt.imread(here+'/resource/login.png'))
         self.mplw.canvas.axes.set_axis_off()
@@ -114,7 +114,7 @@ class MatplotlibWidget(QMainWindow):
     def update_lofarBF(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
+        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"Load idl SAVE cube",
                                                   "","IDL Files (*.sav);;All Files (*)",
                                                   options=options)
         if self.dataset.fname:
@@ -125,11 +125,11 @@ class MatplotlibWidget(QMainWindow):
                 self.draw_ds_after_load()
                 self.beamSet.clear()
                 self.beamSet.addItems([str(x).rjust(3,'0') for x in range(self.dataset.xb.shape[0])])
-
+        
     def update_lofar_cube(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
+        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"Load idl SAVE cube",
                                                   "","IDL Files (*.sav);;All Files (*)",
                                                   options=options)
         if self.dataset.fname:
@@ -144,7 +144,7 @@ class MatplotlibWidget(QMainWindow):
     def update_lofar_fits(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()",
+        self.dataset.fname, _ = QFileDialog.getOpenFileName(self,"Load fits cube",
                                                   "","Fits Files (*.fits);;All Files (*)",
                                                   options=options)
         if self.dataset.fname:
@@ -193,13 +193,14 @@ class MatplotlibWidget(QMainWindow):
             self.mplw.canvas.draw()
             self.selected = True
             self.keyaval = True
+            print(plt.fignum_exists(4))
             if plt.fignum_exists(4):
                 self.showBeamForm()
 
     def showPointing(self):
         if self.dataset.havedata:
             plt.figure(5)
-            #self.move_window(plt.get_current_fig_manager().window, 1150, 550)
+            self.move_window(plt.get_current_fig_manager().window, 1150, 550)
             plt.plot(self.dataset.xb,self.dataset.yb,'b.')
             for idx in list(range(self.dataset.xb.shape[0])):
                 plt.text(self.dataset.xb[idx],self.dataset.yb[idx],str(idx))
@@ -209,6 +210,7 @@ class MatplotlibWidget(QMainWindow):
             ax.set_aspect('equal', 'box')
 
             plt.show()
+
 
     def keyUp(self):
         self.stepNear(1,0)
@@ -243,7 +245,6 @@ class MatplotlibWidget(QMainWindow):
 
 
     def showBeamForm(self):
-        print(self.selected)
         if not self.selected:
             QMessageBox.about(self, "Attention", "Select a time-frequency point!")
         elif self.dataset.havedata:
@@ -257,11 +258,11 @@ class MatplotlibWidget(QMainWindow):
                             mdates.num2date(self.x_select).strftime('%H:%M:%S.%f') +' of '
                             '{:06.3f}'.format(self.y_select)+'MHz')
 
-            fig = plt.figure(4)
-            #self.move_window(plt.get_current_fig_manager().window, 1150, 50)
+            fig = plt.figure(num=4)
+            self.move_window(plt.get_current_fig_manager().window, 1150, 50)
 
             fig.clear()
-            ax = plt.gca()
+            ax = fig.add_subplot(111)
             im = ax.imshow(data_bf, cmap='gist_heat',
                       origin='lower',extent=[np.min(X),np.max(X),np.min(Y),np.max(Y)])
             ax.set_xlabel('X (Arcsec)')
@@ -297,14 +298,17 @@ class MatplotlibWidget(QMainWindow):
             if self.show_peak.isChecked():
                 ax.plot(x_peak,y_peak,'k+')
 
+            fig.canvas.draw()
             plt.show()
 
 
+def main():
+
+    app = QApplication([])
+    window = MatplotlibWidget()
+    window.show()
+    app.exec_()
 
 
-
-app = QApplication([])
-window = MatplotlibWidget()
-window.show()
-app.exec_()
-
+if __name__=='__main__':
+    main()
