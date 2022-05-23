@@ -13,6 +13,8 @@
 
 ## Install
 
+Go to a empty directory, run the following command.
+
 ```bash
 git clone https://github.com/peijin94/LOFAR-Sun-tools.git
 cd LOFAR-Sun-tools
@@ -28,3 +30,7 @@ lofarBFcube
 Then load beamformed imaging fits and preview:
 
 ![image](./doc/img/image.png)
+
+## Cite as
+
+[https://arxiv.org/abs/2205.00065](https://arxiv.org/abs/2205.00065)
