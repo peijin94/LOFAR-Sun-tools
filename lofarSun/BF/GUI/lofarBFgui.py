@@ -199,7 +199,7 @@ class MatplotlibWidget(QMainWindow):
     def showPointing(self):
         if self.dataset.havedata:
             plt.figure(5)
-            self.move_window(plt.get_current_fig_manager().window, 1150, 550)
+            #self.move_window(plt.get_current_fig_manager().window, 1150, 550)
             plt.plot(self.dataset.xb,self.dataset.yb,'b.')
             for idx in list(range(self.dataset.xb.shape[0])):
                 plt.text(self.dataset.xb[idx],self.dataset.yb[idx],str(idx))
@@ -258,7 +258,7 @@ class MatplotlibWidget(QMainWindow):
                             '{:06.3f}'.format(self.y_select)+'MHz')
 
             fig = plt.figure(4)
-            self.move_window(plt.get_current_fig_manager().window, 1150, 50)
+            #self.move_window(plt.get_current_fig_manager().window, 1150, 50)
 
             fig.clear()
             ax = plt.gca()

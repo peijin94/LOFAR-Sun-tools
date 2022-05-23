@@ -23,7 +23,7 @@ setup(
           'sunpy',
           'opencv-python',
           'astropy',
-          'h5py',
+          'h5py','pyqt5','pandas',
           'scipy',
           'numpy',
           'scikit-image'
