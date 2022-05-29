@@ -3,13 +3,28 @@
 
 # Note : make sure there is enough storage!
 
-module load dp3 # load NDPPP 
+DIR='/data001/scratch/zucca/EVENT_20220521/MS/'
 
-DIR='./'  # better use absolute directory
-PREFIX='L700177_'
+module load dp3 lofar # load NDPPP 
 
+PREFIX='L'
 
-for MSfile in `ls $DIR$PREFIX*.MS -d`
+# needs to do autoweight for raw
+
+# flagging better be done for calibrator
+for MSfile in `ls $DIR$PREFIX*SAP001*.MS -d`
+do             
+  NDPPP msin=$MSfile msin.autoweight=True \
+  steps=[flag,averager] averager.freqstep=16 \
+  flag.type=aoflagger flag.memoryperc=85 \
+  flag.timewindow=64 msout=./MS_aw/`basename $MSfile`  
+done
+
+# flagging needs to be done for quiet Sun
+# flagging should not be done for burst time
+for MSfile in `ls $DIR$PREFIX*SAP000*.MS -d`
 do
-    NDPPP msin=$MSfile msout=${MSfile/uv/autow_uv} steps=[] msin.autoweight=True
+  NDPPP msin=$MSfile steps=[averager] \
+  msin.autoweight=True averager.freqstep=16 \
+  msout=./MS_aw/`basename $MSfile`  
 done
