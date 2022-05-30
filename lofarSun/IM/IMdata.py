@@ -161,7 +161,7 @@ class IMdata:
         return lofar_submap
 
 
-    def plot_image(self,vmax_set=np.nan,log_scale=False,fov=2500,FWHM=False,gaussian_sigma=0):
+    def plot_image(self,vmax_set=np.nan,log_scale=False,fov=2500,FWHM=False,gaussian_sigma=0,**kwargs):
         if self.havedata:
             t_cur_datetime = self.t_obs
             solar_PA = sun_coord.P(self.t_obs).degree
@@ -199,7 +199,7 @@ class IMdata:
             
             plt.imshow(data_new,vmin=vmin_now, vmax=vmax_now , 
                             interpolation='nearest',cmap=cmap_now, origin='lower',
-                            extent=(min(xx),max(xx),min(yy),max(yy)))
+                            extent=(min(xx),max(xx),min(yy),max(yy)),**kwargs)
 
             if FWHM:
                 FWHM_thresh=0.5*(np.max(data_new))
