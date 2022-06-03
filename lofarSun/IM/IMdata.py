@@ -161,7 +161,7 @@ class IMdata:
         return lofar_submap
 
 
-    def plot_image(self,vmax_set=np.nan,log_scale=False,fov=2500,FWHM=False,gaussian_sigma=0,**kwargs):
+    def plot_image(self,log_scale=False,fov=2500,FWHM=False,gaussian_sigma=0,**kwargs):
         if self.havedata:
             t_cur_datetime = self.t_obs
             solar_PA = sun_coord.P(self.t_obs).degree
@@ -176,16 +176,18 @@ class IMdata:
            
             fig=plt.figure()#num=None, figsize=(8, 6),dpi=120)
             ax = plt.gca()
-            cmap_now = 'CMRmap_r'
-            cmap_now = 'gist_ncar_r'
-            cmap_now = 'gist_heat'
-            vmin_now = 0
+            #cmap_now = 'CMRmap_r'#,'gist_ncar_r','gist_heat'
+            
+            # set some default values
+            if 'cmap' not in kwargs:
+                kwargs['cmap'] = 'gist_heat'
+            if 'vmin' not in kwargs:
+                kwargs['vmin'] = 0
             if log_scale:
                 data_new = 10*np.log10(data_new)
-            if vmax_set>0:
-                vmax_now = vmax_set
-            else:
-                vmax_now = 1.2*np.nanmax(data_new)
+                kwargs['vmin'] = np.mean(data_new)-2*np.std(data_new)
+            if 'vmax' not in kwargs:
+                kwargs['vmax'] = 0.8*np.nanmax(data_new)
             ax.text(fov*0.55, fov*0.87, str(round(freq_cur,2)).ljust(5,'0') + 'MHz',color='w')
             circle1 = plt.Circle((0,0), 960, color='r',fill=False)
             beam0 = Ellipse((-fov*0.3, -fov*0.9), b_maj, b_min, -(b_angel-solar_PA),color='w')
@@ -197,8 +199,7 @@ class IMdata:
             plt.xlabel('X (ArcSec)')
             plt.ylabel('Y (ArcSec)')
             
-            plt.imshow(data_new,vmin=vmin_now, vmax=vmax_now , 
-                            interpolation='nearest',cmap=cmap_now, origin='lower',
+            plt.imshow(data_new,interpolation='nearest', origin='lower',
                             extent=(min(xx),max(xx),min(yy),max(yy)),**kwargs)
 
             if FWHM:
