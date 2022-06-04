@@ -210,7 +210,7 @@ class IMdata:
                 ax.contour(xx,yy,data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
                 
             
-            ax.setp(xlabel = 'X (ArcSec)',xlabel = 'Y (ArcSec)',
+            ax.setp(xlabel = 'X (ArcSec)',ylabel = 'Y (ArcSec)',
                     xlim=[-fov,fov],ylim=[-fov,fov],
                     title=str(t_cur_datetime))
             #plt.show()
