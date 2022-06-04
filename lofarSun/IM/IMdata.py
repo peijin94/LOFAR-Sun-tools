@@ -161,7 +161,8 @@ class IMdata:
         return lofar_submap
 
 
-    def plot_image(self,log_scale=False,fov=2500,FWHM=False,gaussian_sigma=0,**kwargs):
+    def plot_image(self,log_scale=False,fov=2500,FWHM=False,gaussian_sigma=0,
+                ax_plt=None,**kwargs):
         if self.havedata:
             t_cur_datetime = self.t_obs
             solar_PA = sun_coord.P(self.t_obs).degree
@@ -173,9 +174,13 @@ class IMdata:
             xx = self.xx
             yy = self.yy
 
-           
-            fig=plt.figure()#num=None, figsize=(8, 6),dpi=120)
-            ax = plt.gca()
+            if ax_plt is None:
+                fig=plt.figure()#num=None, figsize=(8, 6),dpi=120)
+                ax = plt.gca()
+            else:
+                fig=plt.gcf()#num=None, figsize=(8, 6),dpi=120)
+                ax = ax_plt
+                
             #cmap_now = 'CMRmap_r'#,'gist_ncar_r','gist_heat'
             
             # set some default values
@@ -196,23 +201,20 @@ class IMdata:
             ax.text(-fov*0.35, -fov*0.9,'Beam shape:',horizontalalignment='right',verticalalignment='center' ,color='w')
             ax.add_artist(circle1)
             ax.add_artist(beam0)
-            plt.xlabel('X (ArcSec)')
-            plt.ylabel('Y (ArcSec)')
             
-            plt.imshow(data_new,interpolation='nearest', origin='lower',
+            im = ax.imshow(data_new,interpolation='nearest', origin='lower',
                             extent=(min(xx),max(xx),min(yy),max(yy)),**kwargs)
 
             if FWHM:
                 FWHM_thresh=0.5*(np.max(data_new))
                 ax.contour(xx,yy,data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
                 
-            plt.colorbar()
-            plt.xlim([-fov,fov])
-            plt.ylim([-fov,fov])
-            plt.title(str(t_cur_datetime))
-
-            plt.show()
-            return [fig,ax]
+            
+            ax.setp(xlabel = 'X (ArcSec)',xlabel = 'Y (ArcSec)',
+                    xlim=[-fov,fov],ylim=[-fov,fov],
+                    title=str(t_cur_datetime))
+            #plt.show()
+            return [fig,ax,im]
 
         else:
             print("No data loaded")
