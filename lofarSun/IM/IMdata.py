@@ -35,7 +35,15 @@ except:
 class IMdata:
     def __init__(self):
         self.havedata = False
-
+        self.data=np.zeros(1)
+        self.t_obs=np.zeros(1)
+        self.freq=np.zeros(1)
+        self.xx=np.zeros(1)
+        self.yy=np.zeros(1)
+        self.data_xy_calib=np.zeros(1)
+        self.beamArea=np.zeros(1)
+        self.fname=''
+        
     def load_fits(self,fname):
         if len(fname)>0:
             self.havedata = True
@@ -194,7 +202,7 @@ class IMdata:
             if 'vmax' not in kwargs:
                 kwargs['vmax'] = 0.8*np.nanmax(data_new)
             ax.text(fov*0.55, fov*0.87, str(round(freq_cur,2)).ljust(5,'0') + 'MHz',color='w')
-            circle1 = plt.Circle((0,0), 960, color='r',fill=False)
+            circle1 = plt.Circle((0,0), 960, color='C0',fill=False)
             beam0 = Ellipse((-fov*0.3, -fov*0.9), b_maj, b_min, -(b_angel-solar_PA),color='w')
             
             #print(b_maj,b_min,b_angel,solar_PA)
@@ -210,7 +218,7 @@ class IMdata:
                 ax.contour(xx,yy,data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
                 
             
-            ax.setp(xlabel = 'X (ArcSec)',ylabel = 'Y (ArcSec)',
+            plt.setp(ax,xlabel = 'X (ArcSec)',ylabel = 'Y (ArcSec)',
                     xlim=[-fov,fov],ylim=[-fov,fov],
                     title=str(t_cur_datetime))
             #plt.show()
