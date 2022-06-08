@@ -201,7 +201,13 @@ for fname_DS in glob.glob('./*.h5'):
         fig = plt.figure(figsize=(6, 4), dpi=120)
         ax = plt.gca()
 
+        
+        bandpass_arr = [np.mean(tmp[np.where((tmp>np.sort(tmp)[int(0.03*tmp.shape[0])]) 
+                     & (tmp<np.sort(tmp)[int(0.2*tmp.shape[0])]))])  for tmp in list(data_fits.T)]
+
         data_fits_new = data_fits-np.tile(np.mean(data_fits,0),(data_fits.shape[0],1))
+        data_fits_new = data_fits-np.tile(bandpass_arr,(data_fits.shape[0],1))
+
         ax.imshow(data_fits_new.T,aspect='auto',  origin='lower', 
                    vmin=(np.mean(data_fits_new)-2*np.std(data_fits_new)),
                    vmax=(np.mean(data_fits_new)+3*np.std(data_fits_new)),

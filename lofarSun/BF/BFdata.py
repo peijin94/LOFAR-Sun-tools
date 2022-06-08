@@ -230,6 +230,8 @@ class BFdata:
             plt.figure()    
             ax_cur = plt.gca()
         dyspec = np.log10(np.array(self.data_cube[:, :, beam_idx]))
+        
+        #data_fits_new = dyspec-np.tile(bandpass_arr,(dyspec.shape[0],1))
         data_ds=dyspec-np.tile(np.mean(dyspec,1).T,(dyspec.shape[1],1)).T
 
         ax_cur.imshow(data_ds, aspect='auto', origin='lower',
