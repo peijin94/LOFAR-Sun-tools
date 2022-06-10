@@ -20,6 +20,7 @@
     +++++++++++++
     update: 
         2022-04-10: [Peijin] add beam pointing information to fits header
+        2022-06-10: [Cristina] add feature cross calibration
 '''
 
 
@@ -56,7 +57,7 @@ chop_off = False # chop every **interger** 15 minutes [00:15,00:30,00:45....]
 # IMORTANT!! give absolute paths to the next array: first of the calibrator, and then of the target source
 h5dirs = ['D:\ASTRON\examples\observation_calibrated\calibrator_raw','D:\ASTRON\examples\observation_calibrated\Sun_raw']
 out_dir_base = 'D:\ASTRON\examples\observation_calibrated/test/' # should be absolute dir starting from '/'
-calibrator = 'Cassiopeia '
+calibrator_name = 'Cassiopeia A'
 SAP_calibrator = '001'
 SAP_target = '000'
 
@@ -474,7 +475,7 @@ for h5dir in h5dirs:
 
 # calibrate file by file
 for i in range(len(names_calibrator)):
-    data_calibrated, f_fits, t_fits = calibration(path_sun+names_sun[i],path_calibrator+names_calibrator[i],'Cassiopeia A')
+    data_calibrated, f_fits, t_fits = calibration(path_sun+names_sun[i],path_calibrator+names_calibrator[i],calibrator_name)
     hdu = fits.open(path_sun+names_sun[i])
     hdu[0].data = data_calibrated
 
