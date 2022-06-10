@@ -2,7 +2,7 @@
 
 
 '''
-    File name: rough_flux_calibration.py
+    File name: LOFAR_H5_calibrate_fits.py
     Author: Cristina Cordun, Peijin Zhang, Pietro Zucca
     Acknowledge: Sarrvesh Seethapuram Sridhar
     Date created: 2019-Aug
@@ -54,12 +54,13 @@ y_points = -1 # f samples  (-1 for not down sampling, keep origional)
 chunk_t = datetime.timedelta(minutes=10)
 chop_off = False # chop every **interger** 15 minutes [00:15,00:30,00:45....]
 
-# IMORTANT!! give absolute paths to the next array: first of the calibrator, and then of the target source
-h5dirs = ['D:\ASTRON\examples\observation_calibrated\calibrator_raw','D:\ASTRON\examples\observation_calibrated\Sun_raw']
-out_dir_base = 'D:\ASTRON\examples\observation_calibrated/test/' # should be absolute dir starting from '/'
+# IMORTANT!! give absolute (or relative) paths to the next array: first of the calibrator, and then of the target source
+h5dirs = ['../h5testdata/cal/','../h5testdata/sun/']
+out_dir_base = '../h5testdata/out/' # should be absolute dir starting from '/'
 calibrator_name = 'Cassiopeia A'
 SAP_calibrator = '001'
 SAP_target = '000'
+work_dir = os.getcwd()
 
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
     '''
@@ -273,6 +274,7 @@ def calibration(target_file, calibrator_file, calibrator):
 # convert h5 to fits for both the source and the calibrator
 calibrator_read = True
 for h5dir in h5dirs:
+    os.chdir(work_dir)
     os.chdir(h5dir)  # the dir contains the h5
     if calibrator_read == True:
         calibrator_read = False
@@ -455,6 +457,8 @@ for h5dir in h5dirs:
 
 # calibrate the target source with the help of the calibrator with fits files
 
+# go back home
+os.chdir(work_dir)
 # save the name of the files
 names_calibrator = []
 names_sun = []

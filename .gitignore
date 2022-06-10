@@ -9,6 +9,8 @@ __pycache__/
 *$py.class
 .vscode/
 *.fits
+*.h5
+*.raw
 
 # C extensions
 *.so
@@ -16,6 +18,8 @@ __pycache__/
 # Distribution / packaging
 
 .idea/
+
+h5testdata
 
 .Python
 build/
