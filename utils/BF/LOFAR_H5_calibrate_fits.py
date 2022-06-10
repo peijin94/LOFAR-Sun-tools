@@ -21,6 +21,7 @@
     update: 
         2022-04-10: [Peijin] add beam pointing information to fits header
         2022-06-10: [Cristina] add feature cross calibration
+        2022-06-10: [Peijin] Read calibrator name from H5 header
 '''
 
 
@@ -57,7 +58,7 @@ chop_off = False # chop every **interger** 15 minutes [00:15,00:30,00:45....]
 # IMORTANT!! give absolute (or relative) paths to the next array: first of the calibrator, and then of the target source
 h5dirs = ['../h5testdata/cal/','../h5testdata/sun/']
 out_dir_base = '../h5testdata/out/' # should be absolute dir starting from '/'
-calibrator_name = 'Cassiopeia A'
+#calibrator_name = 'Cassiopeia A'
 SAP_calibrator = '001'
 SAP_target = '000'
 work_dir = os.getcwd()
@@ -139,12 +140,12 @@ def model_flux(calibrator, frequency):
         parameters.append(-0.010)
         parameters.append(0.022)
     
-    elif calibrator == 'Pictor A':
+    elif calibrator == 'PicA':
         parameters.append(1.9380)
         parameters.append(-0.7470)
         parameters.append(-0.074)
         
-    elif calibrator == 'Taurus A':
+    elif calibrator == 'TauA':
         parameters.append(2.9516)
         parameters.append(-0.217)
         parameters.append(-0.047)
@@ -165,14 +166,14 @@ def model_flux(calibrator, frequency):
         parameters.append(-0.0200)
         parameters.append(0.0201)
         
-    elif calibrator == 'Hydra A':
+    elif calibrator == 'HydA':
         parameters.append(1.7795)
         parameters.append(-0.9176)
         parameters.append(-0.084)
         parameters.append(-0.0139)
         parameters.append(0.030)
         
-    elif calibrator == 'Virgo A':
+    elif calibrator == 'VirA':
         parameters.append(2.4466)
         parameters.append(-0.8116)
         parameters.append(-0.048)
@@ -190,7 +191,7 @@ def model_flux(calibrator, frequency):
         parameters.append(-0.0347)
         parameters.append(0.0399)
         
-    elif calibrator == 'Hercules A':
+    elif calibrator == 'HerA':
         parameters.append(1.8298)
         parameters.append(-1.0247)
         parameters.append(-0.0951)
@@ -209,7 +210,7 @@ def model_flux(calibrator, frequency):
         parameters.append(-0.18)
         parameters.append(-0.16)
         
-    elif calibrator == 'Cygnus A':
+    elif calibrator == 'CygA':
         parameters.append(3.3498)
         parameters.append(-1.0022)
         parameters.append(-0.22)
@@ -222,7 +223,7 @@ def model_flux(calibrator, frequency):
         parameters.append(-0.075)
         parameters.append(-0.077)
     
-    elif calibrator == 'Cassiopeia A':
+    elif calibrator == 'CasA':
         parameters.append(3.3584)
         parameters.append(-0.7518)
         parameters.append(-0.035)
@@ -273,8 +274,9 @@ def calibration(target_file, calibrator_file, calibrator):
 
 # convert h5 to fits for both the source and the calibrator
 calibrator_read = True
+calibrator_name = ''
 for h5dir in h5dirs:
-    os.chdir(work_dir)
+    os.chdir(work_dir) # go back home
     os.chdir(h5dir)  # the dir contains the h5
     if calibrator_read == True:
         calibrator_read = False
@@ -292,13 +294,13 @@ for h5dir in h5dirs:
 
         f = h5py.File( fname_DS, 'r' )
         group = f['/']
-        keys = sorted(['%s'%item for item in sorted(list(group.attrs))])
-        #for key in keys:
-        #    print(key + ' = ' + str(group.attrs[key]))
-
-
+        #keys = sorted(['%s'%item for item in sorted(list(group.attrs))])
+        
+        # obtain name of calibrator
+        target_obs = group.attrs['TARGETS']
+        calibrator_name = [x for x in target_obs if x!='Sun'][0]
+        
         data_shape = f['SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this+'/STOKES_0'].shape
-
 
         # get shape of the BF raw
         t_lines = data_shape[0]
@@ -453,6 +455,8 @@ for h5dir in h5dirs:
             plt.close('all')
             with open(out_dir+fname.split('.')[0]+'.json', 'w') as fp:
                 json.dump(lofar_json_dict, fp)
+
+print('Calibrator:',calibrator_name)
 
 
 # calibrate the target source with the help of the calibrator with fits files
