@@ -57,7 +57,8 @@ chop_off = False # chop every **interger** 15 minutes [00:15,00:30,00:45....]
 h5dirs = ['D:\ASTRON\examples\observation_calibrated\calibrator_raw','D:\ASTRON\examples\observation_calibrated\Sun_raw']
 out_dir_base = 'D:\ASTRON\examples\observation_calibrated/test/' # should be absolute dir starting from '/'
 calibrator = 'Cassiopeia '
-calibrator_read = True
+SAP_calibrator = '001'
+SAP_target = '000'
 
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
     '''
@@ -269,15 +270,16 @@ def calibration(target_file, calibrator_file, calibrator):
 
 
 # convert h5 to fits for both the source and the calibrator
+calibrator_read = True
 for h5dir in h5dirs:
     os.chdir(h5dir)  # the dir contains the h5
     if calibrator_read == True:
-        pointing = 1
         calibrator_read = False
         out_dir_base_local = 'calibrator_fits' 
+        SAP = SAP_calibrator
     else:
-        pointing = 0
         out_dir_base_local = 'Sun_fits'
+        SAP = SAP_target
 
     for fname_DS in glob.glob('./*.h5'):
         
@@ -292,7 +294,7 @@ for h5dir in h5dirs:
         #    print(key + ' = ' + str(group.attrs[key]))
 
 
-        data_shape = f['SUB_ARRAY_POINTING_00'+str(pointing)+'/BEAM_'+beam_this+'/STOKES_0'].shape
+        data_shape = f['SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this+'/STOKES_0'].shape
 
 
         # get shape of the BF raw
@@ -300,7 +302,7 @@ for h5dir in h5dirs:
         f_lines = data_shape[1]
 
         # get the time parameters
-        tsamp = f['/SUB_ARRAY_POINTING_00'+str(pointing)+'/BEAM_'+beam_this+'/COORDINATES/COORDINATE_0'].attrs['INCREMENT']
+        tsamp = f['/SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this+'/COORDINATES/COORDINATE_0'].attrs['INCREMENT']
         tint = f['/'].attrs['TOTAL_INTEGRATION_TIME']
 
 
@@ -315,9 +317,9 @@ for h5dir in h5dirs:
 
 
         # get the frequency axies
-        freq = f['/SUB_ARRAY_POINTING_00'+str(pointing)+'/BEAM_'+beam_this+'/COORDINATES/COORDINATE_1'].attrs['AXIS_VALUES_WORLD']/1e6
-        this_ra = f['/SUB_ARRAY_POINTING_00'+str(pointing)+'/BEAM_'+beam_this].attrs['POINT_RA']
-        this_dec = f['/SUB_ARRAY_POINTING_00'+str(pointing)+'/BEAM_'+beam_this].attrs['POINT_DEC']
+        freq = f['/SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this+'/COORDINATES/COORDINATE_1'].attrs['AXIS_VALUES_WORLD']/1e6
+        this_ra = f['/SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this].attrs['POINT_RA']
+        this_dec = f['/SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this].attrs['POINT_DEC']
 
         if chop_off :
             t_start_chunk = mdates.num2date((np.ceil(mdates.date2num(t_start_bf)*24*4.))/4/24)
@@ -351,7 +353,7 @@ for h5dir in h5dirs:
                                                             - mdates.date2num(t_start_bf))
             idx_end = int(t_ratio_end*(t_lines-1))
 
-            stokes = f['/SUB_ARRAY_POINTING_00'+str(pointing)+'/BEAM_'+beam_this+'/STOKES_0'][idx_start:idx_end:int((idx_end-idx_start)/x_points+1),:]
+            stokes = f['/SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this+'/STOKES_0'][idx_start:idx_end:int((idx_end-idx_start)/x_points+1),:]
             stokes = np.abs(stokes) + 1e-7
             data_fits = 10.0*np.log10(stokes)[:,freq_select_idx]
             t_fits = np.linspace(mdates.date2num(t_start_fits),mdates.date2num(t_end_fits),data_fits.shape[0])
