@@ -12,3 +12,4 @@ In each task, it will start a singularity contianer of LOFAR-Interferometry-Imag
 The ```runOneJob.sh``` will init the software enviroment and and start the job command (DPPP or Clean) with a parameter ```${SLURM_ARRAY_TASK_ID}``` which specify the current index of compute job, this parameter is used to let the compute script now which Subband to work on.
 
 
+[https://slurm.schedmd.com/tutorials.html](https://slurm.schedmd.com/tutorials.html)
