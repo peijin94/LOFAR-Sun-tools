@@ -105,130 +105,28 @@ def model_flux(calibrator, frequency):
     Output: the calibration matrix (in sfu)
     '''
     parameters = []
-    
-    if calibrator == 'J0133-3629':
-        parameters.append(1.0440)
-        parameters.append(-0.662)
-        parameters.append(-0.225)
-        
-    elif calibrator == '3C48':
-        parameters.append(1.3253)
-        parameters.append(-0.7553)
-        parameters.append(-0.1914)
-        parameters.append(0.0498)
-        
-    elif calibrator == 'Fornax A':
-        parameters.append(2.218)
-        parameters.append(-0.661)
-    
-    elif calibrator == '3C 123':
-        parameters.append(1.8017)
-        parameters.append(-0.7884)
-        parameters.append(-0.1035)
-        parameters.append(-0.0248)
-        parameters.append(0.0090)
-    
-    elif calibrator == 'J0444-2809':
-        parameters.append(0.9710)
-        parameters.append(-0.894)
-        parameters.append(-0.118)
-        
-    elif calibrator == '3C138':
-        parameters.append(1.0088)
-        parameters.append(-0.4981)
-        parameters.append(-0.155)
-        parameters.append(-0.010)
-        parameters.append(0.022)
-    
-    elif calibrator == 'PicA':
-        parameters.append(1.9380)
-        parameters.append(-0.7470)
-        parameters.append(-0.074)
-        
-    elif calibrator == 'TauA':
-        parameters.append(2.9516)
-        parameters.append(-0.217)
-        parameters.append(-0.047)
-        parameters.append(-0.067)
-        
-    elif calibrator == '3C247':
-        parameters.append(1.4516)
-        parameters.append(-0.6961)
-        parameters.append(-0.201)
-        parameters.append(0.064)
-        parameters.append(-0.046)
-        parameters.append(0.029)
-        
-    elif calibrator == '3C196':
-        parameters.append(1.2872)
-        parameters.append(-0.8530)
-        parameters.append(-0.153)
-        parameters.append(-0.0200)
-        parameters.append(0.0201)
-        
-    elif calibrator == 'HydA':
-        parameters.append(1.7795)
-        parameters.append(-0.9176)
-        parameters.append(-0.084)
-        parameters.append(-0.0139)
-        parameters.append(0.030)
-        
-    elif calibrator == 'VirA':
-        parameters.append(2.4466)
-        parameters.append(-0.8116)
-        parameters.append(-0.048)
-        
-    elif calibrator == '3C286':
-        parameters.append(1.2481) 
-        parameters.append(-0.4507) 
-        parameters.append(-0.1798) 
-        parameters.append(0.0357) 
-        
-    elif calibrator == '3C295':
-        parameters.append(1.4701)
-        parameters.append(-0.7658)
-        parameters.append(-0.2780)
-        parameters.append(-0.0347)
-        parameters.append(0.0399)
-        
-    elif calibrator == 'HerA':
-        parameters.append(1.8298)
-        parameters.append(-1.0247)
-        parameters.append(-0.0951)
-        
-    elif calibrator == '3C353':
-        parameters.append(1.8627)
-        parameters.append(-0.6938)
-        parameters.append(-0.100)
-        parameters.append(-0.032)
-        
-    elif calibrator == '3C380':
-        parameters.append(1.2320)
-        parameters.append(-0.791)
-        parameters.append(0.095)
-        parameters.append(0.098)
-        parameters.append(-0.18)
-        parameters.append(-0.16)
-        
-    elif calibrator == 'CygA':
-        parameters.append(3.3498)
-        parameters.append(-1.0022)
-        parameters.append(-0.22)
-        parameters.append(0.023)
-        parameters.append(0.043)
-        
-    elif calibrator == '3C444':
-        parameters.append(1.1064)
-        parameters.append(-1.005)
-        parameters.append(-0.075)
-        parameters.append(-0.077)
-    
-    elif calibrator == 'CasA':
-        parameters.append(3.3584)
-        parameters.append(-0.7518)
-        parameters.append(-0.035)
-        parameters.append(-0.071)
-    
+
+    Cal_dict = {'J0133-3629':[1.0440,-0.662,-0.225],
+                '3C48': [1.3253,-0.7553,-0.1914,0.0498],
+                'ForA': [2.218,-0.661],
+                '3C123':[1.8017,-0.7884,-0.1035,-0.0248,0.0090],
+                'J0444-2809':[0.9710,-0.894,-0.118],
+                '3C138':[1.0088,-0.4981,-0.155,-0.010,0.022,],
+                'PicA':[1.9380,-0.7470,-0.074],
+                'TauA':[2.9516,-0.217,-0.047,-0.067],
+                '3C247':[1.4516,-0.6961,-0.201,0.064,-0.046,0.029],
+                '3C196':[1.2872,-0.8530,-0.153,-0.0200,0.0201],
+                'HydA':[1.7795,-0.9176,-0.084,-0.0139,0.030],
+                'VirA':[2.4466,-0.8116,-0.048],
+                '3C286':[1.2481 ,-0.4507 ,-0.1798 ,0.0357 ],
+                '3C295':[1.4701,-0.7658,-0.2780,-0.0347,0.0399],
+                'HerA':[1.8298,-1.0247,-0.0951],
+                '3C353':[1.8627,-0.6938,-0.100,-0.032],
+                '3C380':[1.2320,-0.791,0.095,0.098,-0.18,-0.16],
+                '3C444':[3.3498,-1.0022,-0.22,0.023,0.043],
+                'CasA':[3.3584,-0.7518,-0.035,-0.071]}
+    if calibrator in Cal_dict.keys():
+        parameters = Cal_dict[calibrator]
     else:  raise ValueError(calibrator, "is not in the calibrators list")
         
     flux_model = 0
