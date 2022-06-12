@@ -393,8 +393,8 @@ for i in range(len(names_calibrator)):
     fig = plt.figure(figsize=(6, 4), dpi=120)
     ax = plt.gca()
    
-    data_fits_new = data_calibrated
-    im = ax.imshow(np.log10(data_fits_new.T),aspect='auto',  origin='lower', 
+    data_fits_new = np.log10(data_calibrated)
+    im = ax.imshow((data_fits_new.T),aspect='auto',  origin='lower', 
             extent=[t_fits[0],t_fits[-1],f_fits[0],f_fits[-1]],cmap='inferno')#, norm=matplotlib.colors.LogNorm())
 
     ax.xaxis_date()
