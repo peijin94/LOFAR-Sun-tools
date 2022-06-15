@@ -11,7 +11,7 @@ import datetime
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-
+from scipy import interpolate
 
 def averaging_stride(arr_query, n_point, axis=0, n_start = -1, n_end=-1 ):
     """
@@ -101,3 +101,60 @@ def model_flux(calibrator, frequency):
         flux_model += p*np.log10(frequency)**j
     flux_model = 10**flux_model # because at first the flux is in log10
     return flux_model*10**(-4) #convert form Jy to sfu
+
+def partition_avg(arr, ratio_range):
+    #  average in a given ratio range to exclude extreme value
+    arr_sort = np.sort(arr.ravel())
+    nums = arr_sort[int(ratio_range[0]*arr_sort.shape[0]):int(ratio_range[1]*arr_sort.shape[0])]
+    return np.mean(nums)
+
+def calibration_with_1bandpass_interp(
+    dyspec_target, freq_target, bandpass_calibrator, freq_cal, calibrator,
+    plot_things=False):
+    '''
+    Calibrates the target data using a calibrator with interpolation
+
+    Input: target dynamic spectrum the **RAW** intensity read from H5, 
+        the calibrator file, the calibrator name.
+    Output: the calibrated dynamic spectrum of the target source
+    '''
+    # read the data
+    dyspec_target, freq_target
+    # plot the calibrator bandpass not interpolated
+
+    
+    bandpass_interpolated = np.ones((len(freq_target)))
+    # extract the frequency where the calibrator observed
+    indices_in_calibrator = np.where((freq_target>np.min(freq_cal)) & (freq_target<np.max(freq_cal)))[0]
+    
+    # make bandpass for all the frequencies
+    funct = interpolate.interp1d(freq_cal, bandpass_calibrator)
+    bandpass_interpolated[indices_in_calibrator] = funct(freq_target[indices_in_calibrator])
+    bandpass_interpolated[:indices_in_calibrator[0]] = bandpass_interpolated[indices_in_calibrator[0]]
+    bandpass_interpolated[indices_in_calibrator[-1]:] = bandpass_interpolated[indices_in_calibrator[-1]]
+
+
+
+    if plot_things:
+        fig = plt.figure(figsize=(6, 4), dpi=120)
+        ax = plt.gca()
+        ax.plot(freq_cal, np.log10(bandpass_calibrator),'+')
+        ax.set_xlabel('Frequency (MHz)')
+        ax.set_ylabel('Intensity (dB)')
+        fig.savefig('bandpass_calibrator_initial.png')
+
+        # plot the interpolated bandpass
+        
+        fig = plt.figure(figsize=(6, 4), dpi=120)
+        ax = plt.gca()
+        ax.plot(freq_target, np.log10(bandpass_interpolated),'+')
+        ax.set_xlabel('Frequency (MHz)')
+        ax.set_ylabel('Intensity (dB)')
+        fig.savefig('bandpass_calibrator_interpolated.png')
+
+    # convert from dB to raw flux
+    # dyspec_target = 10**(dyspec_target/10)
+    for i in range(len(freq_target)):
+        dyspec_target[:,i] = dyspec_target[:,i]/bandpass_interpolated[i]*model_flux(calibrator, freq_target[i])
+
+    return dyspec_target
