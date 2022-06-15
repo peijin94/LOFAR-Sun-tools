@@ -39,7 +39,8 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-from lofarSun.BF.bfutil import model_flux
+from lofarSun.BF.bfutil import (model_flux,
+    partition_avg,calibration_with_1bandpass_interp,get_cal_bandpass)
 
 this_dir = os.getcwd()
 
@@ -140,6 +141,8 @@ for h5dir in h5dirs:
     os.chdir(h5dir)  # the dir contains the h5
     if calibrator_read == True:
         calibrator_read = False
+        cal_h5dir=h5dir
+        cal_fnameh5 = glob.glob('./*.h5')[0]
         out_dir_base_local = 'calibrator_fits' 
         SAP = SAP_calibrator
     else:
@@ -340,10 +343,18 @@ for h5dir in h5dirs:
                 path_sun = h5dir+'/Sun_fits/'
                 names_sun.append(file)
 
+freq_select_idx = np.arange(freq.shape[0])
+freq_cal = freq
+bandpass_cal  =  get_cal_bandpass(freq_select_idx, freq, cal_h5dir, cal_fnameh5, [0.3,0.7])
 
 # calibrate file by file
 for i in range(len(names_calibrator)):
-    data_calibrated, f_fits, t_fits = calibration(path_sun+names_sun[i],path_calibrator+names_calibrator[i],calibrator_name)
+    #data_calibrated, f_fits, t_fits = calibration(path_sun+names_sun[i],path_calibrator+names_calibrator[i],calibrator_name)
+    
+    dyspec_target, f_fits_target, t_fits_target = read_file(path_sun+names_sun[i])
+    data_calibrated, f_fits, t_fits = calibration_with_1bandpass_interp(
+        dyspec_target, f_fits_target,bandpass_cal, freq_cal, calibrator_name)
+
     hdu = fits.open(path_sun+names_sun[i])
     hdu[0].data = data_calibrated
 

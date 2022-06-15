@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from scipy import interpolate
+from tqdm import tqdm
 
 def averaging_stride(arr_query, n_point, axis=0, n_start = -1, n_end=-1 ):
     """
@@ -107,6 +108,32 @@ def partition_avg(arr, ratio_range):
     arr_sort = np.sort(arr.ravel())
     nums = arr_sort[int(ratio_range[0]*arr_sort.shape[0]):int(ratio_range[1]*arr_sort.shape[0])]
     return np.mean(nums)
+
+
+def get_cal_bandpass(freq_idx, h5dir, h5name,ratio_range=[0.2,0.8]):
+    fname_DS=h5name
+    this_dir = os.getcwd()
+    os.chdir(h5dir)
+    m = re.search('B[0-9]{3}', fname_DS)
+    beam_this = m.group(0)[1:4]
+    m = re.search('SAP[0-9]{3}', fname_DS)
+    SAP = m.group(0)[3:6]
+
+    f = h5py.File( fname_DS, 'r' )
+    data_shape = f['SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this+'/STOKES_0'].shape
+    
+    if data_shape[0]>1e3:
+        sampling=int(data_shape[0]/1e3)
+    else:
+        sampling=1
+    
+    bandpass_cal=[]
+    for this_freq_idx in tqdm(freq_idx,ascii=True,desc='Bulding Cal-bandpass'):
+        data_lightcurve_cal=f['SUB_ARRAY_POINTING_'+SAP+'/BEAM_'+beam_this+'/STOKES_0'][::sampling,this_freq_idx]
+        bandpass_cal.append(partition_avg(data_lightcurve_cal,ratio_range))
+    
+    os.chdir(this_dir)
+    return bandpass_cal
 
 def calibration_with_1bandpass_interp(
     dyspec_target, freq_target, bandpass_calibrator, freq_cal, calibrator,
