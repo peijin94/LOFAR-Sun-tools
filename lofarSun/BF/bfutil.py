@@ -135,6 +135,53 @@ def get_cal_bandpass(freq_idx, h5dir, h5name,ratio_range=[0.2,0.8]):
     os.chdir(this_dir)
     return bandpass_cal
 
+
+def avg_with_lightening_flag(array_dirty,idx_start,idx_end,f_avg_range =[1600,3500] ,
+                    peak_ratio=1.08,stride=96,rm_bandpass=True):
+    """
+    It's an averaging process but it can flag-out the time points with local discharges, 
+    (the very bright and vertical lines)
+    """
+
+    collect_arr = []
+    collect_start = idx_start+int(stride/2)
+    for idx in tqdm(np.arange(int((idx_end-idx_start)/stride)-1)):
+        data_segm = array_dirty[
+            (idx_start+idx*stride):(idx_start+(idx+1)*stride),:]
+        data_tmp = np.nanmean((data_segm[:,f_avg_range[0]:f_avg_range[1]]),axis=1)
+
+        dummy_true = np.ones(stride)>0
+        dummy_true[1:-1] = (~((data_tmp[0:-2]*peak_ratio<data_tmp[1:-1]) | (data_tmp[1:-1]>data_tmp[2:]*peak_ratio)))
+        r0 = dummy_true
+
+        dummy_true = np.ones(stride)>0
+        dummy_true[0:-2] = (~((data_tmp[0:-2]*peak_ratio<data_tmp[1:-1]) | (data_tmp[1:-1]>data_tmp[2:]*peak_ratio)))
+        r1 = dummy_true
+
+        dummy_true = np.ones(stride)>0
+        dummy_true[2:] = (~((data_tmp[0:-2]*peak_ratio<data_tmp[1:-1]) | (data_tmp[1:-1]>data_tmp[2:]*peak_ratio)))
+        r2 = dummy_true
+
+        select_non_thunder = np.where(
+            (data_tmp<(2*np.std(data_tmp)+np.mean(data_tmp))) 
+            & (data_tmp<0.5e13)
+            & r0 &r1 &r2)
+        collect_arr.append(np.mean(data_segm[select_non_thunder[0],:],axis=0))
+        collect_end = idx_start+int(idx*stride/2)
+
+    ds = (np.array(collect_arr))[:,:]
+
+    if rm_bandpass:
+        mean_substract = np.mean(
+            np.sort(ds,0)[
+                int(ds.shape[0]*0.1):int(ds.shape[0]*0.3),:],0)
+
+        ds = ds/ np.tile(mean_substract,(ds.shape[0],1))
+        
+    return ds,collect_start,collect_end
+
+
+
 def calibration_with_1bandpass_interp(
     dyspec_target, freq_target, bandpass_calibrator, freq_cal, calibrator,
     plot_things=False):
