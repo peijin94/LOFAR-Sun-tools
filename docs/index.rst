@@ -24,17 +24,14 @@ making it a great instrument for solar and space weather studys:
    - **Pulsar observations** for solar wind plasma and CMEs.
 
 
+A brief overview of LOFAR-core sensitivity and time scale and interested science subjects:
+
 .. figure:: img/logo.png
    :alt: LOFAR logo
    :width: 300px
    :align: center
 
-
-
-
-
-For docker user:
-`lofarsundocker <https://github.com/Pjer-zhang/lofarsunDocker>`__
+The common data formats for solar and space weather studys.
 
 
 
@@ -46,20 +43,6 @@ For docker user:
    /install
 
 
-
-Solar imaging
------------------
-
-
--  (.MS) Interferometry raw data, measurement set.
-   `interferometry <interferometry.html>`__
--  (xxx-cube.fits) Beamformed data, fits
-   cube.\ `beamformed <beamformed.html>`__
--  (xxx-image.fits) Interferometry image
-   data.\ `interferometry <interferometry.html>`__
-
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Interferometry
@@ -68,13 +51,6 @@ Solar imaging
    /interferometry
 
 
-
-Beamformed data
------------------
-
-
--  (.h5) Beamformed data, HDF5 format.
-   `beamformed <beamformed.html>`__
 
 .. toctree::
    :maxdepth: 2
@@ -85,28 +61,6 @@ Beamformed data
 
 
 
-Go to a empty directory, run the following command.
-
-.. code:: bash
-
-   git clone https://github.com/peijin94/LOFAR-Sun-tools.git
-   cd LOFAR-Sun-tools
-   # (conda activate xxx)
-   python setup.py install
-
-Run quick view for TAB-cube-fits:
-
-.. code:: bash
-
-   # (conda activate xxx)
-   lofarBFcube
-
-Then load beamformed imaging fits and preview:
-
-.. figure:: img/bfcube.png
-   :alt: image
-
-   image
 
 Cite as
 -------
@@ -114,11 +68,3 @@ Cite as
 https://arxiv.org/abs/2205.00065
 
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

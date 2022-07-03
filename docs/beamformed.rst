@@ -39,6 +39,26 @@ This is a demo to show how to use FitsCube to read the data and produce the TAB 
 Quick View the LOFAR beamform
 -----------------------------
 
+
+Go to a empty directory, run the following command.
+
+.. code:: bash
+
+   git clone https://github.com/peijin94/LOFAR-Sun-tools.git
+   cd LOFAR-Sun-tools
+   # (conda activate xxx)
+   python setup.py install
+
+Run quick view for TAB-cube-fits:
+
+.. code:: bash
+
+   # (conda activate xxx)
+   lofarBFcube
+
+Then load beamformed imaging fits and preview:
+
+
 .. figure:: img/bfcube.png
    :alt: demo
    :align: center

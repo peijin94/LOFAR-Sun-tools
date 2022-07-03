@@ -40,4 +40,6 @@ From git the (nighty) dev version:
    python setup.py install
 
 
+Also, we can use docker to run lofarSun: 
+`lofarsundocker <https://github.com/Pjer-zhang/lofarsunDocker>`__
 
