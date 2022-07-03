@@ -11,6 +11,8 @@ __pycache__/
 *.fits
 *.h5
 *.raw
+*.jpg
+*.jp2
 
 # C extensions
 *.so
