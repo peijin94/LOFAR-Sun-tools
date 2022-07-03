@@ -31,8 +31,17 @@ A brief overview of LOFAR-core sensitivity and time scale and interested science
    :width: 300px
    :align: center
 
-The common data formats for solar and space weather studys.
 
+The common data formats for solar and space weather studys:
+
+-  (.MS) Interferometry raw data, measurement set.
+   `interferometry <interferometry.html>`__
+-  (.h5) Beamformed data, HDF5 format.
+   `beamformed <beamformed.html>`__
+-  (xxx-cube.fits) Beamformed data, fits
+   cube.\ `beamformed <beamformed.html>`__
+-  (xxx-image.fits) Interferometry image
+   data.\ `interferometry <interferometry.html>`__
 
 
 .. toctree::

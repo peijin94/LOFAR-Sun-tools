@@ -1,5 +1,8 @@
-Brief
+Beamformed
 ===============================
+
+Brief
+^^^^^^^^
 
 Format
 -------
@@ -18,7 +21,7 @@ time resolution 1/96 second, 4096 frequency channels, the data size of one beam 
 To form a tied array beam (TAB) imaging, there will be 127 beams, with 4 polarizations, the total size of 2 hours of TAB observation is: **5.3 TB.**
 
 Calibration
-===============================
+^^^^^^^^^^^^^^^^
 
 The dynamic spectrum download from Long-time-archive (LTA) is not calibrated, the observation is usualy performed with 
 a calibrator observation, we can have gaincal calibration for the dynamic spectrum by doing the following steps:
@@ -29,6 +32,11 @@ a calibrator observation, we can have gaincal calibration for the dynamic spectr
 - Apply the gain to the target (Sun) dynamic spectrum with :math:`{I_t} = {I}_{t0} \times \rm{gain}`
 
 With this method, we can have a roughly calibrated dynamic spectrum, while the beam pointing is not considered in this procedure, the errorbar could be **very** large.
+
+
+Quick View
+^^^^^^^^^^^^^^
+To cope with the large data size, providing some quick access to the dynamic spectrum, we can downsample the data to a smaller dimension.
 
 FitsCube
 --------
