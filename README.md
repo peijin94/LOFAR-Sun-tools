@@ -1,15 +1,15 @@
 # LOFAR Sun Tools
 
  Handy scripts and modules for the LOFAR data processing for Solar and Space Weather.
- Installation guide [doc/install.md](doc/install.md)
+ Installation guide [docs/install.md](doc/install.md)
  For docker user: [lofarsundocker](https://github.com/Pjer-zhang/lofarsunDocker)
 
 ## Data Type
 
-* (.MS) Interferometry raw data, measurement set. [doc/interferometry.md](doc/interferometry.md)
-* (.h5) Beamformed data, HDF5 format. [doc/beamformed.md](doc/beamformed.md)
-* (xxx-cube.fits) Beamformed data, fits cube.[doc/beamformed.md](doc/beamformed.md)
-* (xxx-image.fits) Interferometry image data.[doc/interferometry.md](doc/interferometry.md)
+* (.MS) Interferometry raw data, measurement set. [docs/interferometry.md](doc/interferometry.md)
+* (.h5) Beamformed data, HDF5 format. [docs/beamformed.md](doc/beamformed.md)
+* (xxx-cube.fits) Beamformed data, fits cube.[docs/beamformed.md](doc/beamformed.md)
+* (xxx-image.fits) Interferometry image data.[docs/interferometry.md](doc/interferometry.md)
 
 ## Install
 
@@ -29,7 +29,7 @@ lofarBFcube
 ```
 Then load beamformed imaging fits and preview:
 
-![image](./doc/img/image.png)
+![image](./docs/img/image.png)
 
 ## Cite as
 
