@@ -89,10 +89,10 @@ A small cheatsheet for solar wsclean:
 |        |        | the number of cores)                               |
 +--------+--------+----------------------------------------------------+
 | -mem   | 80     | Maximum memory limit in percent to the system      |
-|        |        | memory. (Don’t use 100%)                           |
+|        |        | memory. (Don't use 100%)                           |
 +--------+--------+----------------------------------------------------+
-| -      | briggs | Weight for the baselines. (Briggs 0 works for most |
-| weight | 0.2    | of the situations)                                 |
+| -weight| briggs | Weight for the baselines. (Briggs 0 works for most |
+|        | 0.2    | of the situations)                                 |
 +--------+--------+----------------------------------------------------+
 | -size  | 2048   | Size of the image in pixel.                        |
 |        | 2048   |                                                    |
