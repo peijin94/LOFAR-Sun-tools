@@ -1,22 +1,23 @@
-Step by step intall guide
+Install
 =========================
 
-Install lofar-sun-tool from scratch.
+LOFAR imaging software
+-----------------------
 
-Install conda
--------------
+The dependencies of imaging software is very complex, we recommend using docker or singularity to run the software.
+`LOFAR imaging with docker <https://support.astron.nl/LOFARImagingCookbook/buildlofar.html>`__
 
-(see anaconda.org)
 
-Create virtual enviroment
+LOFAR Sun 
 -------------------------
 
+For the dynamic spectrum and imaging postprocess, we use python package :code:`lofarSun` (`lofarSun   <https://github.com/peijin94/LOFAR-Sun-tools>``).
 We recommend creating a standalone python enviroment for a more isolated
 and stable runtime.
 
 .. code:: bash
 
-   conda create -n lofarsun python=3.8
+   conda create -n lofarsun python=3.9
 
 Then activate the enviroment:
 
@@ -24,25 +25,13 @@ Then activate the enviroment:
 
    conda activate lofarsun
 
-Install dependencies
---------------------
-
-.. code:: bash
-
-   conda install -c conda-forge sunpy==2.0.6 matplotlib jupyterlab opencv scikit scikit-image hdf5 opencv
-
-note : pip higher priority than conda
-
-Install lofarSun
-----------------
-
-From pip
+From pip, the (relatively) stable version:
 
 .. code:: bash
 
    python -m pip install lofarSun
 
-From git
+From git the (nighty) dev version:
 
 .. code:: bash
 
@@ -50,4 +39,5 @@ From git
    cd lofar-sun-tools/pro/src
    python setup.py install
 
-:sub:`Enjoy`
+
+

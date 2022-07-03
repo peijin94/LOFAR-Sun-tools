@@ -36,20 +36,54 @@ making it a great instrument for solar and space weather studys:
 For docker user:
 `lofarsundocker <https://github.com/Pjer-zhang/lofarsunDocker>`__
 
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Quick start
+   :hidden:
+
+   /install
+
+
+
 Solar imaging
 -----------------
 
+
 -  (.MS) Interferometry raw data, measurement set.
    `interferometry <interferometry.html>`__
--  (.h5) Beamformed data, HDF5 format.
-   `beamformed <beamformed.html>`__
 -  (xxx-cube.fits) Beamformed data, fits
    cube.\ `beamformed <beamformed.html>`__
 -  (xxx-image.fits) Interferometry image
    data.\ `interferometry <interferometry.html>`__
 
-Install
--------
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Interferometry
+   :hidden:
+
+   /interferometry
+
+
+
+Beamformed data
+-----------------
+
+
+-  (.h5) Beamformed data, HDF5 format.
+   `beamformed <beamformed.html>`__
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Beamformed
+   :hidden:
+
+   /beamformed
+
+
 
 Go to a empty directory, run the following command.
 
@@ -78,41 +112,6 @@ Cite as
 -------
 
 https://arxiv.org/abs/2205.00065
-
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Home
-   :hidden:
-
-   self
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Quick start
-   :hidden:
-
-   /install
-   
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Interferometry
-   :hidden:
-
-   /interferometry
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Beamformed
-   :hidden:
-
-   /beamformed
-
-
 
 
 
