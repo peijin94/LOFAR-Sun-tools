@@ -2,10 +2,10 @@ Beamformed
 ===============================
 
 Brief
-^^^^^^^^
+------
 
 Format
--------
+~~~~~~~~~~~~
 
 Dynamic spectrum raw data is stored in the form of HDF5 file, which is a type of self described file.
 The metadata is in the header of the HDF5 file, and the data is stored in the body of the file.
@@ -13,7 +13,7 @@ Here is a general exampel of how to retrive the information from header and plot
 `Tutorial .h5 <https://github.com/cbassa/lofar_bf_tutorials>`__
 
 Size
-------
+~~~~~~~~~~~~~
 
 Raw data is always huge, a typical observation of 2 hours, saved in hdf5 file as :code:`float32`, 
 time resolution 1/96 second, 4096 frequency channels, the data size of one beam single polarization is:
@@ -21,7 +21,7 @@ time resolution 1/96 second, 4096 frequency channels, the data size of one beam 
 To form a tied array beam (TAB) imaging, there will be 127 beams, with 4 polarizations, the total size of 2 hours of TAB observation is: **5.3 TB.**
 
 Calibration
-^^^^^^^^^^^^^^^^
+---------------
 
 The dynamic spectrum download from Long-time-archive (LTA) is not calibrated, the observation is usualy performed with 
 a calibrator observation, we can have gaincal calibration for the dynamic spectrum by doing the following steps:
@@ -35,20 +35,19 @@ With this method, we can have a roughly calibrated dynamic spectrum, while the b
 
 
 Quick View
-^^^^^^^^^^^^^^
+--------------------------------
+
 To cope with the large data size, providing some quick access to the dynamic spectrum, we can downsample the data to a smaller dimension.
 
 FitsCube
---------
+~~~~~~~~~~~~
 
 This is a demo to show how to use FitsCube to read the data and produce the TAB image.
 `Demo <https://github.com/peijin94/LOFAR-Sun-tools/blob/master/demo/demo_fitscube.ipynb>`__
 
-Quick View the LOFAR beamform
------------------------------
+Quick View of the LOFAR beamform:
 
-
-Go to a empty directory, run the following command.
+(1) Go to a empty directory, run the following command.
 
 .. code:: bash
 
@@ -57,14 +56,14 @@ Go to a empty directory, run the following command.
    # (conda activate xxx)
    python setup.py install
 
-Run quick view for TAB-cube-fits:
+(2) Run quick view for TAB-cube-fits:
 
 .. code:: bash
 
    # (conda activate xxx)
    lofarBFcube
 
-Then load beamformed imaging fits and preview:
+(3) Then load beamformed imaging fits and preview:
 
 
 .. figure:: img/bfcube.png
