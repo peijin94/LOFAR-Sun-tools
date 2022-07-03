@@ -18,9 +18,9 @@ Data Type
 ---------
 
 -  (.MS) Interferometry raw data, measurement set.
-   `docs/interferometry.md <doc/interferometry.md>`__
+   `interferometry.rst <interferometry.rst>`__
 -  (.h5) Beamformed data, HDF5 format.
-   `docs/beamformed.md <doc/beamformed.md>`__
+   `beamformed.rst <beamformed.rst>`__
 -  (xxx-cube.fits) Beamformed data, fits
    cube.\ `docs/beamformed.md <doc/beamformed.md>`__
 -  (xxx-image.fits) Interferometry image
@@ -63,21 +63,21 @@ https://arxiv.org/abs/2205.00065
 .. toctree::
    :maxdepth: 2
    :caption: Quick start
-
+   :hidden:
    /install
    
 
 .. toctree::
    :maxdepth: 2
    :caption: Interferometry
-
+   :hidden:
    /interferometry
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Beamformed
-
+   :hidden:
    /beamformed
 
 

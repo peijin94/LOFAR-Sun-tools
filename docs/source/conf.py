@@ -14,6 +14,12 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import sphinx_rtd_theme
+#from jsonschema2rst.parser_runner import run_parser
+import subprocess
+import re
+import os
+
 
 # -- Project information -----------------------------------------------------
 
@@ -40,6 +46,12 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
+
+
+master_doc = 'index'
+
+
+source_suffix = '.rst'
 
 
 # -- Options for HTML output -------------------------------------------------
