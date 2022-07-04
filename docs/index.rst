@@ -9,6 +9,9 @@ Welcome to LOFAR-Sun's documentation!
 LOFAR data processing for Solar and Space Weather. 
 
 
+Project git repository : `LOFAR-Sun-tools <https://github.com/peijin94/LOFAR-Sun-tools>`__
+
+
 The LOw Frequency ARray (LOFAR) is a large-scale array of radio telescopes, it can perform multiple flexible type of observations, 
 making it a great instrument for solar and space weather studys:
 

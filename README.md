@@ -2,4 +2,6 @@
 
  Handy scripts and modules for the LOFAR data processing for Solar and Space Weather.
  
- Installation guide [document](https://lofar-sun-tools.readthedocs.io/en/latest/)
+ Quick start: [document](https://lofar-sun-tools.readthedocs.io/en/latest/)
+
+ Test data: [https://pjzhang.cc/static/demo_data.7z](https://pjzhang.cc/static/demo_data.7z)
