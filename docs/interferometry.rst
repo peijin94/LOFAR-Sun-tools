@@ -41,8 +41,69 @@ The meassurement set is calibrated with NDPPP in three steps:
 -  **Apply Calculation** : apply the gain calculation to the sun
 -  **Apply Beam** : apply the LOFAR beam to the dataset
 
+In practical:
+
+-  Create the source.db file with a sky model of the calibrator
+
+.. code:: bash
+
+   makesourcedb in=/path/to/TauA.skymodel out=TauA.sourcedb
+
+-  Run auto-weight with NDPPP (Note: this step should be done for both
+   sun and the calibrator):
+
+.. code:: bash
+
+   NDPPP msin=/path/to/calibrator.MS
+   msout=/path/to/calibrator-autow.MS
+   steps=[]
+
+   msin.autoweight=True
+
+-  Use the observation of the calibrator to predict the parameters for
+   the calculation applied to the solar observation
+
+.. code:: bash
+
+   NDPPP msin=/path2/to/calibrator-autow.ms \
+   Msout=. \
+   steps=[gaincal] \
+   gaincal.usebeammodel=True  \
+   gaincal.solint=4 \
+   gaincal.sources=TauAGG \
+   gaincal.sourcedb=TauA.sourcedb \
+   gaincal.onebeamperpatch=True \
+   gaincal.caltype=diagonal
+
+-  Apply the parameters predicted by step (3)
+
+.. code:: bash
+
+   NDPPP msin=/path2/to/sun-autow.ms \
+   msout=. \
+   msin.datacolumn=DATA \
+   msout.datacolumn=CORR_NO_BEAM \
+   steps=[applycal] \
+   applycal.parmdb=/path/to/calibrator-autow.MS/instrument \
+   applycal.updateweights=True
+
+-  Apply the beam model of the calculation for the LOFAR station:
+
+.. code:: bash
+
+   NDPPP msin=sun-autow.MS \
+   msout=. \
+   msin.datacolumn=CORR_NO_BEAM \
+   msout.datacolumn=CORRECTED_DATA \
+   steps =[applybeam] \
+   applybeam.updateweights=True
+
+The steps (2)-(5) are integrated in the script **auto_sun_calib.py** to
+calibrate the MS files in batch.
+
+
 These steps can be done with a script
-`auto_sun_calib.py <../pro/script/auto_sun_calib.py>`__, the script
+`auto_sun_calib.py <https://github.com/peijin94/LOFAR-Sun-tools/blob/master/utils/IM/auto_sun_calib.py>`__, the script
 automized the calibration of interferometry, it generates the parset
 file for the calibration and run the corresponding NDPPP commad.
 
@@ -74,8 +135,20 @@ Run the calibration script simply with:
 Clean
 -----
 
-An example of wsclean for the sun
-`wsclean_script.sh <../pro/script/wsclean_script.sh>`__, it is better to
+An example of wsclean for the sun:
+
+
+.. code:: bash
+
+   wsclean -j 40 -mem 30 -no-reorder -no-update-model-required \
+   -mgain 0.3 -weight briggs 0 -size 512 512 \
+   -scale 10asec -pol I -data-column CORRECTED_DATA \
+   -niter 1000 -intervals-out 1 -interval 10 11 \
+   -name /path/to/prefix \
+   /path/to/sun-autow.MS
+
+
+it is better to
 keep the parameter **-multiscale** on for the solar image CLEAN, because
 the solar radio emission is always extended.
 
@@ -127,17 +200,16 @@ Visualization
 -------------
 
 WSClean produces fits image with astronomy coordinate [RA,DEC] and the
-unit of Jy/Beam, the module *LofarDataCleaned* in
-`lofarData <../pro/src/lofarSun/lofarData.py>`__ can transform the
+unit of Jy/Beam, the module *lofarSun.IM* can transform the
 coordinate to heliocentric frame and convert the flux to brightness
 temperature distribution according to the equation given in the Equation
 given in `Flux
 intensity <https://science.nrao.edu/facilities/vla/proposing/TBconv>`__.
 
 A demo of visualizing lofar interferometry :
-`demo <../demo/demo_lofarmap.ipynb>`__
+`demo <https://github.com/peijin94/LOFAR-Sun-tools/tree/master/demo>`__
 
-. For the use of jupyterlab in CEP3
+For the use of jupyterlab in CEP3, we need to jump from portal to compute
 
 .. code:: bash
 
