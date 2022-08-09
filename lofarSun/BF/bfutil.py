@@ -70,6 +70,8 @@ def model_flux(calibrator, frequency):
 
     Input: the calibrator name, frequency range, and time range
     Output: the calibration matrix (in sfu)
+
+    source https://arxiv.org/pdf/1609.05940.pdf
     '''
     parameters = []
 
