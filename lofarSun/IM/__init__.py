@@ -1,1 +1,1 @@
-from .IMdata import IMdata
+from .IMdata import *

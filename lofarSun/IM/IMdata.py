@@ -21,6 +21,7 @@ import sunpy.coordinates.sun as sun_coord
 from sunpy.coordinates.sun import sky_position as sun_position
 from sunpy.coordinates import frames
 import scipy
+from scipy.optimize import curve_fit
 import scipy.ndimage
 from matplotlib.patches import Ellipse
 
@@ -217,7 +218,7 @@ class IMdata:
                 FWHM_thresh=0.5*(np.max(data_new))
                 ax.contour(xx,yy,data_new,levels=[FWHM_thresh],colors=['deepskyblue'])
                 
-            
+            plt.colorbar(im)
             plt.setp(ax,xlabel = 'X (ArcSec)',ylabel = 'Y (ArcSec)',
                     xlim=[-fov,fov],ylim=[-fov,fov],
                     title=str(t_cur_datetime))
@@ -227,3 +228,68 @@ class IMdata:
         else:
             print("No data loaded")
             
+    # find the pixel position of the maximum value in the array
+    def peak_xy_coord_pix(self):
+        if self.havedata:
+            peak_xy_coord_pix = np.argwhere(self.data_xy_calib.T == np.nanmax(self.data_xy_calib.T))[0]
+            return peak_xy_coord_pix
+        else:
+            print("No data loaded")
+
+
+    def peak_xy_coord_arcsec(self):
+        if self.havedata:
+            peak_xy = self.peak_xy_coord_pix()
+            peak_xy_arcsec = [self.xx[peak_xy[0]],self.yy[peak_xy[1]]]
+            return peak_xy_arcsec
+        else:
+            print("No data loaded")
+
+    # fit the image source to a 2-d gaussian funtion with sciPy's curve_fit
+    def fit_gaussian2d(self,thresh=0.5,**kwargs):
+
+        if self.havedata:
+            idx_wanted =  np.where(self.data_xy_calib.T > thresh*self.data_xy_calib.max()) 
+            yv, xv = np.meshgrid(self.yy,self.xx)
+
+            boundthis = [
+                [0,np.min(xv[idx_wanted]),np.min(yv[idx_wanted]),-1.1*np.pi,0,0],
+                [3*np.max(self.data_xy_calib.T),np.max(xv[idx_wanted]),np.max(yv[idx_wanted]),1.1*np.pi,
+                np.max(np.abs(xv))/2,np.max(np.abs(yv))/2]
+            ]
+            coord_x,coord_y = self.peak_xy_coord_arcsec()
+            [b_maj,b_min,b_ang] = self.get_beam()
+            print(b_maj)
+            popt, pcov = curve_fit(func_gaussian,(xv[idx_wanted],yv[idx_wanted]),
+                        self.data_xy_calib.T[idx_wanted],
+                        p0=[np.max(self.data_xy_calib.T),coord_x,coord_y,0,b_maj*3600,b_maj*3600],
+                        bounds=boundthis)
+
+        return popt, pcov
+
+def func_gaussian(xdata,s0,x_cent,y_cent,tile,x_sig,y_sig):
+            x,y=xdata  
+            xp = (x-x_cent) * np.cos(tile) - (y-y_cent) * np.sin(tile)
+            yp = (x-x_cent) * np.sin(tile) + (y-y_cent) * np.cos(tile)
+    
+            flux  = s0 * ( np.exp( -(xp**2)/(2*x_sig**2) - (yp**2)/(2*y_sig**2) ) )
+            return flux
+
+
+def get_tile_ellipse_from_fit(popt):
+
+    # FWHM ~= 2*sqrt(2*ln(2))*sigma
+
+    t = np.linspace(0, 2*np.pi, 100)
+    t_rot = -popt[3]
+    Ell = np.array([popt[4]*np.cos(t)*np.sqrt(2*np.log(2)) , 
+                    popt[5]*np.sin(t)*np.sqrt(2*np.log(2))])  
+        #u,v removed to keep the same center location
+    R_rot = np.array([[np.cos(t_rot) , -np.sin(t_rot)],[np.sin(t_rot) , np.cos(t_rot)]])  
+        #2-D rotation matrix
+            
+    Ell_rot = np.zeros((2,Ell.shape[1]))
+    for i in range(Ell.shape[1]):
+        Ell_rot[:,i] = np.dot(R_rot,Ell[:,i])
+
+    return Ell_rot
