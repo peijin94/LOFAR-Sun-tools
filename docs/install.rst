@@ -25,18 +25,21 @@ Then activate the enviroment:
 
    conda activate lofarsun
 
-From pip, the (relatively) stable version:
+
+There are two ways to install lofarSun package:
+
+(1) From pip, the (relatively) stable version:
 
 .. code:: bash
 
    python -m pip install lofarSun
 
-From git the (nighty) dev version:
+(2) From git the (nighty) dev version:
 
 .. code:: bash
 
    git clone https://git.astron.nl/ssw-ksp/lofar-sun-tools.git
-   cd lofar-sun-tools/pro/src
+   cd lofar-sun-tools
    python setup.py install
 
 
