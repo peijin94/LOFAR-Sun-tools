@@ -10,13 +10,13 @@ setup(
   name = 'lofarSun',         # How you named your package folder 
   packages = setuptools.find_packages(),#['lofarSun','lofarSun.IM','lofarSun.BF','lofarSun.BF.GUI'],   # Chose the same as "name"
   include_package_data=True,
-  version = '0.3.24',      # Start with a small number and increase it with every change you make
+  version = '0.3.25',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'tools to process the lofar solar data',   # Give a short description about your library
   author = 'Peijin',                   # Type in your name
   author_email = 'pjer1316@gmail.com',      # Type in your E-Mail
-  url = 'https://github.com/Pjer-zhang/LOFAR_Solar',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/Pjer-zhang/LOFAR_Solar/archive/master.zip',    
+  url = 'https://github.com/peijin94/LOFAR-Sun-tools',   # Provide either the link to your github or to your website
+  download_url = 'https://github.com/peijin94/LOFAR-Sun-tools/archive/refs/heads/master.zip',    
   keywords = ['LOFAR', 'Solar', 'radio'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'matplotlib',
