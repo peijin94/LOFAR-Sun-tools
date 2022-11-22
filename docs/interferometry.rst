@@ -11,8 +11,8 @@ Request the data then download the data with **wget**
 Preprocess
 ----------
 
-If the data is un-calibrated data, do use the NDPPP to auto weight the
-data set:
+If the data is raw-data (not processed by pipeline), it is necessary to do the 
+autoweight step:
 
 .. code:: bash
 
