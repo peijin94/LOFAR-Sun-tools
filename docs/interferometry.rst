@@ -1,17 +1,22 @@
+======================
 Interferometry 
 ======================
 
-Download or Stage data (.MS file)
----------------------------------
 
-The LOFAR data is stored at `LTA <https://lta.lofar.eu/Lofar>`__
+Download
+----------
+
+LOFAR observation data is available at `LTA <https://lta.lofar.eu/Lofar>`__
 
 Request the data then download the data with **wget**
 
 Preprocess
 ----------
 
-If the data is raw-data (not processed by pipeline), it is necessary to do the 
+autoweight
+==========
+
+If the data is raw-data (no 'WEIGHT' column in MS), it is necessary to do the 
 autoweight step:
 
 .. code:: bash
@@ -21,10 +26,10 @@ autoweight step:
 The script autoWeight.sh can batch this process if there is more than
 one file
 
-(This step can be skipped if the measurement set has been calibrated.)
+(This step can be skipped if the measurement set is pre-processed by imaging pipeline.)
 
 Calibration
------------
+============
 
 The calibration depends on NDPPP module developed by LOFAR, so run this
 line before everything:
@@ -196,6 +201,7 @@ A small cheatsheet for solar wsclean:
 for the interval index, one can use the get_datetime_index.py to find
 out the starting and ending index
 
+
 Visualization
 -------------
 
@@ -209,14 +215,45 @@ intensity <https://science.nrao.edu/facilities/vla/proposing/TBconv>`__.
 A demo of visualizing lofar interferometry :
 `demo <https://github.com/peijin94/LOFAR-Sun-tools/tree/master/demo>`__
 
-For the use of jupyterlab in CEP3, we need to jump from portal to compute
+For the use of jupyterlab, port forwarding can be done with:
 
 .. code:: bash
 
-   ssh -L 1234:localhost:1234 username@portal.lofar.eu -t ssh -L 1234:localhost:1234 username@lhd001 -t ssh -L 1234:localhost:1234 username@lof001
+   ssh -L 1234:localhost:1234  username@server_address
 
    source /data/scratch/zhang/conda_start.sh
 
    python -m jupyter notebook --no-browser --port=1234
 
 Change username and 1234 accordingly.
+
+
+
+Docker
+-------------
+
+Above steps requires LOFAR software, which is not easy to install. 
+We can use docker to run steps.
+
+For calibration we use the docker image from `here <https://hub.docker.com/r/lofarsoft/lofar>`__.
+
+.. code:: bash
+
+   $ docker run --rm -it lofaruser/imaging-pipeline:latest
+
+   (in docker) $ source /opt/lofarsoft/lofarinit.sh
+
+   (in docker) $ DPPP --version
+
+
+For Visualization we use the docker image "peijin/lofarsun"
+
+.. code:: bash
+
+   $ docker run --rm --hostname lofarsoft -p 8899:8899 \
+       -v /HDD/path/to/data/:/lofardata peijin/lofarsun \
+       /bin/bash -c "jupyter-lab --notebook-dir=/lofardata \
+       --ip='*' --port=8899 --no-browser --allow-root"
+
+This command will start a jupyter lab server in the docker container, also mount the 
+directory '/HDD/path/to/data/' to '/lofardata'
