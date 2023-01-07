@@ -5,9 +5,9 @@
     Author: Peijin Zhang, Pietro Zucca
     Acknowledge: Sarrvesh Seethapuram Sridhar
     Date created: 2019-Aug
-    Python Version: 2.7.5
 
     A script to calibrate the Measurement Set
+    !loads file list from ms.json
 '''
 
 import glob

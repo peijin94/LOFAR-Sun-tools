@@ -35,7 +35,8 @@ setup(
     'License :: OSI Approved :: MIT License',   # Again, pick a license,
     'Programming Language :: Python :: 3.8',
   ],
-  entry_points={'console_scripts': ['lofarBFcube=lofarSun.BF.GUI.lofarBFgui:main']},
+  entry_points={'console_scripts': ['lofarBFcube=lofarSun.BF.GUI.lofarBFgui:main',
+                                    'pyms_overview=lofarSun.cli.pyms_overview:main']},
   long_description=long_description,
   long_description_content_type='text/markdown'
 )
