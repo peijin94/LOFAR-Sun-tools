@@ -18,7 +18,6 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
         font.setPointSize(10)
         MainWindow.setFont(font)
         MainWindow.setWindowTitle("LOFAR Solar Beam-formed Inspector")

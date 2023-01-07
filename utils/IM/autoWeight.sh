@@ -1,30 +1,31 @@
 # By Peijin 
-# 2020-9-17
+# 2022-01-04
 
 # Note : make sure there is enough storage!
 
-DIR='/data001/scratch/zucca/EVENT_20220521/MS/'
-
-module load dp3 lofar # load NDPPP 
+DIR='/proj/group/corona/radio/peijin/data/L401011/'
 
 PREFIX='L'
+namecalib='401011'
+namesun='401013'
 
-# needs to do autoweight for raw
-
+# autoweight necessary for raw
 # flagging better be done for calibrator
-for MSfile in `ls $DIR$PREFIX*SAP001*.MS -d`
+# msin.autoweight=True \
+for MSfile in `ls $DIR$PREFIX*$namecalib*.MS -d`
 do             
-  NDPPP msin=$MSfile msin.autoweight=True \
-  steps=[flag,averager] averager.freqstep=16 \
-  flag.type=aoflagger flag.memoryperc=85 \
+  NDPPP msin=$MSfile \
+  steps=[flag,averager] averager.freqstep=16 averager.timestep=40 \
+  flag.type=aoflagger flag.memoryperc=85 averager.strategy=LBAdefault\
   flag.timewindow=64 msout=./MS_aw/`basename $MSfile`  
 done
 
 # flagging needs to be done for quiet Sun
 # flagging should not be done for burst time
-for MSfile in `ls $DIR$PREFIX*SAP000*.MS -d`
+# averaging is optional
+for MSfile in `ls $DIR$PREFIX*$namesun*.MS -d`
 do
-  NDPPP msin=$MSfile steps=[averager] \
-  msin.autoweight=True averager.freqstep=16 \
+  NDPPP msin=$MSfile \
+  steps=[averager] averager.freqstep=16 \
   msout=./MS_aw/`basename $MSfile`  
 done

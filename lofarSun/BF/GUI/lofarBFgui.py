@@ -49,6 +49,7 @@ class MatplotlibWidget(QMainWindow):
         loadUi(here+"/layout.ui", self)
 
         self.move(10,30)
+        self.setFont(QFont('Helvetica Neue'))
         self.init_graph()
         self.setWindowIcon(QIcon(":/GUI/resource/lofar.png"))
         self.addToolBar(NavigationToolbar(self.mplw.canvas, self))
