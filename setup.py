@@ -10,7 +10,7 @@ setup(
   name = 'lofarSun',         # How you named your package folder 
   packages = setuptools.find_packages(),#['lofarSun','lofarSun.IM','lofarSun.BF','lofarSun.BF.GUI'],   # Chose the same as "name"
   include_package_data=True,
-  version = '0.3.25',      # Start with a small number and increase it with every change you make
+  version = '0.3.26',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'tools to process the lofar solar data',   # Give a short description about your library
   author = 'Peijin',                   # Type in your name
