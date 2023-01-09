@@ -20,27 +20,26 @@ import sys
 idx_this = int(sys.argv[1])
 
 # the directory and files
-
-calib_dir='/wrk/group/corona/peijin/LC4/MSclb/'
-sun_dir='/wrk/group/corona/peijin/LC4/MStgt/t1245_1305/'
-work_dir='/proj/group/corona/radio/data/LC4_ciara/preproc/'
-
-sasid_calib = 'L401011' # obsid of the calibrators
-sasid_sun   = 'L401013' # obsid of the sun
+os.chdir('/discofs/pjer1316/E20220519/proc')
+base_dir = './MS_aw/'
+all_files = sorted(glob.glob(base_dir+'*.MS'))
 
 # calibrator
-sources  = 'VirA_4_patch'  # source type
-sourcedb = '/proj/group/corona/radio/peijin/sourcedb/VirA.sourcedb' # path to the source
-
-os.chdir(work_dir)
-
-f_calib_set=sorted(glob.glob(calib_dir+sasid_calib+'*.MS'))
-f_sun_set=sorted(glob.glob(sun_dir+sasid_sun+'*.MS'))
+sources  = 'CasA_4_patch'  # source type
+sourcedb = './CasA.sourcedb' # path to the source
 
 ###########################################################
 
-f_calib = [f_calib_set[idx_this]]
-f_sun = [f_sun_set[idx_this]]
+f_sun = []
+f_calib = []
+for item_f in all_files:
+        if '_SAP000_' in item_f:
+                f_sun.append(item_f)
+        if '_SAP001_' in item_f:
+                f_calib.append(item_f)
+
+f_sun = [f_sun[idx_this]]
+f_calib = [f_calib[idx_this]]
 
 
 print(f_sun)
