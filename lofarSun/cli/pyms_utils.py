@@ -111,7 +111,9 @@ def pyms_overview_main():
         info_print('N time slot : \t',N_idx_time)
         info_print('Obs Start t :\t', str(time_range[0])+' (UTC)')
         info_print('Obs End t :\t', str(time_range[1])+' (UTC)')
-        info_print('Total time :\t',pt.taql('select INTERVAL from '+fname+'/FEED').getcol('INTERVAL')[0])
+        info_print('T1 -T0 :\t', str((time_range[1]-time_range[0]).total_seconds()))
+        info_print('dT:\t', str((time_range[1]-time_range[0]).total_seconds()/N_idx_time))
+        info_print('Total time (raw):\t',pt.taql('select INTERVAL from '+fname+'/FEED').getcol('INTERVAL')[0])
         print(' ')
 
 
