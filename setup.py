@@ -36,8 +36,9 @@ setup(
     'Programming Language :: Python :: 3.8',
   ],
   entry_points={'console_scripts': ['lofarBFcube=lofarSun.BF.GUI.lofarBFgui:main',
-                                    'pymsOverview=lofarSun.cli.pyms_overview:main',
-                                    'pymsDatetime2Index=lofarSun.cli.pyms_datetime_to_index:main']},
+                                    'pymsOverview=lofarSun.cli.pyms_utils:pyms_overview_main',
+                                    'pymsDatetime2Index=lofarSun.cli.pyms_utils:pyms_datetime_to_index_main',
+                                    'pymsIndex2Datetime=lofarSun.cli.pyms_utils:pyms_index_to_datetime_main']},
   long_description=long_description,
   long_description_content_type='text/markdown'
 )

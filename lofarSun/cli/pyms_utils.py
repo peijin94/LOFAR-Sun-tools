@@ -82,6 +82,37 @@ def get_freq_from_ms(fname):
     spw = pt.taql('select REF_FREQUENCY from '+fname+'/SPECTRAL_WINDOW')
     return spw.getcol('REF_FREQUENCY')[0]
 
+def ms_datetime_to_index(fname, t, t_format='%H:%M:%S.%f'):
+    """ convert datetime to index
+
+    Args:
+        fname (string): measurement set name
+        t (datetime): datetime
+
+    Returns:
+        int : index
+    """
+    N_idx_time, time_range = get_t_from_ms(fname)
+    t_start = datetime.datetime.strftime(time_range[0],t_format) 
+    t_end   = datetime.datetime.strftime(time_range[1],t_format)
+        
+    # find out the index of 't_now_MS'
+    t_now   = datetime.datetime.strptime(t   , t_format)
+    t_start   = datetime.datetime.strptime(t_start  , t_format)
+    t_end   = datetime.datetime.strptime(t_end   , t_format)
+    now_idx = round((t_now-t_start)/(t_end-t_start) * N_idx_time) 
+    return now_idx
+
+def ms_index_to_datetime(fname, idx):
+    N_idx_time, time_range = get_t_from_ms(fname)
+    t_start = time_range[0]
+    t_end   = time_range[1]
+    t_now = float(idx) / float(N_idx_time) * (t_end - t_start) + t_start
+    return t_now
+    
+#==============================================================================
+# the cli entry points:
+
 def pyms_overview_main():
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="filename", default=None,
@@ -109,11 +140,11 @@ def pyms_overview_main():
 
         print(bcolors.OKGREEN+'[INFO]'+bcolors.ENDC+' Time ')
         info_print('N time slot : \t',N_idx_time)
-        info_print('Obs Start t :\t', str(time_range[0])+' (UTC)')
-        info_print('Obs End t :\t', str(time_range[1])+' (UTC)')
-        info_print('T1 -T0 :\t', str((time_range[1]-time_range[0]).total_seconds()))
-        info_print('dT:\t', str((time_range[1]-time_range[0]).total_seconds()/N_idx_time))
-        info_print('Total time (raw):\t',pt.taql('select INTERVAL from '+fname+'/FEED').getcol('INTERVAL')[0])
+        info_print('Obs Start t : \t', str(time_range[0])+' (UTC)')
+        info_print('Obs End t : \t', str(time_range[1])+' (UTC)')
+        info_print('T_end-T_start: \t', str((time_range[1]-time_range[0]).total_seconds()))
+        info_print('dT:\t', str(round((time_range[1]-time_range[0]).total_seconds()/N_idx_time, 5)))
+        info_print('Total t(raw): \t',pt.taql('select INTERVAL from '+fname+'/FEED').getcol('INTERVAL')[0])
         print(' ')
 
 
@@ -192,7 +223,9 @@ def pyms_datetime_to_index_main():
     parser.add_option("-f", "--file", dest="filename", default=None,
                       help="write report to FILE", metavar="FILE")
     parser.add_option("-t", "--time", dest="time", default='12:00:00.000',
-                      help="time formate has to be HH:MM:SS.s")
+                      help="default time format is %H:%M:%S.%f, can be changed by -fmt")
+    parser.add_option("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
+                      help="default is %H:%M:%S.%f")
 
     (options, args) = parser.parse_args()
 
@@ -201,14 +234,28 @@ def pyms_datetime_to_index_main():
     else:
         fname = options.filename
         
-        N_idx_time, time_range = get_t_from_ms(fname)
-        t_format = '%H:%M:%S.%f'
-        t_start = datetime.datetime.strftime(time_range[0],t_format) 
-        t_end   = datetime.datetime.strftime(time_range[1],t_format)
-        
-        # find out the index of 't_now_MS'
-        t_now   = datetime.datetime.strptime(options.time   , t_format)
-        t_start   = datetime.datetime.strptime(t_start  , t_format)
-        t_end   = datetime.datetime.strptime(t_end   , t_format)
-        now_idx = round((t_now-t_start)/(t_end-t_start) * N_idx_time) 
+        t_format = options.format
+        now_idx = ms_datetime_to_index(fname, options.time, t_format)
         print(now_idx)
+    return 0
+
+
+def pyms_index_to_datetime_main():
+    parser = OptionParser()
+    parser.add_option("-f", "--file", dest="filename", default=None,
+                      help="write report to FILE", metavar="FILE")
+    parser.add_option("-i", "--idx", dest="idx", default='0',
+                      help="index of the slot")
+    parser.add_option("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
+                      help="default is %H:%M:%S.%f")
+
+    (options, args) = parser.parse_args()
+
+    if options.filename==None:
+        print(bcolors.FAIL+'Empty input.'+bcolors.ENDC)
+    else:
+        fname = options.filename
+        t_format = options.format
+        t_now = ms_index_to_datetime(fname, options.idx)
+        print(t_now.strftime(options.format))
+    return 0
