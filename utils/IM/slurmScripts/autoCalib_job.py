@@ -133,7 +133,6 @@ if 1 in run_step:
         os.system('NDPPP '+apcal_dir+subbd+'_applycal.parset')
         idx_cur = idx_cur+1
 
-
 # applybeam the parset
 if 2 in run_step:
     if not os.path.exists(apbm_dir):

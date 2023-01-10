@@ -7,7 +7,7 @@
 #SBATCH --array=0-243
 #SBATCH --clusters=kale
 #SBATCH --partition=short
-#SBATCH --time=03:59:00
+#SBATCH --time=05:59:00
 #SBATCH --mail-user=peijin.zhang@helsinki.fi
 
 

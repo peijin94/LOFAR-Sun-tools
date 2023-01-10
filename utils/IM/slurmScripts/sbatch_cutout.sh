@@ -20,10 +20,10 @@
 
 # /wrk -> /wrk-kappa
 DIR='/wrk/group/corona/radio/LC4_001/'
-DIR_OUT='/wrk/group/corona/peijin/LC4/MStgt/t1323_1335/'
+DIR_OUT='/wrk/group/corona/peijin/LC4/MStgt/t1245_1305/'
 SASID='L401013'
-STARTTIME='2015/10/16/13:23:00'
-ENDTIME='2015/10/16/13:35:00'
+STARTTIME='2015/10/16/12:45:00'
+ENDTIME='2015/10/16/13:05:00'
 
 FILEDIRS=(${DIR}${SASID}*.MS)
 MSDIR=${FILEDIRS[$SLURM_ARRAY_TASK_ID]}

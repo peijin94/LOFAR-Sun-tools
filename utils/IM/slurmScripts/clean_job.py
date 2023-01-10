@@ -19,25 +19,17 @@ import sys
 # the index of current job
 idx_this = int(sys.argv[1])
 
-os.chdir('/discofs/pjer1316/E20220519/proc')
-base_dir = './MS_aw/'
-outdir = './fits/'
+# the directory and files
 
-all_files = sorted(glob.glob(base_dir+'*.MS'))
+sun_dir='/wrk/group/corona/peijin/LC4/MStgt/t1245_1305/'
+work_dir='/proj/group/corona/radio/data/LC4_ciara/preproc/'
+sasid_sun   = 'L401013' # obsid of the sun
+outdir = work_dir+'fits/'
 
-f_sun = []
-f_calib = []
-for item_f in all_files:
-        if '_SAP000_' in item_f:
-                f_sun.append(item_f)
-        if '_SAP001_' in item_f:
-                f_calib.append(item_f)
+os.chdir(work_dir)
 
-f_sun = [f_sun[idx_this]]
-
-
-print(f_sun)
-
+f_sun_set=sorted(glob.glob(sun_dir+sasid_sun+'*.MS'))
+f_sun = [f_sun_set[idx_this]]
 
 
 clean_cmd = """
