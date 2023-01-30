@@ -34,6 +34,7 @@ import gc
 from sunpy.coordinates.sun import sky_position as sun_position
 import sunpy.coordinates.sun as sun_coord
 from lofarSun.BF.RFIconvFlag import *
+import lofarSun.BF.bfutil as bfutil
 import time
 
 lofar_logo_base64='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'
@@ -75,8 +76,8 @@ def parse_args():
     parser.add_argument('--target_directory', help='use long directory name, (e.g. out/sun/xxx.fits)', default=False, action='store_true')
     parser.add_argument('--date_directory', help='use long directory name, (e.g. out/2020/12/12/xxx.fits)', default=False, action='store_true')
     parser.add_argument('--simple_fname', help='use simple file name, for daily summary, format YYYYMMDD_hh (e.g. 20201212_02.fits)', default=False, action='store_true')
-    parser.add_argument('--no_ksp_logo', help='not showing ksp logo', default=False, action='store_true')
-    parser.add_argument('--no_idols_logo', help='not showing idols logo', default=False, action='store_true')
+    parser.add_argument('--add_ksp_logo', help='showing ksp logo', default=False, action='store_true')
+    parser.add_argument('--add_idols_logo', help='showing idols logo', default=False, action='store_true')
     
     return parser.parse_args()
 
@@ -84,6 +85,61 @@ def parse_args():
 def avg_1d(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0))
     return (cumsum[N::N] - cumsum[:-N:N]) / float(N)
+
+
+def cook_fits_hdu(data_fits, t_fits, f_fits, t_start_fits, t_end_fits, stokes_key, 
+                 antenna_set_name, telescop_name, target_name,
+                 pointing_ra, pointing_dec, pointing_x, pointing_y):
+    # create fits hdu
+        hdu_lofar = fits.PrimaryHDU()
+        hdu_lofar.data = data_fits
+        hdu_lofar.header['SIMPLE'] = True
+        hdu_lofar.header['BITPIX'] = 8
+        hdu_lofar.header['NAXIS '] = 2
+        hdu_lofar.header['NAXIS1'] = data_fits.shape[0]
+        hdu_lofar.header['NAXIS2'] = data_fits.shape[1]
+        hdu_lofar.header['EXTEND'] = True
+        hdu_lofar.header['DATE'] = t_start_fits.strftime("%Y-%m-%d")
+        hdu_lofar.header['CONTENT'] = t_start_fits.strftime("%Y/%m/%d") + ' LOFAR ' + \
+                                      antenna_set_name +' ' +stokes_key
+        hdu_lofar.header['ORIGIN'] = 'ASTRON Netherlands'
+        hdu_lofar.header['TELESCOP'] = telescop_name
+        hdu_lofar.header['INSTRUME'] = antenna_set_name
+        hdu_lofar.header['OBJECT'] = target_name
+        hdu_lofar.header['DATE-OBS'] = t_start_fits.strftime("%Y/%m/%d")
+        hdu_lofar.header['TIME-OBS'] = t_start_fits.strftime("%H:%M:%S.%f")
+        hdu_lofar.header['DATE-END'] = t_end_fits.strftime("%Y/%m/%d")
+        hdu_lofar.header['TIME-END'] = t_end_fits.strftime("%H:%M:%S.%f")
+        hdu_lofar.header['BZERO'] = 0.
+        hdu_lofar.header['BSCALE'] = 1.
+        hdu_lofar.header['BUNIT'] = 'digits  '
+        hdu_lofar.header['DATAMIN'] = max(np.nanmin(data_fits), 1.e-10)
+        hdu_lofar.header['DATAMAX'] = min(np.nanmax(data_fits), 1.e20)
+        hdu_lofar.header['CRVAL1'] = 74700.
+        hdu_lofar.header['CRPIX1'] = 0
+        hdu_lofar.header['CTYPE1'] = 'Time [UT]'
+        hdu_lofar.header['CDELT1'] = 0.25
+        hdu_lofar.header['CRVAL2'] = 200.
+        hdu_lofar.header['CRPIX2'] = 0
+        hdu_lofar.header['CTYPE2'] = 'Frequency [MHz]'
+        hdu_lofar.header['CDELT2'] = -1.
+        hdu_lofar.header['RA'] = pointing_ra
+        hdu_lofar.header['DEC'] = pointing_dec
+        hdu_lofar.header['X'] = pointing_x
+        hdu_lofar.header['Y'] = pointing_y
+
+        hdu_lofar.header['HISTORY'] = '        '
+        hdu_lofar.header['STOKES'] = stokes_key
+
+
+        col_freq = fits.Column(name='FREQ', format='PD',
+                               array=[np.array(f_fits)])
+        col_time = fits.Column(name='TIME', format='PD',
+                               array=[np.array(t_fits)])
+        hdu_lofar_axes = fits.BinTableHDU.from_columns([col_freq, col_time])
+        full_hdu = fits.HDUList([hdu_lofar, hdu_lofar_axes])
+
+        return full_hdu
 
 
 def compress_h5(fname_DS,
@@ -99,8 +155,8 @@ def compress_h5(fname_DS,
                 target_directory,
                 date_directory,
                 simple_fname,
-                no_ksp_logo,
-                no_idols_logo):
+                add_ksp_logo,
+                add_idols_logo):
     """
     fname_DS: relative (or absolute) directory+fname to the .h5
     out_dir: relative (or absolute) directory+fname to the .h5
@@ -122,6 +178,9 @@ def compress_h5(fname_DS,
     pointing_ra = f[f'/SUB_ARRAY_POINTING_000/{beam_key}'].attrs['POINT_RA']
     pointing_dec = f[f'/SUB_ARRAY_POINTING_000/{beam_key}'].attrs['POINT_DEC']
     tsamp = f[f'/SUB_ARRAY_POINTING_000/{beam_key}'].attrs["SAMPLING_TIME"]
+    antenna_set_name = root_group.attrs['ANTENNA_SET']
+    telescop_name = root_group.attrs['TELESCOPE']
+    target_name = root_group.attrs['TARGETS'][0].strip().lower()
 
     # get shape of the BF raw
     t_lines,f_lines = f[dataset_uri].shape
@@ -167,18 +226,18 @@ def compress_h5(fname_DS,
         t_ratio_start = (mdates.date2num(t_start_fits)
                          - mdates.date2num(t_start_bf)) / (mdates.date2num(t_end_bf)
                                                            - mdates.date2num(t_start_bf))
-        idx_start = int(t_ratio_start * (t_lines - 1))
-
         t_ratio_end = (mdates.date2num(t_end_fits)
                        - mdates.date2num(t_start_bf)) / (mdates.date2num(t_end_bf)
                                                          - mdates.date2num(t_start_bf))
+                       
+
+        print('processing chunk', idx_cur + 1, 'of', chunk_num, ', ratio range:', t_ratio_start, t_ratio_end)
+
+
+        idx_start = int(t_ratio_start * (t_lines - 1))
         idx_end = int(t_ratio_end * (t_lines - 1))
 
-        print('processing chunk', idx_cur + 1, 'of', chunk_num,
-              ', index range:', idx_start, idx_end, ', ratio:', t_ratio_end)
-
         pointing_x, pointing_y = j2000xy(pointing_ra, pointing_dec, t_start_fits)
-
         time_window = t_c_ratio
         freq_window = f_c_ratio
 
@@ -229,56 +288,14 @@ def compress_h5(fname_DS,
         data_fits = stokes
         # t_fits = np.linspace(mdates.date2num(t_start_fits), mdates.date2num(t_end_fits), data_fits.shape[0])
 
-        hdu_lofar = fits.PrimaryHDU()
-        hdu_lofar.data = data_fits
-        hdu_lofar.header['SIMPLE'] = True
-        hdu_lofar.header['BITPIX'] = 8
-        hdu_lofar.header['NAXIS '] = 2
-        hdu_lofar.header['NAXIS1'] = data_fits.shape[0]
-        hdu_lofar.header['NAXIS2'] = data_fits.shape[1]
-        hdu_lofar.header['EXTEND'] = True
-        hdu_lofar.header['DATE'] = t_start_fits.strftime("%Y-%m-%d")
-        hdu_lofar.header['CONTENT'] = t_start_fits.strftime("%Y/%m/%d") + ' LOFAR ' + \
-                                      root_group.attrs['ANTENNA_SET']+' ' +stokes_key
-        hdu_lofar.header['ORIGIN'] = 'ASTRON Netherlands'
-        hdu_lofar.header['TELESCOP'] = root_group.attrs['TELESCOPE']
-        hdu_lofar.header['INSTRUME'] = root_group.attrs['ANTENNA_SET']
-        hdu_lofar.header['OBJECT'] = root_group.attrs['TARGETS'][0].strip().lower()
-        hdu_lofar.header['DATE-OBS'] = t_start_fits.strftime("%Y/%m/%d")
-        hdu_lofar.header['TIME-OBS'] = t_start_fits.strftime("%H:%M:%S.%f")
-        hdu_lofar.header['DATE-END'] = t_end_fits.strftime("%Y/%m/%d")
-        hdu_lofar.header['TIME-END'] = t_end_fits.strftime("%H:%M:%S.%f")
-        hdu_lofar.header['BZERO'] = 0.
-        hdu_lofar.header['BSCALE'] = 1.
-        hdu_lofar.header['BUNIT'] = 'digits  '
-        hdu_lofar.header['DATAMIN'] = max(np.nanmin(data_fits), 1.e-10)
-        hdu_lofar.header['DATAMAX'] = min(np.nanmax(data_fits), 1.e20)
-        hdu_lofar.header['CRVAL1'] = 74700.
-        hdu_lofar.header['CRPIX1'] = 0
-        hdu_lofar.header['CTYPE1'] = 'Time [UT]'
-        hdu_lofar.header['CDELT1'] = 0.25
-        hdu_lofar.header['CRVAL2'] = 200.
-        hdu_lofar.header['CRPIX2'] = 0
-        hdu_lofar.header['CTYPE2'] = 'Frequency [MHz]'
-        hdu_lofar.header['CDELT2'] = -1.
-        hdu_lofar.header['RA'] = pointing_ra
-        hdu_lofar.header['DEC'] = pointing_dec
-        hdu_lofar.header['X'] = pointing_x
-        hdu_lofar.header['Y'] = pointing_y
-
-        hdu_lofar.header['HISTORY'] = '        '
-        hdu_lofar.header['STOKES'] = stokes_key
-
-
-        col_freq = fits.Column(name='FREQ', format='PD',
-                               array=[np.array(f_fits)])
-        col_time = fits.Column(name='TIME', format='PD',
-                               array=[np.array(t_fits)])
-        hdu_lofar_axes = fits.BinTableHDU.from_columns([col_freq, col_time])
+        
+        full_hdu = cook_fits_hdu(data_fits, t_fits, f_fits, t_start_fits, t_end_fits, stokes_key, 
+                 antenna_set_name, telescop_name, target_name,
+                 pointing_ra, pointing_dec, pointing_x, pointing_y)
 
         fname = t_start_fits.strftime(r"LOFAR_%Y%m%d_%H%M%S_") + root_group.attrs['ANTENNA_SET']+"_S"+stokes_key.strip()[-1]  # + '.fits'
 
-        obj_name= "sun" if ('sun' in hdu_lofar.header['OBJECT'].lower()) else "ips"
+        obj_name= "sun" if ('sun' in target_name) else "nts"
 
         real_out_dir = out_dir
         if target_directory:
@@ -293,8 +310,6 @@ def compress_h5(fname_DS,
         out_path_fits = os.path.join(real_out_dir, fname + '.fits')
         out_path_png = os.path.join(real_out_dir, fname + '.png')
         out_path_json = os.path.join(real_out_dir, fname + '.json')
-
-        full_hdu = fits.HDUList([hdu_lofar, hdu_lofar_axes])
 
         full_hdu.writeto(out_path_fits, overwrite=True)
         fig = plt.figure(figsize=(7, 4.5), dpi=160)
@@ -332,9 +347,10 @@ def compress_h5(fname_DS,
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
         ax.set_xlabel('Time (UT)')
         ax.set_ylabel('Frequency (MHz)')
-        ax.set_title(hdu_lofar.header['CONTENT'])
+        ax.set_title(t_start_fits.strftime("%Y/%m/%d") + ' LOFAR ' + \
+                                      antenna_set_name +' ' +stokes_key)
 
-        if not no_idols_logo:
+        if add_idols_logo:
             ax_logo1 = fig.add_axes([0.08, 0.92, 0.12, 0.07])
             img1 = base64.b64decode(IDOLS_LOGO)
             img1 = io.BytesIO(img1)
@@ -342,7 +358,7 @@ def compress_h5(fname_DS,
             ax_logo1.imshow(img1)
             ax_logo1.axis('off')
 
-        if not no_ksp_logo:
+        if add_ksp_logo:
             ax_logo2 = fig.add_axes([0.01, 0.915, 0.07, 0.08])
             img2 = base64.b64decode(lofar_logo_base64)
             img2 = io.BytesIO(img2)
@@ -397,8 +413,8 @@ def main():
                 args.target_directory,
                 args.date_directory,
                 args.simple_fname,
-                args.no_ksp_logo,
-                args.no_idols_logo)
+                args.add_ksp_logo,
+                args.add_idols_logo)
 
 
 if __name__ == '__main__':
