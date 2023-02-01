@@ -31,6 +31,8 @@ try:
 except:
     pass
 
+#TODO: make function more generic
+
 
 class BFdata:
     def __init__(self):
@@ -77,6 +79,7 @@ class BFdata:
             ra_beam, dec_beam, mdates.num2date(self.time_ds[0]))
 
     def load_fits(self, fname):
+        # fits cube file
         self.fname = fname
         self.havedata = True
 

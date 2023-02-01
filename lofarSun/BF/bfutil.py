@@ -197,8 +197,6 @@ def calibration_with_1bandpass_interp(
     # read the data
     dyspec_target, freq_target
     # plot the calibrator bandpass not interpolated
-
-    
     bandpass_interpolated = np.ones((len(freq_target)))
     # extract the frequency where the calibrator observed
     indices_in_calibrator = np.where((freq_target>np.min(freq_cal)) & (freq_target<np.max(freq_cal)))[0]
@@ -208,8 +206,6 @@ def calibration_with_1bandpass_interp(
     bandpass_interpolated[indices_in_calibrator] = funct(freq_target[indices_in_calibrator])
     bandpass_interpolated[:indices_in_calibrator[0]] = bandpass_interpolated[indices_in_calibrator[0]]
     bandpass_interpolated[indices_in_calibrator[-1]:] = bandpass_interpolated[indices_in_calibrator[-1]]
-
-
 
     if plot_things:
         fig = plt.figure(figsize=(6, 4), dpi=120)
