@@ -21,7 +21,6 @@ setup(
   install_requires=[            # I get to this in a second
           'matplotlib',
           'sunpy',
-          'opencv-python',
           'astropy',
           'h5py','pyqt5','pandas',
           'scipy',

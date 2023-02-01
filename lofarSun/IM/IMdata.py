@@ -11,10 +11,10 @@ from astropy.io import fits
 from astropy.time import Time
 
 import numpy as np
-from skimage import measure
 from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
-import cv2
+# import cv2
+# from skimage import measure
 import sunpy
 import sunpy.map
 import sunpy.coordinates.sun as sun_coord
