@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="GUI">
-    <file>resource/lofar.png</file>
-    <file>resource/login.png</file>
-  </qresource>
-</RCC>

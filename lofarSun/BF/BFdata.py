@@ -38,7 +38,6 @@ class BFdata:
     def __init__(self):
         self.fname = ''
         self.havedata = False
-
         self.title = ''
         self.data_cube = 0
         self.freqs_ds = 0
@@ -49,7 +48,6 @@ class BFdata:
     def load_sav(self, fname):
         self.fname = fname
         self.havedata = True
-
         data = readsav(fname, python_dict=True)
 
         self.title = str(data['ds'][0]['TITLE'], 'utf-8')
@@ -63,10 +61,9 @@ class BFdata:
     def load_sav_cube(self, fname):
         self.fname = fname
         self.havedata = True
-
         data = readsav(fname, python_dict=True)
+        
         header_name = 'cube_ds'
-
         #self.title = str(data[header_name][0]['TITLE'],'utf-8')
         self.title = 'LOFAR BFcube'
         self.data_cube = data[header_name][0]['CUBE']
