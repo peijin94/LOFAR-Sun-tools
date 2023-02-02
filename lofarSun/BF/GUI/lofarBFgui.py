@@ -17,7 +17,7 @@ from scipy.interpolate import griddata
 from skimage import measure
 import matplotlib.dates as mdates
 import resource_rc
-from lofarSun.BF import BFdata as LofarDataBF
+from lofarSun.BF import BFcube as LofarDataBF
 from pandas.plotting import register_matplotlib_converters
 import platform
 
@@ -120,7 +120,7 @@ class MatplotlibWidget(QMainWindow):
         if self.dataset.fname:
             print(self.dataset.fname)
             if len(self.dataset.fname):
-                self.dataset.load_sav(self.dataset.fname)
+                self.dataset.load_sav_xy(self.dataset.fname)
                 self.mplw.canvas.axes.clear()
                 self.draw_ds_after_load()
                 self.beamSet.clear()
@@ -135,7 +135,7 @@ class MatplotlibWidget(QMainWindow):
         if self.dataset.fname:
             print(self.dataset.fname)
             if len(self.dataset.fname):        
-                self.dataset.load_sav_cube(self.dataset.fname)
+                self.dataset.load_sav_radec(self.dataset.fname)
                 self.mplw.canvas.axes.clear()
                 self.draw_ds_after_load()
                 self.beamSet.clear()

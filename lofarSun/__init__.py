@@ -1,6 +1,6 @@
 
-from lofarSun.IM import IMdata
-from lofarSun.BF import BFdata
+from lofarSun.IM import *
+from lofarSun.BF import *
 from lofarSun import cli
 
-__all__ = ['IMdata','BFdata','cli']
+__all__ = ['IMdata','BFcube','cli']

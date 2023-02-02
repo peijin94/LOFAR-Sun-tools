@@ -17,12 +17,14 @@ from scipy.ndimage import gaussian_filter
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+import scipy.ndimage
+
+#****** graveyard of previous required pacakges *******
 # import cv2
 # import sunpy
-import sunpy.map
-#import scipy
-import scipy.ndimage
-from matplotlib.patches import Ellipse
+# import sunpy.map
+# import scipy
+# from matplotlib.patches import Ellipse
 
 # try to use the precise epoch
 mpl.rcParams['date.epoch'] = '1970-01-01T00:00:00'
@@ -31,10 +33,8 @@ try:
 except:
     pass
 
-#TODO: make function more generic
 
-
-class BFdata:
+class BFcube:
     def __init__(self):
         self.fname = ''
         self.havedata = False
@@ -45,25 +45,24 @@ class BFdata:
         self.xb = 0
         self.yb = 0
 
-    def load_sav(self, fname):
+    def load_sav_xy(self, fname, header_name='ds'):
         self.fname = fname
         self.havedata = True
         data = readsav(fname, python_dict=True)
 
-        self.title = str(data['ds'][0]['TITLE'], 'utf-8')
-        self.data_cube = data['ds'][0]['CUBE']
-        self.freqs_ds = data['ds'][0]['FREQS']
-        self.time_ds = (data['ds'][0]['TIME']) / 3600 / \
+        self.title = str(data[header_name][0]['TITLE'], 'utf-8')
+        self.data_cube = data[header_name][0]['CUBE']
+        self.freqs_ds = data[header_name][0]['FREQS']
+        self.time_ds = (data[header_name][0]['TIME']) / 3600 / \
             24 + mdates.date2num(datetime.datetime(1979, 1, 1))
-        self.xb = data['ds'][0]['XB']
-        self.yb = data['ds'][0]['YB']
+        self.xb = data[header_name][0]['XB']
+        self.yb = data[header_name][0]['YB']
 
-    def load_sav_cube(self, fname):
+    def load_sav_radec(self, fname, header_name='cube_ds'):
         self.fname = fname
         self.havedata = True
         data = readsav(fname, python_dict=True)
         
-        header_name = 'cube_ds'
         #self.title = str(data[header_name][0]['TITLE'],'utf-8')
         self.title = 'LOFAR BFcube'
         self.data_cube = data[header_name][0]['CUBE']
