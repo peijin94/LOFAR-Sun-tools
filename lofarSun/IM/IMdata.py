@@ -1,9 +1,8 @@
 from scipy.io import readsav
 import matplotlib.dates as mdates
-import matplotlib as mpl
-import datetime
-import glob
-import os
+from  matplotlib import rcParams
+
+#import datetime,glob, os
 
 from astropy import units as u
 from astropy.coordinates import EarthLocation, SkyCoord
@@ -11,22 +10,19 @@ from astropy.io import fits
 from astropy.time import Time
 
 import numpy as np
-from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
-# import cv2
-# from skimage import measure
+
 import sunpy
 import sunpy.map
-import sunpy.coordinates.sun as sun_coord
-from sunpy.coordinates.sun import sky_position as sun_position
+from sunpy.coordinates.sun import sky_position, P
 from sunpy.coordinates import frames
-import scipy
 from scipy.optimize import curve_fit
+from scipy.ndimage import gaussian_filter
 import scipy.ndimage
 from matplotlib.patches import Ellipse
 
 # try to use the precise epoch
-mpl.rcParams['date.epoch']='1970-01-01T00:00:00'
+rcParams['date.epoch']='1970-01-01T00:00:00'
 try:
     mdates.set_epoch('1970-01-01T00:00:00')
 except:
@@ -70,7 +66,7 @@ class IMdata:
     
     def get_cur_solar_centroid(self,t_obs):
             # use the observation time to get the solar center
-        [RA,DEC] = sun_position(t=t_obs, equinox_of_date=False)
+        [RA,DEC] = sky_position(t=t_obs, equinox_of_date=False)
         return [RA.degree%360,DEC.degree%360]
 
     def get_obs_image_centroid(self,header):
@@ -112,7 +108,7 @@ class IMdata:
             if act_s==False:
                 x_shift_pix = 0
                 y_shift_pix = 0
-            rotate_angel = sun_coord.P(self.t_obs).degree
+            rotate_angel = P(self.t_obs).degree
             if act_r==False:
                 rotate_angel = 0
             data_tmp = scipy.ndimage.shift(data,(x_shift_pix,y_shift_pix))
@@ -124,7 +120,7 @@ class IMdata:
         
     def get_beam(self):
         if self.havedata:
-            solar_PA = sun_coord.P(self.t_obs).degree
+            solar_PA = P(self.t_obs).degree
             b_maj =  self.header['BMAJ']
             b_min  = self.header['BMIN']
             b_ang = self.header['BPA']+solar_PA # should consider the beam for the data
@@ -155,7 +151,7 @@ class IMdata:
         reference_coord_arcsec = reference_coord.transform_to(frames.Helioprojective(observer=lofar_coord))
         cdelt1 = (np.abs(header['cdelt1'])*u.deg).to(u.arcsec)
         cdelt2 = (np.abs(header['cdelt2'])*u.deg).to(u.arcsec)
-        P1 = sun_coord.P(obstime)
+        P1 = P(obstime)
         new_header = sunpy.map.make_fitswcs_header(data, reference_coord_arcsec,
                                            reference_pixel=u.Quantity([header['crpix1']-1, header['crpix2']-1]*u.pixel),
                                            scale=u.Quantity([cdelt1, cdelt2]*u.arcsec/u.pix),
@@ -174,7 +170,7 @@ class IMdata:
                 ax_plt=None,**kwargs):
         if self.havedata:
             t_cur_datetime = self.t_obs
-            solar_PA = sun_coord.P(self.t_obs).degree
+            solar_PA = P(self.t_obs).degree
             freq_cur = self.freq
             [b_maj,b_min,b_angel] = self.get_beam()
             b_maj = b_maj*3600

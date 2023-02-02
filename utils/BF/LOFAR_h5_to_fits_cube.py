@@ -19,7 +19,7 @@ import glob
 import os
 import json
 from astropy.io import fits as fits
-import lofarSun
+import lofarSun.BF.bftools as bftools
 import matplotlib.dates as mdates
 import h5py
 import datetime

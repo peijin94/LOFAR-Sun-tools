@@ -1,1 +1,1 @@
-import casacore
+#import casacore

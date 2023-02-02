@@ -1,18 +1,152 @@
-
 import numpy as np
-import glob
 import os
 import re
-import json
 from astropy.io import fits as fits
-import matplotlib.dates as mdates
 import h5py
-import datetime
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 from scipy import interpolate
 from tqdm import tqdm
+import torch
+from lofarSun.BF.RFIconvFlag import *
+
+
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+def downsample_h5_seg_by_time_ratio(data_array_uri, t_all, t_ratio_start, t_ratio_end, t_idx_count,  # data_array_uri=f[dataset_uri]
+                                    t_c_ratio, f_c_ratio, averaging=True, flagging=False, t_idx_cut=256,
+                                    agg_factor=[1.66, 1.66, 0.45, 0.45], device=device):
+
+    idx_start = int(t_ratio_start * (t_idx_count - 1))
+    idx_end = int(t_ratio_end * (t_idx_count - 1))
+    time_window = t_c_ratio
+    freq_window = f_c_ratio
+
+    if averaging:
+        segment_len = t_idx_cut * t_c_ratio
+        num_segments = int((idx_end - idx_start) * (1.0 / segment_len))+1
+        stokes_list = []
+        t_list = []
+        for idx_segment in np.arange(num_segments):
+            stokes_tmp = data_array_uri[(idx_start + idx_segment * segment_len):np.min([
+                idx_start + (idx_segment + 1) * segment_len, idx_end]), :]
+            t_tmp = t_all[(idx_start + idx_segment * segment_len):np.min([
+                idx_start + (idx_segment + 1) * segment_len, idx_end])]
+
+            if t_tmp.shape[0] >= t_c_ratio - 1:
+                if flagging:
+                    net = init_RFIconv(
+                        net, aggressive_factor=agg_factor, device=device).to(device)
+                    with torch.no_grad():
+                        output = net(
+                            torch.tensor(stokes_tmp.squeeze()[None, None, :, :]).to(device)).squeeze().cpu().numpy()
+
+                    conv_down_after_flag = F.conv2d(
+                        torch.tensor(
+                            stokes_tmp[None, None, :, :] * (~output[None, None, :, :])),
+                        torch.ones([1, 1, time_window, freq_window]
+                                   ) / freq_window / time_window,
+                        stride=(time_window, freq_window), padding=(0, 0)).squeeze().numpy()
+                    conv_down_weight_after_flag = F.conv2d(torch.tensor(1 - output[None, None, :, :]) * 1.0,
+                                                           torch.ones([1, 1, time_window,
+                                                                       freq_window]) / freq_window / time_window,
+                                                           stride=(
+                                                               time_window, freq_window),
+                                                           padding=(0, 0)).squeeze().numpy()
+                    small_arr = conv_down_after_flag / conv_down_weight_after_flag
+
+                else:
+                    small_arr = F.conv2d(torch.tensor(stokes_tmp[None, None, :, :]),
+                                         torch.ones(
+                                             [1, 1, time_window, freq_window]) / freq_window / time_window,
+                                         stride=(time_window, freq_window), padding=(0, 0)).squeeze().numpy()
+
+                stokes_list.append(small_arr)
+                t_list.append(avg_1d(t_tmp, t_c_ratio).ravel())
+        stokes = np.concatenate(stokes_list, axis=0)
+        t_fits = np.concatenate(t_list, axis=0)
+
+    else:
+        stokes = data_array_uri[
+            idx_start:idx_end:t_c_ratio, ::f_c_ratio]  # sampling the data
+        t_fits = t_all[idx_start:idx_end:t_c_ratio]
+
+    data_fits = stokes
+
+    return data_fits, t_fits
+
+
+def cook_fits_spectr_hdu(data_fits, t_fits, f_fits, t_start_fits, t_end_fits, stokes_key,
+                  antenna_set_name, telescop_name, target_name,
+                  pointing_ra, pointing_dec, pointing_x, pointing_y):
+    # create fits hdu
+    hdu_lofar = fits.PrimaryHDU()
+    hdu_lofar.data = data_fits
+    hdu_lofar.header['SIMPLE'] = True
+    hdu_lofar.header['BITPIX'] = 8
+    hdu_lofar.header['NAXIS '] = 2
+    hdu_lofar.header['NAXIS1'] = data_fits.shape[0]
+    hdu_lofar.header['NAXIS2'] = data_fits.shape[1]
+    hdu_lofar.header['EXTEND'] = True
+    hdu_lofar.header['DATE'] = t_start_fits.strftime("%Y-%m-%d")
+    hdu_lofar.header['CONTENT'] = t_start_fits.strftime("%Y/%m/%d") + ' LOFAR ' + \
+        antenna_set_name + ' ' + stokes_key
+    hdu_lofar.header['ORIGIN'] = 'ASTRON Netherlands'
+    hdu_lofar.header['TELESCOP'] = telescop_name
+    hdu_lofar.header['INSTRUME'] = antenna_set_name
+    hdu_lofar.header['OBJECT'] = target_name
+    hdu_lofar.header['DATE-OBS'] = t_start_fits.strftime("%Y/%m/%d")
+    hdu_lofar.header['TIME-OBS'] = t_start_fits.strftime("%H:%M:%S.%f")
+    hdu_lofar.header['DATE-END'] = t_end_fits.strftime("%Y/%m/%d")
+    hdu_lofar.header['TIME-END'] = t_end_fits.strftime("%H:%M:%S.%f")
+    hdu_lofar.header['BZERO'] = 0.
+    hdu_lofar.header['BSCALE'] = 1.
+    hdu_lofar.header['BUNIT'] = 'digits  '
+    hdu_lofar.header['DATAMIN'] = max(np.nanmin(data_fits), 1.e-10)
+    hdu_lofar.header['DATAMAX'] = min(np.nanmax(data_fits), 1.e20)
+    hdu_lofar.header['CRVAL1'] = 74700.
+    hdu_lofar.header['CRPIX1'] = 0
+    hdu_lofar.header['CTYPE1'] = 'Time [UT]'
+    hdu_lofar.header['CDELT1'] = 0.25
+    hdu_lofar.header['CRVAL2'] = 200.
+    hdu_lofar.header['CRPIX2'] = 0
+    hdu_lofar.header['CTYPE2'] = 'Frequency [MHz]'
+    hdu_lofar.header['CDELT2'] = -1.
+    hdu_lofar.header['RA'] = pointing_ra
+    hdu_lofar.header['DEC'] = pointing_dec
+    hdu_lofar.header['X'] = pointing_x
+    hdu_lofar.header['Y'] = pointing_y
+
+    hdu_lofar.header['HISTORY'] = '        '
+    hdu_lofar.header['STOKES'] = stokes_key
+
+    col_freq = fits.Column(name='FREQ', format='PD',
+                           array=[np.array(f_fits)])
+    col_time = fits.Column(name='TIME', format='PD',
+                           array=[np.array(t_fits)])
+    hdu_lofar_axes = fits.BinTableHDU.from_columns([col_freq, col_time])
+    full_hdu = fits.HDUList([hdu_lofar, hdu_lofar_axes])
+
+    return full_hdu
+
+
+#################### 
+# for averaging
+
+
+def avg_1d(x, N):
+    """very simple averaging for 1D array
+
+    Args:
+        x (array): input 1D array
+        N (int): down-sample ratio
+
+    Returns:
+        array: averaged array
+    """
+    cumsum = np.cumsum(np.insert(x, 0, 0))
+    return (cumsum[N::N] - cumsum[:-N:N]) / float(N)
 
 def averaging_stride(arr_query, n_point, axis=0, n_start = -1, n_end=-1 ):
     """

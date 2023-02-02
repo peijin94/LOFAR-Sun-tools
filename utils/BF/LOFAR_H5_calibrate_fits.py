@@ -39,7 +39,7 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-from lofarSun.BF.bfutil import (model_flux,
+from lofarSun.BF.bftools import (model_flux,
     partition_avg,calibration_with_1bandpass_interp,get_cal_bandpass)
 
 this_dir = os.getcwd()

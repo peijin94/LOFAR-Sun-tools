@@ -17,7 +17,7 @@ from scipy.interpolate import griddata
 from skimage import measure
 import matplotlib.dates as mdates
 import resource_rc
-from lofarSun.BF import BFcube as LofarDataBF
+from lofarSun.BF import BFcube
 from pandas.plotting import register_matplotlib_converters
 import platform
 
@@ -52,7 +52,7 @@ class MatplotlibWidget(QMainWindow):
         self.init_graph()
         self.setWindowIcon(QIcon(":/GUI/resource/lofar.png"))
         self.addToolBar(NavigationToolbar(self.mplw.canvas, self))
-        self.dataset = LofarDataBF()
+        self.dataset = BFcube()
 
         self.asecpix = 20
 

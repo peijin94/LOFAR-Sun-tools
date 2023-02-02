@@ -337,3 +337,4 @@ class BFcube:
         if self.havedata:
             self.write_fits(fdir, fprefix, np.arange(
                 len(self.freqs_ds)), np.arange(len(self.time_ds)))
+
