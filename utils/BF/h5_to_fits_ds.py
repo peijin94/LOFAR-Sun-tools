@@ -81,11 +81,6 @@ def parse_args():
     return parser.parse_args()
 
 
-
-
-
-
-
 def compress_h5(fname_DS,
                 out_dir,
                 t_c_ratio,

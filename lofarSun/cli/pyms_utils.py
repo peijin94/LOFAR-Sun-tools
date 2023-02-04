@@ -10,15 +10,11 @@ Written by Peijin Zhang
 version 0.1 2022-5-23 00:24:52: Initial version
 """
 
-import casacore
 import casacore.tables as pt
 import datetime
 
-import astropy
 from astropy.time import Time
-
 import numpy as np
-import sys
 
 from optparse import OptionParser
 
