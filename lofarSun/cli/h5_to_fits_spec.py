@@ -29,7 +29,6 @@ Output :  Small fits file with json and png quickview
 by Peijin.Zhang & Pietro Zucca 2019.08
 '''
 
-
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 matplotlib.use('agg')
@@ -67,6 +66,7 @@ def parse_args():
     parser.add_argument('--t_idx_cut', help='length of t-index for convolution, \
         8192 means about 195MB for 6400 channels', type=int, default=256)
 
+    # file names and directory
     parser.add_argument('--target_directory', help='use long directory name, (e.g. out/sun/xxx.fits)',
                         default=False, action='store_true')
     parser.add_argument('--date_directory', help='use long directory name, (e.g. out/2020/12/12/xxx.fits)',
@@ -108,39 +108,15 @@ def compress_h5(fname_DS,
     out_dir = os.path.abspath(out_dir)
     os.chdir(h5_dir)
     f = h5py.File(h5_fname, 'r')
-    root_group = f["/"]
 
-    beam_key, *_ = filter(lambda x: 'BEAM' in x,
-                          f['SUB_ARRAY_POINTING_000'].keys())
-    stokes_key, *_ = filter(lambda x: 'STOKES' in x,
-                            f['SUB_ARRAY_POINTING_000'][beam_key].keys())
-
-    dataset_uri = f'/SUB_ARRAY_POINTING_000/{beam_key}/{stokes_key}'
-    coordinates_uri = f'/SUB_ARRAY_POINTING_000/{beam_key}/COORDINATES/COORDINATE_1'
-    pointing_ra = f[f'/SUB_ARRAY_POINTING_000/{beam_key}'].attrs['POINT_RA']
-    pointing_dec = f[f'/SUB_ARRAY_POINTING_000/{beam_key}'].attrs['POINT_DEC']
-    tsamp = f[f'/SUB_ARRAY_POINTING_000/{beam_key}'].attrs["SAMPLING_TIME"]
-    antenna_set_name = root_group.attrs['ANTENNA_SET']
-    telescop_name = root_group.attrs['TELESCOPE']
-    target_name = root_group.attrs['TARGETS'][0].strip().lower()
-
-    # get shape of the BF raw
-    t_idx_count, f_idx_count = f[dataset_uri].shape
+    (dataset_uri, coordinates_uri, beam_key, stokes_key, pointing_ra, pointing_dec, tsamp, 
+        project_id, obs_id, antenna_set_name, telescop_name, target_name, t_idx_count, f_idx_count,
+        t_start_bf, t_end_bf, freq, t_all)= bftools.h5_fetch_meta(f)
 
     print('Beam:', beam_key)
     print('Stokes:', stokes_key)
     print('data shape [t,f]:', t_idx_count, f_idx_count)
-
-    t_start_bf = datetime.datetime.strptime(root_group.attrs["OBSERVATION_START_UTC"][0:26] + ' +0000',
-                                            '%Y-%m-%dT%H:%M:%S.%f %z')
-    t_end_bf = datetime.datetime.strptime(root_group.attrs["OBSERVATION_END_UTC"][0:26] + ' +0000',
-                                          '%Y-%m-%dT%H:%M:%S.%f %z')
-
-    # get the frequency axies
-    freq = f[coordinates_uri].attrs["AXIS_VALUES_WORLD"] / 1e6
-    t_all = np.linspace(mdates.date2num(t_start_bf),
-                        mdates.date2num(t_end_bf), t_idx_count)
-
+    
     if chop_off:
         t_start_chunk = t_start_bf.replace(minute=int(np.ceil(t_start_bf.minute / 15.0) * 15),
                                            second=0, microsecond=0)
@@ -191,7 +167,7 @@ def compress_h5(fname_DS,
                                  pointing_ra, pointing_dec, pointing_x, pointing_y)
 
         fname = t_start_fits.strftime(
-            r"LOFAR_%Y%m%d_%H%M%S_") + root_group.attrs['ANTENNA_SET']+"_S"+stokes_key.strip()[-1]  # + '.fits'
+            r"LOFAR_%Y%m%d_%H%M%S_") + antenna_set_name+"_S"+stokes_key.strip()[-1]  # + '.fits'
 
         obj_name = "sun" if ('sun' in target_name) else "nts"
 
@@ -275,13 +251,11 @@ def compress_h5(fname_DS,
         fig.savefig(out_path_png)
         plt.close('all')
 
-        lofar_json_dict = {'telescope': "LOFAR", 'instrume': root_group.attrs['ANTENNA_SET'],
-                           'projectID': root_group.attrs['PROJECT_ID'], 'obsID': root_group.attrs['OBSERVATION_ID'],
+        lofar_json_dict = {'telescope': telescop_name, 'instrume': antenna_set_name,
+                           'projectID': project_id, 'obsID': obs_id,
                            'source': fname_DS, 'date': t_start_fits.strftime("%Y-%m-%d"),
-                           'ra': pointing_ra,
-                           'dec': pointing_dec,
-                           'x': pointing_x,
-                           'y': pointing_y,
+                           'ra': pointing_ra, 'dec': pointing_dec,
+                           'x': pointing_x,   'y': pointing_y,
                            'time': t_start_fits.strftime("%H:%M:%S.%f"),
                            'event': {"no_detection": True, "type": "none", "level": "none"}, 'n_freq': len(f_fits),
                            'n_time': len(t_fits), 'freq_range': [np.nanmin(f_fits), np.nanmax(f_fits)],
