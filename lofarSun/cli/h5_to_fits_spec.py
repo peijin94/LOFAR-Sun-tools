@@ -25,8 +25,7 @@ Split and down sample the dynamic spectrum of LOFAR observation
 Input  :  Huge hdf5 file of LOFAR Tied array beam formed observation
 Output :  Small fits file with json and png quickview
 
-============
-by Peijin.Zhang & Pietro Zucca 2019.08
+(by Peijin.Zhang & Pietro Zucca 2019.08)
 '''
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -157,9 +156,9 @@ def compress_h5(fname_DS,
             pointing_ra, pointing_dec, t_start_fits)
 
         # downsample by time ratio
-        data_fits, t_fits = bftools.downsample_h5_seg_by_time_ratio(f[dataset_uri], t_all, t_ratio_start, t_ratio_end, t_idx_count,
-                                                            t_c_ratio, f_c_ratio, averaging, flagging, t_idx_cut,
-                                                            agg_factor, device)
+        data_fits, t_fits = bftools.downsample_h5_seg_by_time_ratio(
+            f[dataset_uri], t_all, t_ratio_start, t_ratio_end, t_idx_count,
+            t_c_ratio, f_c_ratio, averaging, flagging, t_idx_cut, agg_factor, device)
 
         # t_fits = np.linspace(mdates.date2num(t_start_fits), mdates.date2num(t_end_fits), data_fits.shape[0])
         full_hdu = bftools.cook_fits_spectr_hdu(data_fits, t_fits, f_fits, t_start_fits, t_end_fits, stokes_key,
@@ -219,8 +218,10 @@ def compress_h5(fname_DS,
                           (np.nanmean(data_safe) + 2 * np.nanstd(data_safe)+0.9*np.nanmax(data_safe))]
 
         freq_origin = 'upper' if flip_freq else 'lower'
+        freq_range = [f_fits[-1],f_fits[0]] if flip_freq else [f_fits[0],f_fits[-1]]
         im = ax.imshow(data_fits_new.T, aspect='auto', origin=freq_origin, vmax=vmax, vmin=vmin,
-                       extent=[mdates.date2num(t_start_fits), mdates.date2num(t_end_fits), f_fits[0], f_fits[-1]], cmap=cmap)
+                        extent=[mdates.date2num(t_start_fits), mdates.date2num(t_end_fits), 
+                        freq_range[0],freq_range[1]], cmap=cmap)
 
         ax.xaxis_date()
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
@@ -290,5 +291,5 @@ def main():
                 args.flip_freq)
 
 
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+#    main()

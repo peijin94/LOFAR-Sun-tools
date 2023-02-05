@@ -35,6 +35,7 @@ setup(
     'Programming Language :: Python :: 3.8',
   ],
   entry_points={'console_scripts': ['lofarBFcube=lofarSun.BF.GUI.lofarBFgui:main',
+                                    'h5toFitsDS=lofarSun.cli.h5_to_fits_spec:main',
                                     'pymsOverview=lofarSun.cli.pyms_utils:pyms_overview_main',
                                     'pymsDatetime2Index=lofarSun.cli.pyms_utils:pyms_datetime_to_index_main',
                                     'pymsIndex2Datetime=lofarSun.cli.pyms_utils:pyms_index_to_datetime_main']},
