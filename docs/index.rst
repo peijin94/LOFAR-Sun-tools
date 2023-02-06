@@ -71,6 +71,15 @@ The common data formats for solar and space weather studys:
 
    /beamformed
 
+   
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Executables
+   :hidden:
+
+   /cli
+
 
 
 
