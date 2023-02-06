@@ -16,7 +16,7 @@ import datetime
 from astropy.time import Time
 import numpy as np
 
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 class bcolors:
     HEADER = '\033[95m'
@@ -105,24 +105,63 @@ def ms_index_to_datetime(fname, idx):
     t_end   = time_range[1]
     t_now = float(idx) / float(N_idx_time) * (t_end - t_start) + t_start
     return t_now
+
+
+def cook_wsclean_cmd(fname, mode="default", multiscale=True,
+                     weight="briggs 0", mgain=0.5,
+                     thresholding="-auto-mask 3 -auto-threshold 0.3",
+                     len_baseline_eff=35000, FOV=8000,
+                     circbeam=True, niter=3000, pol='I', data_col="CORRECTED_DATA",
+                     interval=[-1, -1], intervals_out=-1):
+
+    mgain_var = "-mgain {}".format(mgain)
+    weight_var = "-weight "+weight
+    thresholding_var = thresholding
+    multiscale_var = "-multiscale" if multiscale else ""
+    circbeam_var = "-circularbeam" if circbeam else ""
+    pol_var = "-pol "+pol
+    data_col_var = "-data-column "+data_col
+
+    freq = get_freq_from_ms(fname)
+    time = get_t_from_ms(fname)
+
+    scale = 1.22*(3e8/freq)/len_baseline_eff * 180/np.pi*3600 / 1.5
+    scale_var = "-scale {}asec".format(scale)
+    size_var = "-size {} {}".format(int(FOV/scale), int(FOV/scale))
+
+    interval_var = "-interval {} {}".format(
+        interval[0], interval[1]) if interval[0] > 0 else "-interval {} {}".format(0, time[0])
+    intervals_out_var = "-intervals-out {}".format(
+        intervals_out) if intervals_out > 0 else "-intervals-out {}".format(time[0])
+
+    clean_cmd = ("wsclean -mem 90 -no-reorder -no-update-model-required " + mgain_var + 
+                 " " + weight_var + " " + multiscale_var + " " + thresholding_var + " " + 
+                 size_var + " " + scale_var + " " + pol_var + " " + data_col_var + " " + 
+                 interval_var + " " + intervals_out_var + " " + circbeam_var +
+                 " -niter {} -name ").format(niter)
+
+    return clean_cmd
+
+
+
     
 #==============================================================================
 # the cli entry points:
 
 def pyms_overview_main():
-    parser = OptionParser()
-    parser.add_option("-f", "--file", dest="filename", default=None,
+    parser = ArgumentParser()
+    parser.add_argument("filename", default=None,
                       help="write report to FILE", metavar="FILE")
-    parser.add_option("-v", "--verbose",
+    parser.add_argument("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
                       help="detailed info")
 
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
 
-    if options.filename==None:
+    if args.filename==None:
         print(bcolors.FAIL+'Empty input.'+bcolors.ENDC)
     else:
-        fname = options.filename
+        fname = args.filename
         
         N_idx_time, time_range = get_t_from_ms(fname)
         ant, nbaseline, telescope_name = get_obs_info_from_ms(fname)
@@ -189,10 +228,9 @@ def pyms_overview_main():
             print(str(round(pointing[0]*180/np.pi,2))+'\t'+str(round(pointing[1]*180/np.pi,2))+'\t'+str(spw[rowid]['CODE'])+'\t'+str(spw[rowid]['NAME']))
         print(' ')
 
-
         print('==============================================')
         
-        if options.verbose ==True:
+        if args.verbose ==True:
             
             print(bcolors.OKGREEN+'[INFO]'+bcolors.ENDC+' Antenna set: ')
             ant_all = pt.taql('select * from '+fname+'/ANTENNA')
@@ -215,43 +253,56 @@ def pyms_overview_main():
         return 0
 
 def pyms_datetime_to_index_main():
-    parser = OptionParser()
-    parser.add_option("-f", "--file", dest="filename", default=None,
-                      help="write report to FILE", metavar="FILE")
-    parser.add_option("-t", "--time", dest="time", default='12:00:00.000',
+    parser = ArgumentParser()
+    parser.add_argument("filename", default=None,
+                      help="MS file with full directory", metavar="FILE")
+    parser.add_argument("-t", "--time", dest="time", default='12:00:00.000',
                       help="default time format is %H:%M:%S.%f, can be changed by -fmt")
-    parser.add_option("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
+    parser.add_argument("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
                       help="default is %H:%M:%S.%f")
 
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
 
-    if options.filename==None:
+    if args.filename==None:
         print(bcolors.FAIL+'Empty input.'+bcolors.ENDC)
     else:
-        fname = options.filename
+        fname = args.filename
         
-        t_format = options.format
-        now_idx = ms_datetime_to_index(fname, options.time, t_format)
+        t_format = args.format
+        now_idx = ms_datetime_to_index(fname, args.time, t_format)
         print(now_idx)
     return 0
 
+def pyms_cook_wsclean_cmd_main():
+    parser=ArgumentParser()
+    parser.add_argument("filename", default=None,
+                      help="MS file with full directory", metavar="FILE")
+    args = parser.parse_args()
 
-def pyms_index_to_datetime_main():
-    parser = OptionParser()
-    parser.add_option("-f", "--file", dest="filename", default=None,
-                      help="write report to FILE", metavar="FILE")
-    parser.add_option("-i", "--idx", dest="idx", default='0',
-                      help="index of the slot")
-    parser.add_option("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
-                      help="default is %H:%M:%S.%f")
-
-    (options, args) = parser.parse_args()
-
-    if options.filename==None:
+    if args.filename==None:
         print(bcolors.FAIL+'Empty input.'+bcolors.ENDC)
     else:
-        fname = options.filename
-        t_format = options.format
-        t_now = ms_index_to_datetime(fname, options.idx)
-        print(t_now.strftime(options.format))
+        fname = args.filename
+    
+    return cook_wsclean_cmd(fname)
+    
+    
+def pyms_index_to_datetime_main():
+    parser = ArgumentParser()
+    parser.add_argument("filename", default=None,
+                      help="write report to FILE", metavar="FILE")
+    parser.add_argument("-i", "--idx", dest="idx", default='0',
+                      help="index of the slot")
+    parser.add_argument("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
+                      help="default is %H:%M:%S.%f")
+
+    args = parser.parse_args()
+
+    if args.filename==None:
+        print(bcolors.FAIL+'Empty input.'+bcolors.ENDC)
+    else:
+        fname = args.filename
+        t_format = args.format
+        t_now = ms_index_to_datetime(fname, args.idx)
+        print(t_now.strftime(args.format))
     return 0
