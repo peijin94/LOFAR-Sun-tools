@@ -13,11 +13,9 @@ import matplotlib.dates as mdates
 import matplotlib
 import h5py
 import matplotlib.image as mpimg
-import io
+import io,os,json
 import base64
 from argparse import ArgumentParser
-import os
-import json
 import datetime
 DESCRIPTION = '''
 Split and down sample the dynamic spectrum of LOFAR observation

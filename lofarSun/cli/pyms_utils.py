@@ -110,7 +110,7 @@ def ms_index_to_datetime(fname, idx):
 def cook_wsclean_cmd(fname, mode="default", multiscale=True,
                      weight="briggs 0", mgain=0.5,
                      thresholding="-auto-mask 3 -auto-threshold 0.3",
-                     len_baseline_eff=35000, FOV=8000,
+                     len_baseline_eff=35000, FOV=10000, scale_factor=3,
                      circbeam=True, niter=3000, pol='I', data_col="CORRECTED_DATA",
                      interval=[-1, -1], intervals_out=-1):
 
@@ -125,16 +125,22 @@ def cook_wsclean_cmd(fname, mode="default", multiscale=True,
     freq = get_freq_from_ms(fname)
     time = get_t_from_ms(fname)
 
-    scale = 1.22*(3e8/freq)/len_baseline_eff * 180/np.pi*3600 / 1.5
+    scale = 1.22*(3e8/freq)/len_baseline_eff * 180/np.pi*3600 / scale_factor
     scale_var = "-scale {}asec".format(scale)
     size_var = "-size {} {}".format(int(FOV/scale), int(FOV/scale))
 
+    # error handling for the intervals
+    if interval[1]>0 and intervals_out<=0:
+        intervals_out = interval[1]-interval[0]
+    if intervals_out> interval[1]-interval[0]:
+        intervals_out = interval[1]-interval[0]
+        
     interval_var = "-interval {} {}".format(
         interval[0], interval[1]) if interval[0] > 0 else "-interval {} {}".format(0, time[0])
     intervals_out_var = "-intervals-out {}".format(
         intervals_out) if intervals_out > 0 else "-intervals-out {}".format(time[0])
 
-    clean_cmd = ("wsclean -mem 90 -no-reorder -no-update-model-required " + mgain_var + 
+    clean_cmd = ("wsclean -mem 90 -no-reorder -no-update-model-required  " + mgain_var + 
                  " " + weight_var + " " + multiscale_var + " " + thresholding_var + " " + 
                  size_var + " " + scale_var + " " + pol_var + " " + data_col_var + " " + 
                  interval_var + " " + intervals_out_var + " " + circbeam_var +
@@ -151,7 +157,7 @@ def cook_wsclean_cmd(fname, mode="default", multiscale=True,
 def pyms_overview_main():
     parser = ArgumentParser()
     parser.add_argument("filename", default=None,
-                      help="write report to FILE", metavar="FILE")
+                      help="MS file with full directory", metavar="FILE")
     parser.add_argument("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
                       help="detailed info")
@@ -277,6 +283,14 @@ def pyms_cook_wsclean_cmd_main():
     parser=ArgumentParser()
     parser.add_argument("filename", default=None,
                       help="MS file with full directory", metavar="FILE")
+    parser.add_argument("--intervals-out", dest="intervals_out", default=-1,type=int,
+                        help="Number of intervals to output, default is -1, representing for snapshot for all", metavar="INTVO")
+    parser.add_argument("--interval", nargs=2, default=(-1,-1), type=int,
+                        help="Index intervals for imaging, default is '-1 -1' representing for all intervals", metavar=("INTV1","INTV2"))
+    parser.add_argument("--elipbeam", acttion='store_true', default=False, type=bool, 
+                        help="Use eliptical beam for wsclean, default True, set to False to use circular beam", metavar="ELIPBEAM")
+    
+    
     args = parser.parse_args()
 
     if args.filename==None:
@@ -284,17 +298,17 @@ def pyms_cook_wsclean_cmd_main():
     else:
         fname = args.filename
     
-    return cook_wsclean_cmd(fname)
+    print(cook_wsclean_cmd(fname,interval=args.interval, intervals_out=args.intervals_out, circbeam=not args.elipbeam))
     
     
 def pyms_index_to_datetime_main():
     parser = ArgumentParser()
     parser.add_argument("filename", default=None,
-                      help="write report to FILE", metavar="FILE")
-    parser.add_argument("-i", "--idx", dest="idx", default='0',
+                      help="MS file with full directory", metavar="FILE")
+    parser.add_argument("-i", "--idx", dest="idx", default=0, type=int,
                       help="index of the slot")
-    parser.add_argument("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
-                      help="default is %H:%M:%S.%f")
+    parser.add_argument("--fmt", "--format", dest="format", type=str ,default="%H:%M:%S.%f",
+                      help="default is %%H:%%M:%%S.%%f") # %% is needed to print % in help
 
     args = parser.parse_args()
 
