@@ -108,10 +108,10 @@ def ms_index_to_datetime(fname, idx):
 
 
 def cook_wsclean_cmd(fname, mode="default", multiscale=True,
-                     weight="briggs 0", mgain=0.5,
+                     weight="briggs 0", mgain=0.8,
                      thresholding="-auto-mask 3 -auto-threshold 0.3",
                      len_baseline_eff=35000, FOV=10000, scale_factor=3,
-                     circbeam=True, niter=3000, pol='I', data_col="CORRECTED_DATA",
+                     circbeam=True, niter=1200, pol='I', data_col="CORRECTED_DATA",
                      interval=[-1, -1], intervals_out=-1):
 
     mgain_var = "-mgain {}".format(mgain)
@@ -265,7 +265,7 @@ def pyms_datetime_to_index_main():
     parser.add_argument("-t", "--time", dest="time", default='12:00:00.000',
                       help="default time format is %H:%M:%S.%f, can be changed by -fmt")
     parser.add_argument("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
-                      help="default is %H:%M:%S.%f")
+                      help="default is %%H:%%M:%%S.%%f")
 
     args = parser.parse_args()
 
@@ -287,8 +287,8 @@ def pyms_cook_wsclean_cmd_main():
                         help="Number of intervals to output, default is -1, representing for snapshot for all", metavar="INTVO")
     parser.add_argument("--interval", nargs=2, default=(-1,-1), type=int,
                         help="Index intervals for imaging, default is '-1 -1' representing for all intervals", metavar=("INTV1","INTV2"))
-    parser.add_argument("--elipbeam", acttion='store_true', default=False, type=bool, 
-                        help="Use eliptical beam for wsclean, default True, set to False to use circular beam", metavar="ELIPBEAM")
+    parser.add_argument("--elipbeam", action='store_true', default=False,  
+                        help="Use eliptical beam for wsclean, default True, set to False to use circular beam")
     
     
     args = parser.parse_args()
