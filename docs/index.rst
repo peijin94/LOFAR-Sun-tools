@@ -5,6 +5,8 @@
 
 Welcome to LOFAR-Sun's documentation!
 =====================================
+.. image:: https://static.pepy.tech/personalized-badge/lofarsun?period=month&units=international_system&left_color=black&right_color=orange&left_text=Downloads
+ :target: https://pepy.tech/project/lofarsun
 
 LOFAR data processing for Solar and Space Weather. 
 
