@@ -61,7 +61,7 @@ def h5_fetch_meta(f, SAP="000"):
 # data_array_uri=f[dataset_uri]
 def downsample_h5_seg_by_time_ratio(data_array_uri, t_all, t_ratio_start, t_ratio_end, t_idx_count,  
                     t_c_ratio, f_c_ratio, averaging=True, flagging=False, t_idx_cut=256,
-                    agg_factor=[1.66, 1.66, 0.45, 0.45], device=device):
+                    agg_factor=[1.66, 1.66, 0.45, 0.45], subband_edge=False, subband_ch=16, device=device):
 
     idx_start = int(t_ratio_start * (t_idx_count - 1))
     idx_end = int(t_ratio_end * (t_idx_count - 1))
@@ -78,6 +78,10 @@ def downsample_h5_seg_by_time_ratio(data_array_uri, t_all, t_ratio_start, t_rati
                 idx_start + (idx_segment + 1) * segment_len, idx_end]), :]
             t_tmp = t_all[(idx_start + idx_segment * segment_len):np.min([
                 idx_start + (idx_segment + 1) * segment_len, idx_end])]
+            
+            if subband_edge:
+                # copy the n*16-1 channel to n*16 channel
+                stokes_tmp[:, 0::subband_ch] = stokes_tmp[:, 1::subband_ch]
 
             if t_tmp.shape[0] >= t_c_ratio - 1:
                 if flagging:
