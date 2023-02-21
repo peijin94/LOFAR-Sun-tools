@@ -10,7 +10,7 @@ setup(
   name = 'lofarSun',         # How you named your package folder 
   packages = setuptools.find_packages(),#['lofarSun','lofarSun.IM','lofarSun.BF','lofarSun.BF.GUI'],   # Chose the same as "name"
   include_package_data=True,
-  version = '0.3.29',      # Start with a small number and increase it with every change you make
+  version = '0.3.30',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'tools to process the lofar solar data',   # Give a short description about your library
   author = 'Peijin',                   # Type in your name
@@ -32,7 +32,7 @@ setup(
     'Intended Audience :: Developers',     # Define that your audience are developers
     'Topic :: Software Development :: Build Tools',
     'License :: OSI Approved :: MIT License',   # Again, pick a license,
-    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',      #Specify which pyhton versions that you want to support
   ],
   entry_points={'console_scripts': ['lofarBFcube=lofarSun.BF.GUI.lofarBFgui:main',
                                     'h5toFitsDS=lofarSun.cli.h5_to_fits_spec:main',
