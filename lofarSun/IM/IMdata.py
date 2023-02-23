@@ -310,7 +310,10 @@ def get_tile_ellipse_from_fit(popt):
     Ell_rot = np.zeros((2, Ell.shape[1]))
     for i in range(Ell.shape[1]):
         Ell_rot[:, i] = np.dot(R_rot, Ell[:, i])
-
+        
+    Ell_rot[0, :] = Ell_rot[0, :] + popt[1]
+    Ell_rot[1, :] = Ell_rot[1, :] + popt[2]
+    
     return Ell_rot
 
 
