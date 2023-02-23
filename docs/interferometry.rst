@@ -37,7 +37,7 @@ thus, it is necessary to do the autoweight step:
 This calculates the weights for the visibilities from the
 auto-correlation data of the observation.
 
-The script autoWeight.sh can batch this process if there is more than
+The script ``autoWeight.sh`` can batch this process if there is more than
 one file.
 
 (This step can be skipped if the measurement set is pre-processed by imaging pipeline.)
@@ -130,7 +130,7 @@ Apply Beam
    steps =[applybeam] \
    applybeam.updateweights=True
 
-The steps (2)-(5) are integrated in the script **auto_sun_calib.py** to
+The steps (2)-(5) are integrated in the script ``auto_sun_calib.py`` to
 calibrate the MS files in batch.
 
 
@@ -168,10 +168,46 @@ Inspecting Calibration Solutions
 --------------------------------
 
 In many cases, solar radio bursts can contaminate the observation
-of the calibrator source. It is thus **highly recommended** that the
-gain calibration solutions obtained using DPPP are visually inspected.
+of the calibrator source. It is thus **highly recommended** [#]_ that the
+gain calibration solutions obtained with DPPP are visually inspected.
+The `LOFAR Solution Tool <https://support.astron.nl/LOFARImagingCookbook/losoto.html>`__
+(LoSoTo) can be used to plot the calibration solutions for each antenna 
+pair using the ``cal_solution_plot.parset`` file below 
 
+.. code:: bash
 
+   [plot_amp]
+   operation = PLOT
+   axesInPlot = [time,freq]
+   axisInTable = ant
+   axisInCol = pol
+   soltab = sol000/amplitude000
+   markerSize = 4
+   plotFlag = True
+   makeAntPlot=False
+   doUnwrap = False
+   prefix=/path/to/calibration/solution/plots/output_name_amp_
+   [plot_phase]
+   operation = PLOT
+   axesInPlot = [time,freq]
+   axisInTable = ant
+   axisInCol = pol
+   soltab = sol000/phase000
+   markerSize = 4
+   plotFlag = True
+   makeAntPlot=False
+   doUnwrap = True
+   prefix=/path/to/calibration/solution/plots/output_name_phase_
+
+Use ``parmdb2H5parm.py`` to convert the calibration solutions stored at
+``/path/to/calibrator-autow.MS/instrument`` to a H5 file compatible with 
+LoSoTo and generate the calibration soultion plots as follows:
+
+.. code:: bash
+
+   parmdb2H5parm.py -v cal_solutions.h5  /path/to/calibrator-autow.MS/instrument
+   losoto -v cal_solutions.h5 cal_solution_plot.parset
+   
 Clean
 -----
 
@@ -236,7 +272,7 @@ A small cheatsheet for solar WSClean:
 | terval | 4000   |                                                    |
 +--------+--------+----------------------------------------------------+
 
-For the interval index, one can use the get_datetime_index.py to find
+For the interval index, one can use the ``get_datetime_index.py`` to find
 out the starting and ending index.
 
 
@@ -295,3 +331,7 @@ For Visualization we use the docker image "peijin/lofarsun"
 
 This command will start a jupyter lab server in the docker container, also mount the 
 directory '/HDD/path/to/data/' to '/lofardata'
+
+.. rubric:: Footnotes
+
+.. [#] Read: necessary.
