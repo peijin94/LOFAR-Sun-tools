@@ -135,7 +135,7 @@ calibrate the MS files in batch.
 
 
 The script
-`auto_sun_calib.py <https://github.com/peijin94/LOFAR-Sun-tools/blob/master/utils/IM/auto_sun_calib.py>`__, the script
+`auto_sun_calib.py <https://github.com/peijin94/LOFAR-Sun-tools/blob/master/utils/IM/auto_sun_calib.py>`__
 automizes the calibration of LOFAR observations. It generates the parset
 file for the calibration and runs the corresponding DPPP commad.
 
@@ -207,7 +207,7 @@ LoSoTo and generate the calibration soultion plots as follows:
 
    parmdb2H5parm.py -v cal_solutions.h5  /path/to/calibrator-autow.MS/instrument
    losoto -v cal_solutions.h5 cal_solution_plot.parset
-   
+
 Clean
 -----
 
