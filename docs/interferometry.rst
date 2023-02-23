@@ -6,85 +6,109 @@ Interferometry
 Download
 ----------
 
-LOFAR observation data is available at `LTA <https://lta.lofar.eu/Lofar>`__
+LOFAR observation data are available at the
+`Long Term Archive (LTA) <https://lta.lofar.eu/Lofar>`__.
+The LTA is difficult to navigate and thus, we recommend reading the
+`Long Term Archive Howto <https://www.astron.nl/lofarwiki/doku.php?id=public:lta_howto>`__
+on the LOFAR wiki.
 
-Request the data then download the data with **wget**
+**Note** :
+Not all data on the LTA is public and you may have to
+request access from the `Solar and Space Weather KSP <https://www.astron.nl/spaceweather/SolarKSP/>`__.
+
+Request the data then download the data with **wget**.
 
 Preprocess
 ----------
+Raw LOFAR data must undergo a series a preprocessing steps before
+it can be used for imaging.
+Namely, these are auto-weighting and calibration.
 
 autoweight
 ==========
 
-If the data is raw-data (no 'WEIGHT' column in MS), it is necessary to do the 
-autoweight step:
+Raw LOFAR data will have no 'WEIGHT' column in its measurement set (MS)
+thus, it is necessary to do the autoweight step:
 
 .. code:: bash
 
-   NDPPP msin=path/to/rawdata.MS msout=path/to/output.MS steps=[] msin.autoweight=true
+   DPPP msin=path/to/rawdata.MS msout=path/to/output.MS steps=[] msin.autoweight=true
+
+This calculates the weights for the visibilities from the
+auto-correlation data of the observation.
 
 The script autoWeight.sh can batch this process if there is more than
-one file
+one file.
 
 (This step can be skipped if the measurement set is pre-processed by imaging pipeline.)
 
 Calibration
 ============
 
-The calibration depends on NDPPP module developed by LOFAR, so run this
-line before everything:
+Calibration of LOFAR data is performed using the `Default Preprocessing
+Pipeline <https://dp3.readthedocs.io/en/latest/index.html>`__ (DPPP).
+
+In order to use DPPP on the
+`LOFAR computing facilities, <https://support.astron.nl/LOFARImagingCookbook/gettingstarted.html>`__
+the following lines must be run:
 
 .. code:: bash
 
     module load lofar
     module load dp3
 
-The meassurement set is calibrated with NDPPP in three steps:
+The measurement set is calibrated with DPPP in three steps:
 
--  **Predicted Calculation** : use the calibrator to predict the gain
-   calculation
--  **Apply Calculation** : apply the gain calculation to the sun
--  **Apply Beam** : apply the LOFAR beam to the dataset
+-  **Predict Calibration** : use the calibrator observation to predict the gain
+   calibration solution.
+-  **Apply Calibration** : apply the gain calibration solution to the solar observation.
+-  **Apply Beam** : apply the LOFAR beam to the dataset.
 
-In practical:
+These steps are covered in greater detail in the
+`LOFAR Imaging Cookbook <https://support.astron.nl/LOFARImagingCookbook/dpppcalibrate.html>`__.
+Below we give a short example of how to calibrate a raw LOFAR observation.
 
--  Create the source.db file with a sky model of the calibrator
+Predict Calibration
+~~~~~~~~~~~~~~~~~~~
+
+1.  Create a source.db file with a sky model of the calibrator. Here we use TauA as an example but other skymodels are available from `<https://github.com/lofar-astron/prefactor/tree/master/skymodels>`_.
 
 .. code:: bash
 
    makesourcedb in=/path/to/TauA.skymodel out=TauA.sourcedb
 
--  Run auto-weight with NDPPP (Note: this step should be done for both
-   sun and the calibrator):
+2.  Run auto-weight with DPPP (Note: this step should be done for both sun and the calibrator):
 
 .. code:: bash
 
-   NDPPP msin=/path/to/calibrator.MS
+   DPPP msin=/path/to/calibrator.MS
    msout=/path/to/calibrator-autow.MS
    steps=[]
 
    msin.autoweight=True
 
--  Use the observation of the calibrator to predict the parameters for
-   the calculation applied to the solar observation
+3.  Use the observation of the calibrator to predict the parameters for the calculation applied to the solar observation.
 
 .. code:: bash
 
-   NDPPP msin=/path2/to/calibrator-autow.ms \
+   DPPP msin=/path2/to/calibrator-autow.ms \
    Msout=. \
    steps=[gaincal] \
    gaincal.usebeammodel=True  \
    gaincal.solint=4 \
-   gaincal.sources=TauAGG \
+   gaincal.sources=TauA \
    gaincal.sourcedb=TauA.sourcedb \
    gaincal.onebeamperpatch=True \
    gaincal.caltype=diagonal
 
--  Apply the parameters predicted by step (3)
+Apply Calibration
+~~~~~~~~~~~~~~~~~
+
+4.  Apply the parameters predicted by step (3)
 
 .. code:: bash
 
-   NDPPP msin=/path2/to/sun-autow.ms \
+   DPPP msin=/path2/to/sun-autow.ms \
    msout=. \
    msin.datacolumn=DATA \
    msout.datacolumn=CORR_NO_BEAM \
@@ -92,11 +116,14 @@ In practical:
    applycal.parmdb=/path/to/calibrator-autow.MS/instrument \
    applycal.updateweights=True
 
--  Apply the beam model of the calculation for the LOFAR station:
+Apply Beam
+~~~~~~~~~~
+
+5.  Apply the beam model of the calculation for the LOFAR station:
 
 .. code:: bash
 
-   NDPPP msin=sun-autow.MS \
+   DPPP msin=sun-autow.MS \
    msout=. \
    msin.datacolumn=CORR_NO_BEAM \
    msout.datacolumn=CORRECTED_DATA \
@@ -107,10 +134,10 @@ The steps (2)-(5) are integrated in the script **auto_sun_calib.py** to
 calibrate the MS files in batch.
 
 
-These steps can be done with a script
+The script
 `auto_sun_calib.py <https://github.com/peijin94/LOFAR-Sun-tools/blob/master/utils/IM/auto_sun_calib.py>`__, the script
-automized the calibration of interferometry, it generates the parset
-file for the calibration and run the corresponding NDPPP commad.
+automizes the calibration of LOFAR observations. It generates the parset
+file for the calibration and runs the corresponding DPPP commad.
 
 Modify the configuration lines in the code:
 
@@ -137,10 +164,20 @@ Run the calibration script simply with:
 
    python auto_sun_calib.py
 
+Inspecting Calibration Solutions
+--------------------------------
+
+In many cases, solar radio bursts can contaminate the observation
+of the calibrator source. It is thus **highly recommended** that the
+gain calibration solutions obtained using DPPP are visually inspected.
+
+
 Clean
 -----
 
-An example of wsclean for the sun:
+Once the data has been calibrated, it can be imaged. We recommend using
+`WSClean <https://wsclean.readthedocs.io/en/latest/index.html>`__ for this.
+An example of WSClean for the sun:
 
 
 .. code:: bash
@@ -157,49 +194,50 @@ it is better to
 keep the parameter **-multiscale** on for the solar image CLEAN, because
 the solar radio emission is always extended.
 
-A small cheatsheet for solar wsclean:
+A small cheatsheet for solar WSClean:
 
 +--------+--------+----------------------------------------------------+
 | C      | Par    | Comment                                            |
 | ommand | ameter |                                                    |
 +========+========+====================================================+
-| -j     | 20     | Number of thread used for CLEAN. (can be equal to  |
-|        |        | the number of cores)                               |
+| -j     | 20     | Number of thread used for CLEAN (can be equal to   |
+|        |        | the number of cores).                              |
 +--------+--------+----------------------------------------------------+
 | -mem   | 80     | Maximum memory limit in percent to the system      |
 |        |        | memory. (Don't use 100%)                           |
 +--------+--------+----------------------------------------------------+
-| -weight| briggs | Weight for the baselines. (Briggs 0 works for most |
-|        | 0.2    | of the situations)                                 |
+| -weight| briggs | Weight for the baselines. Briggs 0 works for most  |
+|        | 0.2    | of the situations                                  |
 +--------+--------+----------------------------------------------------+
 | -size  | 2048   | Size of the image in pixel.                        |
 |        | 2048   |                                                    |
 +--------+--------+----------------------------------------------------+
 | -scale | 3asec  | The scale of one pixel, can be 0.1asec,3asec,      |
-|        |        | 3min, 3deg                                         |
+|        |        | 3min, 3deg. This should be less 1/4 the beam size  |
+|        |        | in order to properly sample the beam.              |
 +--------+--------+----------------------------------------------------+
 | -pol   | I      | The polarization for cleaning, can be I,Q,U,V.     |
 +--------+--------+----------------------------------------------------+
 | -mult  | \\     | Whether to use multiscale in the clean. Better to  |
-| iscale |        | switch on for extended source                      |
+| iscale |        | switch on for extended source.                     |
 +--------+--------+----------------------------------------------------+
 | -data- | CO     | Be sure to use the calibrated data                 |
-| column | RRECTE | (CORRECTED_DATA)                                   |
+| column | RRECTE | (CORRECTED_DATA).                                  |
 |        | D_DATA |                                                    |
 +--------+--------+----------------------------------------------------+
 | -niter | 2000   | The iteration of clean, for the sun, 400 is        |
 |        |        | necessary, 1000 can be better, 2000 is enough.     |
 +--------+--------+----------------------------------------------------+
-| -i     | 85     | How many images you want to produce                |
+| -i     | 85     | How many images you want to produce.               |
 | nterva |        |                                                    |
 | ls-out |        |                                                    |
 +--------+--------+----------------------------------------------------+
-| -in    | 3000   | The index range for the CLEAN                      |
+| -in    | 3000   | The index range for the CLEAN.                     |
 | terval | 4000   |                                                    |
 +--------+--------+----------------------------------------------------+
 
-for the interval index, one can use the get_datetime_index.py to find
-out the starting and ending index
+For the interval index, one can use the get_datetime_index.py to find
+out the starting and ending index.
 
 
 Visualization
