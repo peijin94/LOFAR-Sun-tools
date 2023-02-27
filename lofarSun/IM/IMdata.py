@@ -216,7 +216,7 @@ class IMdata:
                                             ).ljust(5, '0') + 'MHz', color='w')
             circle1 = plt.Circle((0, 0), 960, color='C0', fill=False)
             beam0 = Ellipse((-fov*0.3, -fov*0.9), b_maj,
-                            b_min, -(b_angel-solar_PA), color='w')
+                            b_min, (b_angel+solar_PA), color='w')
 
             # print(b_maj,b_min,b_angel,solar_PA)
             ax.text(-fov*0.35, -fov*0.9, 'Beam shape:',

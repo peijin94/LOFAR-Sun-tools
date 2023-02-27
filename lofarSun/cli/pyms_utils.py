@@ -263,7 +263,7 @@ def pyms_datetime_to_index_main():
     parser.add_argument("filename", default=None,
                       help="MS file with full directory", metavar="FILE")
     parser.add_argument("-t", "--time", dest="time", default='12:00:00.000',
-                      help="default time format is %H:%M:%S.%f, can be changed by -fmt")
+                      help="default time format is %%H:%%M:%%S.%%f, can be changed by -fmt")
     parser.add_argument("--fmt", "--format", dest="format", default='%H:%M:%S.%f',
                       help="default is %%H:%%M:%%S.%%f")
 
@@ -289,7 +289,8 @@ def pyms_cook_wsclean_cmd_main():
                         help="Index intervals for imaging, default is '-1 -1' representing for all intervals", metavar=("INTV1","INTV2"))
     parser.add_argument("--elipbeam", action='store_true', default=False,  
                         help="Use eliptical beam for wsclean, default True, set to False to use circular beam")
-    
+    parser.add_argument("--datacol", dest="datacol", default='CORRECTED_DATA',
+                        help="Data column to use, default is CORRECTED_DATA", metavar="DATACOL")
     
     args = parser.parse_args()
 
@@ -298,7 +299,8 @@ def pyms_cook_wsclean_cmd_main():
     else:
         fname = args.filename
     
-    print(cook_wsclean_cmd(fname,interval=args.interval, intervals_out=args.intervals_out, circbeam=not args.elipbeam))
+    print(cook_wsclean_cmd(fname,interval=args.interval, intervals_out=args.intervals_out, circbeam=(not args.elipbeam),
+                           data_col=args.datacol))
     
     
 def pyms_index_to_datetime_main():
