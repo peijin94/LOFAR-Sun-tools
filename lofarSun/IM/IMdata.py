@@ -282,8 +282,8 @@ class IMdata:
                                        coord_y, 0, b_maj*3600, b_maj*3600],
                                    bounds=boundthis)
             
-            # x_sig as major axis, y_sig as minor axis
-            if popt[4] < popt[5]:
+            # y_sig as major axis, x_sig as minor axis
+            if popt[4] > popt[5]:
                 popt[4], popt[5] = popt[5], popt[4]
                 popt[3] = popt[3] + np.pi/2
                 pcov[4,4], pcov[5,5] = pcov[5,5], pcov[4,4]
@@ -293,8 +293,8 @@ class IMdata:
 
 def func_gaussian(xdata, s0, x_cent, y_cent, tile, x_sig, y_sig):
     x, y = xdata
-    xp = (x-x_cent) * np.cos(tile) - (y-y_cent) * np.sin(tile)
-    yp = (x-x_cent) * np.sin(tile) + (y-y_cent) * np.cos(tile)
+    xp =  (x-x_cent) * np.cos(tile) + (y-y_cent) * np.sin(tile)
+    yp = -(x-x_cent) * np.sin(tile) + (y-y_cent) * np.cos(tile)
 
     flux = s0 * (np.exp(-(xp**2)/(2*x_sig**2) - (yp**2)/(2*y_sig**2)))
     return flux
@@ -305,7 +305,7 @@ def get_tile_ellipse_from_fit(popt):
     # FWHM ~= 2*sqrt(2*ln(2))*sigma
 
     t = np.linspace(0, 2*np.pi, 100)
-    t_rot = -popt[3]
+    t_rot = popt[3]
     Ell = np.array([popt[4]*np.cos(t)*np.sqrt(2*np.log(2)),
                     popt[5]*np.sin(t)*np.sqrt(2*np.log(2))])
     # u,v removed to keep the same center location
