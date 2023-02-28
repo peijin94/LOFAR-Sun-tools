@@ -281,7 +281,13 @@ class IMdata:
                                    p0=[np.max(self.data_xy_calib.T), coord_x,
                                        coord_y, 0, b_maj*3600, b_maj*3600],
                                    bounds=boundthis)
-
+            
+            # x_sig as major axis, y_sig as minor axis
+            if popt[4] < popt[5]:
+                popt[4], popt[5] = popt[5], popt[4]
+                popt[3] = popt[3] + np.pi/2
+                pcov[4,4], pcov[5,5] = pcov[5,5], pcov[4,4]
+            
         return popt, pcov
 
 

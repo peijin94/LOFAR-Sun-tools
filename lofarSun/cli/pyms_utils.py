@@ -110,8 +110,9 @@ def ms_index_to_datetime(fname, idx):
 def cook_wsclean_cmd(fname, mode="default", multiscale=True,
                      weight="briggs 0", mgain=0.8,
                      thresholding="-auto-mask 3 -auto-threshold 0.3",
-                     len_baseline_eff=35000, FOV=10000, scale_factor=3,
+                     len_baseline_eff=35000, FOV=10000, scale_factor=4.3,
                      circbeam=True, niter=1200, pol='I', data_col="CORRECTED_DATA",
+                     misc="",
                      interval=[-1, -1], intervals_out=-1):
 
     mgain_var = "-mgain {}".format(mgain)
@@ -143,7 +144,7 @@ def cook_wsclean_cmd(fname, mode="default", multiscale=True,
     clean_cmd = ("wsclean -mem 90 -no-reorder -no-update-model-required  " + mgain_var + 
                  " " + weight_var + " " + multiscale_var + " " + thresholding_var + " " + 
                  size_var + " " + scale_var + " " + pol_var + " " + data_col_var + " " + 
-                 interval_var + " " + intervals_out_var + " " + circbeam_var +
+                 interval_var + " " + intervals_out_var + " " + circbeam_var + misc +
                  " -niter {} -name ").format(niter)
 
     return clean_cmd
@@ -291,6 +292,16 @@ def pyms_cook_wsclean_cmd_main():
                         help="Use eliptical beam for wsclean, default True, set to False to use circular beam")
     parser.add_argument("--datacol", dest="datacol", default='CORRECTED_DATA',
                         help="Data column to use, default is CORRECTED_DATA", metavar="DATACOL")
+    parser.add_argument("--misc", dest="misc", default='',nargs='+',
+                        help="Miscellaneous options for wsclean, default is empty", metavar="MISC")
+    parser.add_argument("--scalefactor", dest="scalefactor", default=3.0, type=float,
+                        help="Scale factor for wsclean, default is 3.0", metavar="SCALEFACTOR")
+    parser.add_argument("--multiscale", dest="multiscale", default=False, action='store_true',
+                        help="Use multiscale for wsclean, default is False")
+    parser.add_argument("--briggs", dest="briggs", default=0.5, type=float,
+                        help="Briggs robust parameter for wsclean, default is -0.5", metavar="BRIGGS")
+                        
+    
     
     args = parser.parse_args()
 
@@ -299,8 +310,10 @@ def pyms_cook_wsclean_cmd_main():
     else:
         fname = args.filename
     
-    print(cook_wsclean_cmd(fname,interval=args.interval, intervals_out=args.intervals_out, circbeam=(not args.elipbeam),
-                           data_col=args.datacol))
+    print(cook_wsclean_cmd(fname,interval=args.interval, intervals_out=args.intervals_out, 
+                           circbeam=(not args.elipbeam), scale_factor=args.scalefactor,
+                           multiscale=args.multiscale, weight=' briggs '+str(args.briggs),
+                           data_col=args.datacol,misc=' '.join(args.misc)))
     
     
 def pyms_index_to_datetime_main():
