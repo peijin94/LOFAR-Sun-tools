@@ -216,7 +216,7 @@ class IMdata:
                                             ).ljust(5, '0') + 'MHz', color='w')
             circle1 = plt.Circle((0, 0), 960, color='C0', fill=False)
             beam0 = Ellipse((-fov*0.3, -fov*0.9), b_maj,
-                            b_min, -(b_angel-solar_PA), color='w')
+                            b_min, (b_angel+solar_PA), color='w')
 
             # print(b_maj,b_min,b_angel,solar_PA)
             ax.text(-fov*0.35, -fov*0.9, 'Beam shape:',
@@ -281,25 +281,30 @@ class IMdata:
                                    p0=[np.max(self.data_xy_calib.T), coord_x,
                                        coord_y, 0, b_maj*3600, b_maj*3600],
                                    bounds=boundthis)
-
+            
+            # y_sig as major axis, x_sig as minor axis
+            if popt[4] > popt[5]:
+                popt[4], popt[5] = popt[5], popt[4]
+                popt[3] = popt[3] + np.pi/2
+                pcov[4,4], pcov[5,5] = pcov[5,5], pcov[4,4]
+            
         return popt, pcov
 
 
 def func_gaussian(xdata, s0, x_cent, y_cent, tile, x_sig, y_sig):
     x, y = xdata
-    xp = (x-x_cent) * np.cos(tile) - (y-y_cent) * np.sin(tile)
-    yp = (x-x_cent) * np.sin(tile) + (y-y_cent) * np.cos(tile)
+    xp =  (x-x_cent) * np.cos(tile) + (y-y_cent) * np.sin(tile)
+    yp = -(x-x_cent) * np.sin(tile) + (y-y_cent) * np.cos(tile)
 
     flux = s0 * (np.exp(-(xp**2)/(2*x_sig**2) - (yp**2)/(2*y_sig**2)))
     return flux
 
 
 def get_tile_ellipse_from_fit(popt):
-
     # FWHM ~= 2*sqrt(2*ln(2))*sigma
 
     t = np.linspace(0, 2*np.pi, 100)
-    t_rot = -popt[3]
+    t_rot = popt[3]
     Ell = np.array([popt[4]*np.cos(t)*np.sqrt(2*np.log(2)),
                     popt[5]*np.sin(t)*np.sqrt(2*np.log(2))])
     # u,v removed to keep the same center location
@@ -317,3 +322,36 @@ def get_tile_ellipse_from_fit(popt):
     return Ell_rot
 
 
+from skimage import measure, morphology
+
+def get_peak_beam_from_psf(fname, thresh=0.618):
+    """Get the peak beam from a fits file"""
+    hdu=fits.open(fname)
+    img=hdu[0].data.squeeze()
+    cx,cy=hdu[0].header["CRVAL1"],hdu[0].header["CRVAL2"]
+    
+    x = hdu[0].header['CRVAL1'] + (np.arange(hdu[0].header['NAXIS1']) - hdu[0].header['CRPIX1'] + 1) * hdu[0].header['CDELT1']
+    y = hdu[0].header['CRVAL2'] + (np.arange(hdu[0].header['NAXIS2']) - hdu[0].header['CRPIX2'] + 1) * hdu[0].header['CDELT2']
+
+    xv,yv=np.meshgrid(x,y)
+    
+    mask = img > np.max(img)*thresh
+    mask = morphology.remove_small_objects(mask, 5)
+    mask = morphology.remove_small_holes(mask, 5)
+    labels = measure.label(mask)
+    
+    props = measure.regionprops_table(labels, img, properties=['max_intensity'])
+    peak_marked_mask = (labels==np.argmax(props['max_intensity'])+1)
+    idx_wanted = morphology.binary_dilation(peak_marked_mask, morphology.disk(2))
+    
+    
+    popt, pcov = curve_fit(func_gaussian, (xv[idx_wanted], yv[idx_wanted]),img[idx_wanted],
+    p0=[np.max(img), np.mean(xv[idx_wanted]), np.mean(yv[idx_wanted]), 0, np.std(xv[idx_wanted])*2, np.std(yv[idx_wanted])])
+    # x_sig as major axis, y_sig as minor axis
+    if popt[4] > popt[5]:
+                    popt[4], popt[5] = popt[5], popt[4]
+                    popt[3] = popt[3] + np.pi/2
+                    pcov[4,4], pcov[5,5] = pcov[5,5], pcov[4,4]
+    
+    beamshape = popt[5], popt[4], -popt[3]/np.pi*180
+    return beamshape
