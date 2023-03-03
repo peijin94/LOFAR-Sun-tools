@@ -301,7 +301,6 @@ def func_gaussian(xdata, s0, x_cent, y_cent, tile, x_sig, y_sig):
 
 
 def get_tile_ellipse_from_fit(popt):
-
     # FWHM ~= 2*sqrt(2*ln(2))*sigma
 
     t = np.linspace(0, 2*np.pi, 100)
@@ -323,3 +322,36 @@ def get_tile_ellipse_from_fit(popt):
     return Ell_rot
 
 
+from skimage import measure, morphology
+
+def get_peak_beam_from_psf(fname, thresh=0.618):
+    """Get the peak beam from a fits file"""
+    hdu=fits.open(fname)
+    img=hdu[0].data.squeeze()
+    cx,cy=hdu[0].header["CRVAL1"],hdu[0].header["CRVAL2"]
+    
+    x = hdu[0].header['CRVAL1'] + (np.arange(hdu[0].header['NAXIS1']) - hdu[0].header['CRPIX1'] + 1) * hdu[0].header['CDELT1']
+    y = hdu[0].header['CRVAL2'] + (np.arange(hdu[0].header['NAXIS2']) - hdu[0].header['CRPIX2'] + 1) * hdu[0].header['CDELT2']
+
+    xv,yv=np.meshgrid(x,y)
+    
+    mask = img > np.max(img)*thresh
+    mask = morphology.remove_small_objects(mask, 5)
+    mask = morphology.remove_small_holes(mask, 5)
+    labels = measure.label(mask)
+    
+    props = measure.regionprops_table(labels, img, properties=['max_intensity'])
+    peak_marked_mask = (labels==np.argmax(props['max_intensity'])+1)
+    idx_wanted = morphology.binary_dilation(peak_marked_mask, morphology.disk(2))
+    
+    
+    popt, pcov = curve_fit(func_gaussian, (xv[idx_wanted], yv[idx_wanted]),img[idx_wanted],
+    p0=[np.max(img), np.mean(xv[idx_wanted]), np.mean(yv[idx_wanted]), 0, np.std(xv[idx_wanted])*2, np.std(yv[idx_wanted])])
+    # x_sig as major axis, y_sig as minor axis
+    if popt[4] > popt[5]:
+                    popt[4], popt[5] = popt[5], popt[4]
+                    popt[3] = popt[3] + np.pi/2
+                    pcov[4,4], pcov[5,5] = pcov[5,5], pcov[4,4]
+    
+    beamshape = popt[5], popt[4], -popt[3]/np.pi*180
+    return beamshape
