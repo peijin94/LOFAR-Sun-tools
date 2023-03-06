@@ -144,7 +144,7 @@ def cook_wsclean_cmd(fname, mode="default", multiscale=True,
     clean_cmd = ("wsclean -mem 90 -no-reorder -no-update-model-required  " + mgain_var + 
                  " " + weight_var + " " + multiscale_var + " " + thresholding_var + " " + 
                  size_var + " " + scale_var + " " + pol_var + " " + data_col_var + " " + 
-                 interval_var + " " + intervals_out_var + " " + circbeam_var + misc +
+                 interval_var + " " + intervals_out_var + " " + circbeam_var + " " + misc +
                  " -niter {} -name ").format(niter)
 
     return clean_cmd
@@ -292,7 +292,7 @@ def pyms_cook_wsclean_cmd_main():
                         help="Use eliptical beam for wsclean, default True, set to False to use circular beam")
     parser.add_argument("--datacol", dest="datacol", default='CORRECTED_DATA',
                         help="Data column to use, default is CORRECTED_DATA", metavar="DATACOL")
-    parser.add_argument("--misc", dest="misc", default='',nargs='+',
+    parser.add_argument("--misc", dest="misc", default='',nargs="*",type=str,
                         help="Miscellaneous options for wsclean, default is empty", metavar="MISC")
     parser.add_argument("--scalefactor", dest="scalefactor", default=3.0, type=float,
                         help="Scale factor for wsclean, default is 3.0", metavar="SCALEFACTOR")
