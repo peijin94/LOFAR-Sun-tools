@@ -21,7 +21,6 @@ from scipy.ndimage import gaussian_filter
 import scipy.ndimage
 from matplotlib.patches import Ellipse
 
-from lofarSun.cli import pyms_utils
 
 # try to use the precise epoch
 rcParams['date.epoch'] = '1970-01-01T00:00:00'
@@ -354,4 +353,5 @@ def get_peak_beam_from_psf(fname, thresh=0.618):
                     pcov[4,4], pcov[5,5] = pcov[5,5], pcov[4,4]
     
     beamshape = popt[5], popt[4], -popt[3]/np.pi*180
+    # bmag, bmin, bpa (deg)
     return beamshape

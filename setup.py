@@ -10,7 +10,7 @@ setup(
   name = 'lofarSun',         # How you named your package folder 
   packages = setuptools.find_packages(),#['lofarSun','lofarSun.IM','lofarSun.BF','lofarSun.BF.GUI'],   # Chose the same as "name"
   include_package_data=True,
-  version = '0.3.30',      # Start with a small number and increase it with every change you make
+  version = '0.3.31',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'tools to process the lofar solar data',   # Give a short description about your library
   author = 'Peijin',                   # Type in your name
@@ -36,6 +36,7 @@ setup(
   ],
   entry_points={'console_scripts': ['lofarBFcube=lofarSun.BF.GUI.lofarBFgui:main',
                                     'h5toFitsDS=lofarSun.cli.h5_to_fits_spec:main',
+                                    'pymsPSFfitPeakGauss=lofarSun.cli.pyms_utils:pyms_psf_fit_peak_gauss_main',
                                     'pymsOverview=lofarSun.cli.pyms_utils:pyms_overview_main',
                                     'pymsCookWscleanCMD=lofarSun.cli.pyms_utils:pyms_cook_wsclean_cmd_main',
                                     'pymsDatetime2Index=lofarSun.cli.pyms_utils:pyms_datetime_to_index_main',

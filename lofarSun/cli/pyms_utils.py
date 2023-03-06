@@ -335,3 +335,24 @@ def pyms_index_to_datetime_main():
         t_now = ms_index_to_datetime(fname, args.idx)
         print(t_now.strftime(args.format))
     return 0
+
+from lofarSun.IM import get_peak_beam_from_psf
+def pyms_psf_fit_peak_gauss_main():
+    parser = ArgumentParser()
+    parser.add_argument("filename", default=None,
+                      help="fits file for PSF with full directory", metavar="FILE")
+    parser.add_argument("-t", "--thresh", dest="thresh", default=0.618, type=float,
+                      help="relative threshold to select fitting region, default is 0.618")
+
+    args = parser.parse_args()
+
+    if args.filename==None:
+        print(bcolors.FAIL+'Empty input.'+bcolors.ENDC)
+    else:
+        fname = args.filename
+        thresh = args.thresh
+        beamshape = get_peak_beam_from_psf(fname, thresh)
+        print(str(beamshape[0]*3600)[0:12]+'asec',
+              str(beamshape[1]*3600)[0:12]+'asec',
+              str(beamshape[2])[0:12]+'deg')
+    return 0
