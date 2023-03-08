@@ -82,6 +82,14 @@ The common data formats for solar and space weather studys:
 
    /cli
 
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Beam restoration
+   :hidden:
+
+   /beam
+
 
 
 
