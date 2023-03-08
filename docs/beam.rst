@@ -9,7 +9,6 @@ And the beam is varying with time due to the earth rotation:
 
 .. figure:: img/testb.gif
     :align: center
-    :width: 300px
 
 Restoring beam shape
 ---------------------
@@ -23,13 +22,12 @@ especially for snapshots with long baselines
 
 .. figure:: img/sidelobe.png
     :align: center
-    :width: 300px
 
 there are several parameters to tweak when this happens:
 
 1. ``-circular-beam`` : force the beam to be circular then the beam is highly elliptical (https://wsclean.readthedocs.io/en/latest/restoring_beam_size.html)
 2. ``-theoretical-beam`` : use the theoretical beam instead of the fitted beam, usually used in inspections or quick imaging, not recommended for final image.
-3. ``-beam-shape`` : input a beam shape as the restored-beam to do the convolution. (``useMyBeam``)
+3. ``-beam-shape`` : input a beam shape as the restored-beam to do the convolution. (``useMyBeam`` in next section)
 
 useMyBeam
 ---------
@@ -73,4 +71,25 @@ this command returns something like:
         -interval 100 101 -intervals-out 1 -no-fit-beam \
         -beam-shape 59.572246348asec 24.846714688asec -148.7979535deg \
         -niter 1200 -name ./imgfits/IM path/to/MS
-        
+
+
+Algorithm used for beam shape determination
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Threshold the PSF image the a ratio (e.g. 0.5) of the maximum value,
+
+.. figure:: img/beamthresh.png
+    :align: center
+
+Select only the region covers the pixel of maximum. Fit Gaussian functions with the pixels inside.
+
+.. figure:: img/beamfit.png
+    :align: center
+
+Convert the fitted Gaussian parameters to the beam shape parameters. result:
+
+.. figure:: img/bfitresult.png
+    :align: center
+
+and return to stdout a formated string as ``[bmaj]asec [bmin]asec [bpa]deg`` for ``-beam-shape`` option.
+
