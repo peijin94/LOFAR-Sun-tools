@@ -353,5 +353,6 @@ def get_peak_beam_from_psf(fname, thresh=0.618):
                     pcov[4,4], pcov[5,5] = pcov[5,5], pcov[4,4]
     
     beamshape = popt[5], popt[4], -popt[3]/np.pi*180
+    beamloc = popt[1], popt[2]
     # bmag, bmin, bpa (deg)
-    return beamshape
+    return beamshape,beamloc

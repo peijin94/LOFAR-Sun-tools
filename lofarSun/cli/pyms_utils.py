@@ -112,7 +112,7 @@ def cook_wsclean_cmd(fname, mode="default", multiscale=True,
                      thresholding="-auto-mask 3 -auto-threshold 0.3",
                      len_baseline_eff=35000, FOV=10000, scale_factor=4.3,
                      circbeam=True, niter=1200, pol='I', data_col="CORRECTED_DATA",
-                     misc="",
+                     misc="", name="",
                      interval=[-1, -1], intervals_out=-1):
 
     mgain_var = "-mgain {}".format(mgain)
@@ -145,12 +145,9 @@ def cook_wsclean_cmd(fname, mode="default", multiscale=True,
                  " " + weight_var + " " + multiscale_var + " " + thresholding_var + " " + 
                  size_var + " " + scale_var + " " + pol_var + " " + data_col_var + " " + 
                  interval_var + " " + intervals_out_var + " " + circbeam_var + " " + misc +
-                 " -niter {} -name ").format(niter)
+                 " -niter {} -name "+ name).format(niter)
 
     return clean_cmd
-
-
-
     
 #==============================================================================
 # the cli entry points:
@@ -300,6 +297,10 @@ def pyms_cook_wsclean_cmd_main():
                         help="Use multiscale for wsclean, default is False")
     parser.add_argument("--briggs", dest="briggs", default=0.5, type=float,
                         help="Briggs robust parameter for wsclean, default is -0.5", metavar="BRIGGS")
+    parser.add_argument("--name", dest="name", default='',nargs="*",type=str,
+                        help="Name of the output image, default is empty")
+    parser.add_argument("--fov", dest="fov", default=10000, type=float,
+                        help="Field of view for wsclean (asec), default is 10000", metavar="FOV")
                         
     
     
@@ -313,8 +314,8 @@ def pyms_cook_wsclean_cmd_main():
     print(cook_wsclean_cmd(fname,interval=args.interval, intervals_out=args.intervals_out, 
                            circbeam=(not args.elipbeam), scale_factor=args.scalefactor,
                            multiscale=args.multiscale, weight=' briggs '+str(args.briggs),
-                           data_col=args.datacol,misc=' '.join(args.misc)))
-    
+                           data_col=args.datacol,misc=' '.join(args.misc),
+                           name=' '.join(args.name),FOV=args.fov))    
     
 def pyms_index_to_datetime_main():
     parser = ArgumentParser()
@@ -351,7 +352,7 @@ def pyms_psf_fit_peak_gauss_main():
     else:
         fname = args.filename
         thresh = args.thresh
-        beamshape = get_peak_beam_from_psf(fname, thresh)
+        beamshape,beamloc = get_peak_beam_from_psf(fname, thresh)
         print(str(beamshape[0]*3600)[0:12]+'asec',
               str(beamshape[1]*3600)[0:12]+'asec',
               str(beamshape[2])[0:12]+'deg')
