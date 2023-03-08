@@ -29,13 +29,6 @@ making it a great instrument for solar and space weather studys:
    - **Pulsar observations** for solar wind plasma and CMEs.
 
 
-A brief overview of LOFAR-core sensitivity and time scale and interested science subjects:
-
-.. figure:: img/logo.png
-   :alt: LOFAR logo
-   :width: 300px
-   :align: center
-
 
 The common data formats for solar and space weather studys:
 
