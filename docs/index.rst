@@ -13,6 +13,7 @@ LOFAR data processing for Solar and Space Weather.
 
 Project git repository : `LOFAR-Sun-tools <https://github.com/peijin94/LOFAR-Sun-tools>`__
 
+Maintainer: Peijin Zhang (`pjzhang.cc <https://pjzhang.cc/>`_)
 
 The LOw Frequency ARray (LOFAR) is a large-scale array of radio telescopes, it can perform multiple flexible type of observations, 
 making it a great instrument for solar and space weather studys:
@@ -28,13 +29,6 @@ making it a great instrument for solar and space weather studys:
    - **Beamformed dynamic spectrum** of quasars, for interplanetary scintillation.
    - **Pulsar observations** for solar wind plasma and CMEs.
 
-
-A brief overview of LOFAR-core sensitivity and time scale and interested science subjects:
-
-.. figure:: img/logo.png
-   :alt: LOFAR logo
-   :width: 300px
-   :align: center
 
 
 The common data formats for solar and space weather studys:
@@ -81,6 +75,14 @@ The common data formats for solar and space weather studys:
    :hidden:
 
    /cli
+
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Beam restoration
+   :hidden:
+
+   /beam
 
 
 
