@@ -39,7 +39,7 @@ release = '0.1.0'
 extensions = ['sphinx.ext.autodoc', 
               'sphinx.ext.coverage', 
               'sphinx.ext.napoleon',
-              'sphinxcontrib.autoprogram',
+              'sphinxcontrib-programoutput',
               'sphinxcontrib-autoprogram']
 html_favicon = 'img/image.ico'
 # Add any paths that contain templates here, relative to this directory.
