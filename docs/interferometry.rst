@@ -332,10 +332,15 @@ For Visualization we use the docker image "peijin/lofarsun"
 This command will start a jupyter lab server in the docker container, also mount the 
 directory '/HDD/path/to/data/' to '/lofardata'
 
-.. rubric:: Footnotes
 
 
 .. autofunction:: lofarSun.IM.get_peak_beam_from_psf
+
+.. autofunction:: lofarSun.cli.get_obs_info_from_ms
+
+.. rubric:: Footnotes
+
+
 
 
 
