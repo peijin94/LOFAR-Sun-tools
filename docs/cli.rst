@@ -9,10 +9,10 @@ GUI
 command line
 ------------
 
-.. argparse::
-   :ref: lofarSun.cli.pyms_utils.pyms_cook_wsclean_cmd_main
-   :prog: pymsCookWscleanCMD
+.. program-output:: python -V
 
+.. autoprogram:: lofarSun.cli.pyms_utils:pyms_cook_wsclean_cmd_main
+   :prog: pymsCookWscleanCMD
 
 :code:`h5toFitsDS` : convert a LOFAR hdf5 file to small fits files, including averaging and flagging processings
 
