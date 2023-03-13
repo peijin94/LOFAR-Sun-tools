@@ -10,8 +10,7 @@ command line
 ------------
 
 .. argparse::
-   :module: lofarSun.cli.pyms_utils
-   :func: pyms_cook_wsclean_cmd_main
+   :ref: lofarSun.cli.pyms_utils.pyms_cook_wsclean_cmd_main
    :prog: pymsCookWscleanCMD
 
 
