@@ -334,4 +334,9 @@ directory '/HDD/path/to/data/' to '/lofardata'
 
 .. rubric:: Footnotes
 
+
+.. autofunction:: lofarSun.IM.get_peak_beam_from_psf
+
+
+
 .. [#] Read: necessary.
