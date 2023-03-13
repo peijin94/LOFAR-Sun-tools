@@ -39,11 +39,16 @@ release = '0.1.0'
 extensions = ['sphinx.ext.autodoc', 
               'sphinx.ext.coverage', 
               'sphinx.ext.napoleon',
-              'sphinxcontrib-programoutput',
-              'sphinxcontrib-autoprogram']
+              'sphinxcontrib.programoutput',
+              'sphinx.ext.autosummary']
 html_favicon = 'img/image.ico'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+
+extensions.append('autoapi.extension')
+autoapi_type = 'python'
+autoapi_dirs = ['../lofarSun']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

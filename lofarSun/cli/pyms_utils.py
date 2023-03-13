@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-python version msoverview
+command line tools to process the lofar solar data
 
-Usage:
-
-python -m pymsoverview -f xxxxx.MS [-v]
-
-Written by Peijin Zhang
+by Peijin Zhang
 version 0.1 2022-5-23 00:24:52: Initial version
 """
 

@@ -4,4 +4,3 @@ sphinx
 sphinx_rtd_theme
 readthedocs-sphinx-search
 sphinxcontrib-programoutput
-sphinxcontrib-autoprogram

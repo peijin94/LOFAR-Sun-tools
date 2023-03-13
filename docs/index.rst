@@ -86,6 +86,7 @@ The common data formats for solar and space weather studys:
 
 
 
+.. autosummary::
 
 Cite as
 -------

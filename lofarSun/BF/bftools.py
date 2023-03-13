@@ -15,11 +15,15 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def h5_fetch_meta(f, SAP="000"):
-    """ get metadata from h5 file
+    """get info from the h5 file
 
     Args:
-        f (_type_): _description_
-    """
+        f (h5 file): target h5 file
+        SAP (str, optional): Sub-Array-Pointing. Defaults to "000".
+
+    Returns:
+        list: metadata of the h5 file
+    """    
 
     root_group = f["/"]
 
@@ -62,6 +66,27 @@ def h5_fetch_meta(f, SAP="000"):
 def downsample_h5_seg_by_time_ratio(data_array_uri, t_all, t_ratio_start, t_ratio_end, t_idx_count,  
                     t_c_ratio, f_c_ratio, averaging=True, flagging=False, t_idx_cut=256,
                     agg_factor=[1.66, 1.66, 0.45, 0.45], subband_edge=False, subband_ch=16, device=device):
+    """ Downsample the h5 file by time ratio
+
+    Args:
+        data_array_uri (array): dynamic spectrum
+        t_all (1d array): all time stamps
+        t_ratio_start (float): start time ratio (0-1)
+        t_ratio_end (float): end time ratio (0-1)
+        t_idx_count (int): number of total time stamps
+        t_c_ratio (int): time compression ratio
+        f_c_ratio (int): frequency compression ratio
+        averaging (bool, optional): averaging or direct sample. Defaults to True.
+        flagging (bool, optional): flagging or not. Defaults to False.
+        t_idx_cut (int, optional): factor to contour segment length for processing, to make use of the memory. Defaults to 256.
+        agg_factor (list, optional): factor for flagging. Defaults to [1.66, 1.66, 0.45, 0.45].
+        subband_edge (bool, optional): remove one channel every [subband num] channels. Defaults to False.
+        subband_ch (int, optional): number of subbands per channel. Defaults to 16.
+        device (device, optional): GPU or CPU, should be something like torch.device("cuda:0") . Defaults to device.
+
+    Returns:
+        list: [averaged dynamic spectrum, time stamps]
+    """    
 
     idx_start = int(t_ratio_start * (t_idx_count - 1))
     idx_end = int(t_ratio_end * (t_idx_count - 1))
