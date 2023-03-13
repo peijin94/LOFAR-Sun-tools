@@ -5,3 +5,4 @@ sphinx_rtd_theme
 readthedocs-sphinx-search
 sphinxcontrib-programoutput
 sphinx-autoapi
+torch
