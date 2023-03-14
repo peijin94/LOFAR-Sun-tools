@@ -20,10 +20,9 @@ Dynamic Spectrum
 measurement set 
 ~~~~~~~~~~~~~~~~
 
-
 * :code:`pymsOverview`
   
-   .. program-output:: pymsOverview -h
+  .. program-output:: pymsOverview -h
 
 * :code:`pymsCookWscleanCMD`
   
