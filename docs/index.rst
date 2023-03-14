@@ -3,6 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. meta::
+   :google-site-verification: YzoBxYv_mG21dZZODZ3mceyv5uEGcQDWPi186-tWg2s
+
 Welcome to LOFAR-Sun's documentation!
 =====================================
 .. image:: https://static.pepy.tech/personalized-badge/lofarsun?period=month&units=international_system&left_color=black&right_color=orange&left_text=Downloads
