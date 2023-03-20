@@ -110,6 +110,7 @@ def downsample_h5_seg_by_time_ratio(data_array_uri, t_all, t_ratio_start, t_rati
 
             if t_tmp.shape[0] >= t_c_ratio - 1:
                 if flagging:
+                    net = RFIconv(device=device)
                     net = init_RFIconv(
                         net, aggressive_factor=agg_factor, device=device).to(device)
                     with torch.no_grad():
