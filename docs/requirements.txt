@@ -1,0 +1,8 @@
+# Defining the exact version will make sure things don't break
+lofarSun
+sphinx
+sphinx_rtd_theme
+readthedocs-sphinx-search
+sphinxcontrib-programoutput
+sphinx-autoapi
+torch
