@@ -231,12 +231,12 @@ class IMdata:
                 ax.contour(xx, yy, data_new, levels=[
                            FWHM_thresh], colors=['deepskyblue'])
 
-            plt.colorbar(im)
+            cbar = plt.colorbar(im)
             plt.setp(ax, xlabel='X (ArcSec)', ylabel='Y (ArcSec)',
                      xlim=[-fov, fov], ylim=[-fov, fov],
                      title=str(t_cur_datetime))
             # plt.show()
-            return [fig, ax, im]
+            return [fig, ax, im, cbar]
 
         else:
             print("No data loaded")
