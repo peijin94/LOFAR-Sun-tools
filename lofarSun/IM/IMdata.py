@@ -211,17 +211,17 @@ class IMdata:
                 kwargs['vmin'] = np.mean(data_new)-2*np.std(data_new)
             if 'vmax' not in kwargs:
                 kwargs['vmax'] = 0.8*np.nanmax(data_new)
-            ax.text(fov*0.55, fov*0.87, str(round(freq_cur, 2)
+            txt_freq = ax.text(fov*0.55, fov*0.87, str(round(freq_cur, 2)
                                             ).ljust(5, '0') + 'MHz', color='w')
             circle1 = plt.Circle((0, 0), 960, color='C0', fill=False)
             beam0 = Ellipse((-fov*0.3, -fov*0.9), b_maj,
                             b_min, (b_angel+solar_PA), color='w')
 
             # print(b_maj,b_min,b_angel,solar_PA)
-            ax.text(-fov*0.35, -fov*0.9, 'Beam shape:',
+            txt_bshape = ax.text(-fov*0.35, -fov*0.9, 'Beam shape:',
                     horizontalalignment='right', verticalalignment='center', color='w')
-            ax.add_artist(circle1)
-            ax.add_artist(beam0)
+            a_sun = ax.add_artist(circle1)
+            a_beam = ax.add_artist(beam0)
 
             im = ax.imshow(data_new, interpolation='nearest', origin='lower',
                            extent=(min(xx), max(xx), min(yy), max(yy)), **kwargs)
@@ -235,8 +235,10 @@ class IMdata:
             plt.setp(ax, xlabel='X (ArcSec)', ylabel='Y (ArcSec)',
                      xlim=[-fov, fov], ylim=[-fov, fov],
                      title=str(t_cur_datetime))
-            # plt.show()
-            return [fig, ax, im, cbar]
+            
+            # return figure and plot handles for further manipulation
+            return [fig, ax, im, cbar,
+                txt_freq, a_sun, a_beam, txt_bshape]
 
         else:
             print("No data loaded")
@@ -259,8 +261,18 @@ class IMdata:
             print("No data loaded")
 
     # fit the image source to a 2-d gaussian funtion with sciPy's curve_fit
-    def fit_gaussian2d(self, thresh=0.5, **kwargs):
+    def fit_gaussian2d(self, thresh=0.5 , cbox = [[0,0],[0,0]] ,  **kwargs):
+        """Fit a 2D Gaussian function to the image data, 
+        feature update: can specify a box to fit the gaussian function
 
+        Args:
+            thresh (float, optional): threshold to limit the fit region. Defaults to 0.5.
+            cbox (list, optional): the range to specify the bounding box, [[x0,x1],[y0,y1]], default is no bounding. Defaults to [[0,0],[0,0]].
+
+        Returns:
+            list: fitting results 
+        """
+        
         if self.havedata:
             idx_wanted = np.where(self.data_xy_calib.T >
                                   thresh*self.data_xy_calib.max())
@@ -272,14 +284,20 @@ class IMdata:
                 [3*np.max(self.data_xy_calib.T), np.max(xv[idx_wanted]), np.max(yv[idx_wanted]), 1.1*np.pi,
                  np.max(np.abs(xv))/2, np.max(np.abs(yv))/2]
             ]
-            coord_x, coord_y = self.peak_xy_coord_arcsec()
+            if cbox != [[0,0],[0,0]]:
+                boundthis[0][1:3] = [cbox[0][0],cbox[1][0]]
+                boundthis[1][1:3] = [cbox[0][1],cbox[1][1]]
+                coord_x, coord_y = np.mean(cbox[0]), np.mean(cbox[1])
+            else:
+                coord_x, coord_y = self.peak_xy_coord_arcsec()
+            
             [b_maj, b_min, b_ang] = self.get_beam()
-            print(b_maj)
+            #print(b_maj)
+            
             popt, pcov = curve_fit(func_gaussian, (xv[idx_wanted], yv[idx_wanted]),
-                                   self.data_xy_calib.T[idx_wanted],
-                                   p0=[np.max(self.data_xy_calib.T), coord_x,
-                                       coord_y, 0, b_maj*3600, b_maj*3600],
-                                   bounds=boundthis)
+                                    self.data_xy_calib.T[idx_wanted],
+                                    p0=[np.max(self.data_xy_calib.T), coord_x,
+                                    coord_y, 0, b_maj*3600, b_maj*3600], bounds=boundthis)
             
             # y_sig as major axis, x_sig as minor axis
             if popt[4] > popt[5]:
@@ -294,14 +312,12 @@ def func_gaussian(xdata, s0, x_cent, y_cent, tile, x_sig, y_sig):
     x, y = xdata
     xp =  (x-x_cent) * np.cos(tile) + (y-y_cent) * np.sin(tile)
     yp = -(x-x_cent) * np.sin(tile) + (y-y_cent) * np.cos(tile)
-
     flux = s0 * (np.exp(-(xp**2)/(2*x_sig**2) - (yp**2)/(2*y_sig**2)))
     return flux
 
 
 def get_tile_ellipse_from_fit(popt):
     # FWHM ~= 2*sqrt(2*ln(2))*sigma
-
     t = np.linspace(0, 2*np.pi, 100)
     t_rot = popt[3]
     Ell = np.array([popt[4]*np.cos(t)*np.sqrt(2*np.log(2)),
@@ -323,8 +339,9 @@ def get_tile_ellipse_from_fit(popt):
 
 from skimage import measure, morphology
 
-def get_peak_beam_from_psf(fname, thresh=0.618):
+def get_peak_beam_from_psf(fname, thresh=0.618, cbox = [[0,0],[0,0]]):
     """Get the peak beam from a fits file"""
+    
     hdu=fits.open(fname)
     img=hdu[0].data.squeeze()
     cx,cy=hdu[0].header["CRVAL1"],hdu[0].header["CRVAL2"]
@@ -342,7 +359,6 @@ def get_peak_beam_from_psf(fname, thresh=0.618):
     props = measure.regionprops_table(labels, img, properties=['max_intensity'])
     peak_marked_mask = (labels==np.argmax(props['max_intensity'])+1)
     idx_wanted = morphology.binary_dilation(peak_marked_mask, morphology.disk(2))
-    
     
     popt, pcov = curve_fit(func_gaussian, (xv[idx_wanted], yv[idx_wanted]),img[idx_wanted],
     p0=[np.max(img), np.mean(xv[idx_wanted]), np.mean(yv[idx_wanted]), 0, np.std(xv[idx_wanted])*2, np.std(yv[idx_wanted])])
