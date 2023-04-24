@@ -3,7 +3,6 @@ import matplotlib.dates as mdates
 from matplotlib import rcParams
 
 #import datetime,glob, os
-
 from astropy import units as u
 from astropy.coordinates import EarthLocation, SkyCoord
 from astropy.io import fits
@@ -281,13 +280,15 @@ class IMdata:
             boundthis = [
                 [0, np.min(xv[idx_wanted]), np.min(
                     yv[idx_wanted]), -1.1*np.pi, 0, 0],
-                [3*np.max(self.data_xy_calib.T), np.max(xv[idx_wanted]), np.max(yv[idx_wanted]), 1.1*np.pi,
+                [5*np.max(self.data_xy_calib.T), np.max(xv[idx_wanted]), np.max(yv[idx_wanted]), 1.1*np.pi,
                  np.max(np.abs(xv))/2, np.max(np.abs(yv))/2]
             ]
             if cbox != [[0,0],[0,0]]:
                 boundthis[0][1:3] = [cbox[0][0],cbox[1][0]]
                 boundthis[1][1:3] = [cbox[0][1],cbox[1][1]]
                 coord_x, coord_y = np.mean(cbox[0]), np.mean(cbox[1])
+                idx_wanted = np.where((xv > cbox[0][0]) & (xv < cbox[0][1]) 
+                                      & (yv > cbox[1][0]) & (yv < cbox[1][1]))
             else:
                 coord_x, coord_y = self.peak_xy_coord_arcsec()
             
