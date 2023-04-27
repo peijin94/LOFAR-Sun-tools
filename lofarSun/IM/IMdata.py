@@ -28,7 +28,6 @@ try:
 except:
     pass
 
-
 class IMdata:
     def __init__(self):
         self.havedata = False
@@ -198,7 +197,7 @@ class IMdata:
                 fig = plt.gcf()  # num=None, figsize=(8, 6),dpi=120)
                 ax = ax_plt
 
-            # cmap_now = 'CMRmap_r'#,'gist_ncar_r','gist_heat'
+            ## cmap_now = 'CMRmap_r'#,'gist_ncar_r','gist_heat'
 
             # set some default values
             if 'cmap' not in kwargs:
