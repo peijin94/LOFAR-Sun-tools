@@ -23,7 +23,7 @@ setup(
           'sunpy',
           'astropy',
           'h5py','pyqt5','pandas',
-          'scipy',
+          'scipy','torch',
           'numpy','python-casacore',
           'scikit-image'
       ],
