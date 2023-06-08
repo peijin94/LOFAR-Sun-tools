@@ -1,0 +1,93 @@
+{
+    "msin": [
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB000_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB001_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB002_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB003_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB004_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB005_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB006_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB007_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB008_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB009_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB010_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB011_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB012_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB013_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB014_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB015_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB016_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB017_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB018_uv.MS"
+        },
+        {
+            "class": "Directory",
+            "path": "../data/L667520_SB019_uv.MS"
+        }
+    ],
+    "A-Team_skymodel": {
+        "class": "File",
+        "path": "/usr/local/share/linc/skymodels/Ateam_LBA_CC.skymodel"
+    },
+    "calibrator_path_skymodel": {
+        "class": "Directory",
+        "path": "/usr/local/share/linc/skymodels"
+    }
+}
+
