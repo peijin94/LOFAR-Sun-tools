@@ -16,14 +16,17 @@ inputs:
 - id: avg_freqresolution
   type: string?
   default: 48.82kHz
+- id: refant
+  type: string?
+  default: 'CS001HBA0'
 
 outputs:
 - id: solutions
   type: File
   outputSource: combine_solutions/output_solution
-- id: inspect_plots
+- id: save_inspection
   type: File[]
-  outputSource: create_inspect_plots/plots
+  outputSource: save_inspection/dir
 
 steps:
 - id: find_skymodel
@@ -62,10 +65,25 @@ steps:
   run: ../steps/collect_solutions.cwl
   out:
   - id: output_solution
-- id: create_inspect_plots
+- id: create_inspect_solutions
   run: ../steps/inspect_solutions.cwl
   in:
   - id: solution_file
     source: combine_solutions/output_solution
+  - id: refant
+    source: refant
   out:
-  - plots
+  - id: inspection
+- id: save_inspection
+  in:
+    - id: files
+      linkMerge: merge_flattened
+      source:
+        - create_inspect_solutions/inspection
+    - id: sub_directory_name
+      default: inspection
+  out:
+    - id: dir
+  run: ../steps/collectfiles.cwl
+  label: save_inspection
+
