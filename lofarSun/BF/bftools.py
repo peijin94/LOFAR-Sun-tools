@@ -450,3 +450,41 @@ def calibration_with_1bandpass_interp(
             bandpass_interpolated[i]*model_flux(calibrator, freq_target[i])
 
     return dyspec_target
+
+
+def lin_interp(x, y, i, half):
+    return x[i] + (x[i+1] - x[i]) * ((half - y[i]) / (y[i+1] - y[i]))
+
+def FWHM(x, y):
+    """
+    Determine the FWHM position [x] of a distribution [y]
+    """
+    half = max(y)/2.0
+    signs = np.sign(np.add(y, -half))
+    zero_crossings = (signs[0:-2] != signs[1:-1])
+    zero_crossings_i = np.where(zero_crossings)[0]
+    return [lin_interp(x, y, zero_crossings_i[0], half),
+            lin_interp(x, y, zero_crossings_i[-1], half)]
+
+
+def DecayExpTime(x,y):
+    thresh = np.max(y)/np.exp(1)
+    signs = np.sign(np.add(y, -thresh))
+    zero_crossings = (signs[0:-2] != signs[1:-1])
+    zero_crossings_i = np.where(zero_crossings)[0]
+    return [x[np.argmax(y)], lin_interp(x, y, zero_crossings_i[-1], thresh) ]
+
+
+def fit_biGaussian(x,y):
+    """
+    Derive the best fit curve for the flux-time distribution
+    """
+    from scipy.optimize import curve_fit
+    popt, pcov = curve_fit(biGaussian,x,y,p0=(x[np.argmax(y)],np.std(x)/3,np.std(x),1),bounds=([-np.inf,-1e-5,-1e-5,0],[np.inf,np.inf,np.inf,np.inf]))
+    return popt
+
+
+def biGaussian(x,x0,sig1,sig2,A):
+    # combine 2 gaussian:
+    return A*np.exp(-0.5*((x-x0)/
+        (sig1*(x<x0)+sig2*(x>=x0)))**2)
