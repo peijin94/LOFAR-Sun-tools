@@ -29,11 +29,11 @@ arguments:
 - applybeam.updateweights=true
 - apply_phase.updateweights=true
 - apply_phase.correction=phase000
-- apply_phase.solset=sol001
+- apply_phase.solset=sol000
 - apply_phase.type=applycal
 - apply_phase.parmdb=$(inputs.solutions.path)
 - apply_amp.updateweights=true
-- apply_amp.solset=sol001
+- apply_amp.solset=sol000
 - apply_amp.correction=amplitude000
 - apply_amp.parmdb=$(inputs.solutions.path)
 - apply_amp.type=applycal

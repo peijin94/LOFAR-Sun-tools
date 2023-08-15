@@ -3,6 +3,9 @@
 class: Workflow
 cwlVersion: v1.2
 
+requirements: 
+  - class: MultipleInputFeatureRequirement
+
 inputs:
 - id: solution_file
   type: File

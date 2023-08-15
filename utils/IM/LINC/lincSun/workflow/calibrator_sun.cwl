@@ -5,17 +5,12 @@ class: Workflow
 requirements: 
   - class: ScatterFeatureRequirement
   - class: StepInputExpressionRequirement
+  - class: SubworkflowFeatureRequirement
 inputs:
 - id: msin
   type: Directory[]
 - id: ATeam_skymodel
   type: File
-- id: avg_timeresolution
-  type: int?
-  default: 4
-- id: avg_freqresolution
-  type: string?
-  default: 48.82kHz
 - id: refant
   type: string?
   default: 'CS001HBA0'
@@ -25,7 +20,7 @@ outputs:
   type: File
   outputSource: combine_solutions/output_solution
 - id: save_inspection
-  type: File[]
+  type: Directory
   outputSource: save_inspection/dir
 
 steps:

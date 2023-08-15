@@ -18,8 +18,6 @@ inputs:
     prefix: in=
     separate: false
 
-
-
 outputs: 
 - id: sourcedb
   type: File
