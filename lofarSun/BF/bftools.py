@@ -276,43 +276,43 @@ def model_flux(calibrator, frequency):
     J0133-3629, 3C48, Fornax A, 3C 123, J0444+2809, 3C138, Pictor A, Taurus A, 3C147, 3C196, Hydra A, Virgo A, 
     3C286, 3C295, Hercules A, 3C353, 3C380, Cygnus A, 3C444, Cassiopeia A
 
-    Input: the calibrator name, frequency range, and time range
+    Input: the calibrator name, frequency (in MHz)
     Output: the calibration matrix (in sfu)
 
     source https://arxiv.org/pdf/1609.05940.pdf
     '''
     parameters = []
 
-    Cal_dict = {'J0133-3629': [1.0440, -0.662, -0.225],
-                '3C48': [1.3253, -0.7553, -0.1914, 0.0498],
-                'ForA': [2.218, -0.661],
-                '3C123': [1.8017, -0.7884, -0.1035, -0.0248, 0.0090],
-                'J0444-2809': [0.9710, -0.894, -0.118],
-                '3C138': [1.0088, -0.4981, -0.155, -0.010, 0.022,],
-                'PicA': [1.9380, -0.7470, -0.074],
-                'TauA': [2.9516, -0.217, -0.047, -0.067],
-                '3C247': [1.4516, -0.6961, -0.201, 0.064, -0.046, 0.029],
-                '3C196': [1.2872, -0.8530, -0.153, -0.0200, 0.0201],
-                'HydA': [1.7795, -0.9176, -0.084, -0.0139, 0.030],
-                'VirA': [2.4466, -0.8116, -0.048],
+    Cal_dict = {'j0133-3629': [1.0440, -0.662, -0.225],
+                '3c48': [1.3253, -0.7553, -0.1914, 0.0498],
+                'fora': [2.218, -0.661],
+                '3c123': [1.8017, -0.7884, -0.1035, -0.0248, 0.0090],
+                'j0444-2809': [0.9710, -0.894, -0.118],
+                '3c138': [1.0088, -0.4981, -0.155, -0.010, 0.022,],
+                'pica': [1.9380, -0.7470, -0.074],
+                'taua': [2.9516, -0.217, -0.047, -0.067],
+                '3c247': [1.4516, -0.6961, -0.201, 0.064, -0.046, 0.029],
+                '3c196': [1.2872, -0.8530, -0.153, -0.0200, 0.0201],
+                'hyda': [1.7795, -0.9176, -0.084, -0.0139, 0.030],
+                'vira': [2.4466, -0.8116, -0.048],
                 '3C286': [1.2481, -0.4507, -0.1798, 0.0357],
                 '3C295': [1.4701, -0.7658, -0.2780, -0.0347, 0.0399],
-                'HerA': [1.8298, -1.0247, -0.0951],
-                '3C353': [1.8627, -0.6938, -0.100, -0.032],
-                '3C380': [1.2320, -0.791, 0.095, 0.098, -0.18, -0.16],
-                '3C444': [3.3498, -1.0022, -0.22, 0.023, 0.043],
-                'CasA': [3.3584, -0.7518, -0.035, -0.071]}
-    if calibrator in Cal_dict.keys():
-        parameters = Cal_dict[calibrator]
+                'hera': [1.8298, -1.0247, -0.0951],
+                '3c353': [1.8627, -0.6938, -0.100, -0.032],
+                '3c380': [1.2320, -0.791, 0.095, 0.098, -0.18, -0.16],
+                '3c444': [3.3498, -1.0022, -0.22, 0.023, 0.043],
+                'casa': [3.3584, -0.7518, -0.035, -0.071]}
+    if calibrator.lower() in Cal_dict.keys():
+        parameters = Cal_dict[calibrator.lower()]
     else:
-        raise ValueError(calibrator, "is not in the calibrators list")
+        raise ValueError(calibrator, "is not in the calibrators list:", Cal_dict.keys(), "Please check the name")
 
     flux_model = 0
-    frequency /= 10**3  # convert from MHz to GHz
+    freq_GHz = frequency/1e3 # convert from MHz to GHz
     for j, p in enumerate(parameters):
-        flux_model += p*np.log10(frequency)**j
+        flux_model += p*np.log10(freq_GHz)**(j*1.0)
     flux_model = 10**flux_model  # because at first the flux is in log10
-    return flux_model*10**(-4)  # convert form Jy to sfu
+    return flux_model*1e-4  # convert form Jy to sfu
 
 
 def partition_avg(arr, ratio_range):
