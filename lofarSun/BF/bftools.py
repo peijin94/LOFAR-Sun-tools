@@ -318,7 +318,8 @@ def model_flux(calibrator, frequency):
 def partition_avg(arr, ratio_range):
     #  average in a given ratio range to exclude extreme value
     arr_sort = np.sort(arr.ravel())
-    nums = arr_sort[int(ratio_range[0]*arr_sort.shape[0])                    :int(ratio_range[1]*arr_sort.shape[0])]
+    nums = arr_sort[int(ratio_range[0]*arr_sort.shape[0]) 
+                    :int(ratio_range[1]*arr_sort.shape[0])]
     return np.mean(nums)
 
 
@@ -400,58 +401,6 @@ def avg_with_lightening_flag(array_dirty, idx_start, idx_end, f_avg_range=[1600,
     return ds, collect_start, collect_end
 
 
-def calibration_with_1bandpass_interp(
-        dyspec_target, freq_target, bandpass_calibrator, freq_cal, calibrator,
-        plot_things=False):
-    '''
-    Calibrates the target data using a calibrator with interpolation
-
-    Input: target dynamic spectrum the **RAW** intensity read from H5, 
-        the calibrator file, the calibrator name.
-    Output: the calibrated dynamic spectrum of the target source
-    '''
-    # read the data
-    dyspec_target, freq_target
-    # plot the calibrator bandpass not interpolated
-    bandpass_interpolated = np.ones((len(freq_target)))
-    # extract the frequency where the calibrator observed
-    indices_in_calibrator = np.where(
-        (freq_target > np.min(freq_cal)) & (freq_target < np.max(freq_cal)))[0]
-
-    # make bandpass for all the frequencies
-    funct = interpolate.interp1d(freq_cal, bandpass_calibrator)
-    bandpass_interpolated[indices_in_calibrator] = funct(
-        freq_target[indices_in_calibrator])
-    bandpass_interpolated[:indices_in_calibrator[0]
-                          ] = bandpass_interpolated[indices_in_calibrator[0]]
-    bandpass_interpolated[indices_in_calibrator[-1]                          :] = bandpass_interpolated[indices_in_calibrator[-1]]
-
-    if plot_things:
-        fig = plt.figure(figsize=(6, 4), dpi=120)
-        ax = plt.gca()
-        ax.plot(freq_cal, np.log10(bandpass_calibrator), '+')
-        ax.set_xlabel('Frequency (MHz)')
-        ax.set_ylabel('Intensity (dB)')
-        fig.savefig('bandpass_calibrator_initial.png')
-
-        # plot the interpolated bandpass
-
-        fig = plt.figure(figsize=(6, 4), dpi=120)
-        ax = plt.gca()
-        ax.plot(freq_target, np.log10(bandpass_interpolated), '+')
-        ax.set_xlabel('Frequency (MHz)')
-        ax.set_ylabel('Intensity (dB)')
-        fig.savefig('bandpass_calibrator_interpolated.png')
-
-    # convert from dB to raw flux
-    # dyspec_target = 10**(dyspec_target/10)
-    for i in range(len(freq_target)):
-        dyspec_target[:, i] = dyspec_target[:, i] / \
-            bandpass_interpolated[i]*model_flux(calibrator, freq_target[i])
-
-    return dyspec_target
-
-
 def lin_interp(x, y, i, half):
     return x[i] + (x[i+1] - x[i]) * ((half - y[i]) / (y[i+1] - y[i]))
 
@@ -488,3 +437,185 @@ def biGaussian(x,x0,sig1,sig2,A):
     # combine 2 gaussian:
     return A*np.exp(-0.5*((x-x0)/
         (sig1*(x<x0)+sig2*(x>=x0)))**2)
+    
+
+def mask_extend_xy_npix(mask, n_pix_x, n_pix_y):
+    """
+    Extend a 2D boolean mask along both x and y axes by a specified number of pixels.
+    
+    This function takes a 2D mask and extends the 'False' values in both x and y directions 
+    based on the number of pixels specified. The purpose is to enlarge masked areas in a 2D array 
+    by including adjacent pixels.
+
+    Parameters:
+    -------------
+    mask : ndarray (2D)
+        A 2D boolean mask where 'True' represents areas to keep and 'False' represents areas to mask.
+    n_pix_x : int
+        Number of pixels to extend the mask in the x-direction.
+    n_pix_y : int
+        Number of pixels to extend the mask in the y-direction.
+
+    Returns:
+    -------------
+    mask_extend : ndarray (2D)
+        The extended 2D mask.
+
+    """
+    
+    # Initialize an output mask of the same shape as the input, filled with 'True'
+    mask_extend = np.ones_like(mask)
+    # Loop through each row in the mask
+    for i in range(mask.shape[0]):        
+        # Find indices in the row where the mask is 'False'
+        idx = np.where(1 - mask[i, :])[0]
+        # Extend the mask in both x and y directions for each found index
+        for j in idx:
+            mask_extend[max(i - n_pix_y + 1, 0):min(i + n_pix_y, mask.shape[0]),
+                        max(j - n_pix_x + 1, 0):min(j + n_pix_x, mask.shape[1])] = 0            
+    return mask_extend
+
+
+
+def flag_frequency_slices(dynspec_cal, mask_cal):
+    """
+    Flag individual pixels in each frequency slice of the calibration dynamic spectrum.
+
+    This function flags pixels based on a condition that compares the pixel value to
+    the mean of a specific range of values in the dynamic spectrum.
+
+    Parameters:
+    -------------
+    dynspec_cal : ndarray
+        The calibration dynamic spectrum.
+    mask_cal : ndarray
+        The existing mask for the calibration dynamic spectrum.
+    
+    Returns:
+    -------------
+    ndarray
+        Updated mask for the calibration dynamic spectrum.
+    """
+    for freq_idx in np.arange(dynspec_cal.shape[1]):
+        mask_freq = mask_cal[:, freq_idx]
+        dyspec_freq = dynspec_cal[:, freq_idx]
+        
+        idx = np.where(dyspec_freq > 1.5 * np.mean(dyspec_freq[np.where(
+            (dyspec_freq > np.percentile(dyspec_freq, 15)) & 
+            (dyspec_freq < np.percentile(dyspec_freq, 30)))[0]]))[0]
+        
+        mask_freq[idx] = 0
+        mask_cal[:, freq_idx] = mask_freq
+    
+    return mask_cal
+
+
+def perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal):
+    """
+    Perform linear interpolation for flagged pixels in each frequency slice of the dynamic spectrum.
+
+    Parameters:
+    -------------
+    dynspec_cal_copy : ndarray
+        Copy of the calibration dynamic spectrum that will be modified.
+    mask_cal : ndarray
+        The existing mask for the calibration dynamic spectrum.
+    t_cal : ndarray
+        Time array corresponding to the calibration dynamic spectrum.
+
+    Returns:
+    -------------
+    ndarray
+        The modified calibration dynamic spectrum after performing interpolation.
+    """
+    
+    for freq_idx in np.arange(dynspec_cal_copy.shape[1]):
+        mask_freq = mask_cal[:, freq_idx]
+        dyspec_freq = dynspec_cal_copy[:, freq_idx]
+        
+        res_interp = np.interp(t_cal[~mask_freq], t_cal[mask_freq], dyspec_freq[mask_freq])
+        dynspec_cal_copy[~mask_freq, freq_idx] = res_interp
+    
+    return dynspec_cal_copy
+
+
+def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_cal, abs_thresh=1e14):
+    """
+    Calibrate and process a dynamic spectrum using a series of masking, flagging, and interpolation steps.
+    
+    Parameters:
+    -----------
+    dynspec_sun : ndarray
+        The dynamic spectrum of the Sun.
+    dynspec_cal : ndarray
+        The dynamic spectrum that needs to be calibrated.
+    time_sun : ndarray
+        The time array corresponding to the dynamic spectrum of the Sun.
+    freq_sun : ndarray
+        The frequency array corresponding to the dynamic spectrum of the Sun.
+    t_cal : ndarray
+        The time array corresponding to the dynamic spectrum that needs to be calibrated.
+    f_cal : ndarray
+        The frequency array corresponding to the dynamic spectrum that needs to be calibrated.
+    abs_thresh : float, optional
+        The absolute threshold for initial masking. Defaults to 1e14.
+
+    Returns:
+    --------
+    tuple
+        - calibrated_dynspec : ndarray
+            The calibrated dynamic spectrum.
+        - dynspec_cal : ndarray
+            Original dynamic spectrum for calibration.
+        - dynspec_cal_copy : ndarray
+            Processed dynamic spectrum after flagging and interpolation.
+        - mask_cal : ndarray
+            Mask after initial flagging.
+        - mask_cal_2nd : ndarray
+            Mask after second round of flagging.
+
+    """
+
+    # Step 1: Initial masking based on absolute threshold
+    mask_cal = (dynspec_cal < abs_thresh)
+    
+    # Step 2: Flagging pixels in each frequency slice
+    mask_cal = flag_frequency_slices(dynspec_cal, mask_cal)
+
+    # Step 3: Extending the mask
+    mask_cal = mask_extend_xy_npix(mask_cal, 2, 16)
+    
+    # Step 4: Linear interpolation for flagged pixels
+    dynspec_cal_copy = dynspec_cal.copy()
+    dynspec_cal_copy = perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal)
+
+    # Step 5: Second round of flagging based on snapshot median
+    num_all_freq = dynspec_cal_copy.shape[1]
+    freq_sub_ranges = np.array_split(np.arange(num_all_freq), num_all_freq // 15)
+    mask_cal_2nd = np.ones_like(dynspec_cal_copy).astype(bool)
+    for freq_range in freq_sub_ranges:
+        midval = np.median(dynspec_cal_copy[:, freq_range], axis=1)
+        flag_exceptional = dynspec_cal_copy[:, freq_range] < midval[:, None] * 2
+        mask_cal_2nd[:, freq_range] *= flag_exceptional
+    
+    # Step 6: Interpolation after second-round flagging
+    dynspec_cal_copy = perform_linear_interpolation(dynspec_cal_copy, mask_cal_2nd, t_cal)
+
+    # Step 7: Averaging the dynamic spectrum
+    dynspec_cal_copy_averaging = averaging_stride(dynspec_cal_copy, 16, 0)
+    t_cal_averaging = averaging_stride(t_cal[:, None], 16, 0)
+
+    # Step 8: Calibrating the dynamic spectrum
+    calib_bandpass = np.zeros_like(dynspec_sun)
+    tmp_calib_lst = []
+    for time_idx, time in enumerate(t_cal_averaging):
+        tmp_calib_lst.append(np.interp(freq_sun, f_cal, dynspec_cal_copy_averaging[time_idx, :]))
+    tmp_calib_arr = np.array(tmp_calib_lst)
+    for freq_idx, freq in enumerate(freq_sun):
+        calib_bandpass[:, freq_idx] = np.interp(time_sun, t_cal_averaging[:, 0], tmp_calib_arr[:, freq_idx])
+    model_arr = np.array([model_flux('CasA', freq) for freq in freq_sun])
+    model_final = np.repeat(model_arr[:, None], calib_bandpass.shape[0], axis=1).T
+    calibrated_dynspec = dynspec_sun / calib_bandpass * model_final
+
+    return calibrated_dynspec, dynspec_cal, dynspec_cal_copy, mask_cal, mask_cal_2nd
+
