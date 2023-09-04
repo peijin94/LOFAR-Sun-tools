@@ -477,7 +477,7 @@ def mask_extend_xy_npix(mask, n_pix_x, n_pix_y):
 
 
 
-def flag_frequency_slices(dynspec_cal, mask_cal):
+def flag_frequency_slices(dynspec_cal, mask_cal, ratio_flag=1.5, lower_perc=15, upper_perc=40):
     """
     Flag individual pixels in each frequency slice of the calibration dynamic spectrum.
 
@@ -500,9 +500,9 @@ def flag_frequency_slices(dynspec_cal, mask_cal):
         mask_freq = mask_cal[:, freq_idx]
         dyspec_freq = dynspec_cal[:, freq_idx]
         
-        idx = np.where(dyspec_freq > 1.5 * np.mean(dyspec_freq[np.where(
-            (dyspec_freq > np.percentile(dyspec_freq, 15)) & 
-            (dyspec_freq < np.percentile(dyspec_freq, 30)))[0]]))[0]
+        idx = np.where(dyspec_freq > ratio_flag * np.mean(dyspec_freq[np.where(
+            (dyspec_freq > np.percentile(dyspec_freq, lower_perc)) & 
+            (dyspec_freq < np.percentile(dyspec_freq, upper_perc)))[0]]))[0]
         
         mask_freq[idx] = 0
         mask_cal[:, freq_idx] = mask_freq
@@ -529,12 +529,19 @@ def perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal):
         The modified calibration dynamic spectrum after performing interpolation.
     """
     
+    robust_fill_value = 0
     for freq_idx in np.arange(dynspec_cal_copy.shape[1]):
         mask_freq = mask_cal[:, freq_idx]
         dyspec_freq = dynspec_cal_copy[:, freq_idx]
+        try:
+            res_interp = np.interp(t_cal[~mask_freq], t_cal[mask_freq], dyspec_freq[mask_freq])
+            robust_fill_value = np.nanmean(res_interp)
+        except:
+            res_interp = np.full_like(t_cal[~mask_freq], robust_fill_value)
+            # print error message if interpolation fails
+            print("Warning: interpolation failed for frequency slice", freq_idx)
+        dynspec_cal_copy[~mask_freq, freq_idx] = res_interp.ravel()
         
-        res_interp = np.interp(t_cal[~mask_freq], t_cal[mask_freq], dyspec_freq[mask_freq])
-        dynspec_cal_copy[~mask_freq, freq_idx] = res_interp
     
     return dynspec_cal_copy
 
