@@ -646,6 +646,10 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
     mask_cal_2nd : ndarray
         Mask after second-round flagging.
 
+    Examples
+    ------------
+    >>> (calibrated_dynspec, dynspec_cal, dynspec_cal_copy, mask_cal, mask_cal_2nd) = proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_cal)
+
     Notes
     ------------
     .. math:: I_{\nu} = \frac{I_{\nu}^{obs}}{B_{\nu}^{model}} \times B_{\nu}^{cal}
@@ -731,6 +735,11 @@ def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
         Mask after initial flagging and extending.
     dynspec_cal_bp : ndarray
         Averaged dynamic spectrum used for bandpass calculation.
+        
+    Examples
+    ------------
+    >>> calibrated_dynspec, mask_cal, dynspec_cal_bp = proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun)
+    # size of dynspec_sun(M*N), time_sun(M), freq_sun(N) should match
 
     Notes
     ------------
