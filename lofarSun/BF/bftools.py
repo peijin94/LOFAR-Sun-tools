@@ -652,7 +652,8 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
 
     Notes
     ------------
-    .. math:: I_{\nu} = \frac{I_{\nu}^{obs}}{B_{\nu}^{model}} \times B_{\nu}^{cal}
+    
+    :math:`I_{\nu} = \frac{I_{\nu}^{obs}}{B_{\nu}^{model}} \times B_{\nu}^{cal}`
     
     1. Initial masking based on absolute threshold.
     2. Flagging pixels in each frequency slice.
@@ -743,7 +744,8 @@ def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
 
     Notes
     ------------
-    .. math:: I_{\nu} = \frac{I_{\nu}^{obs}}{B_{\nu}^{sun}}
+    
+    :math:`I_{\nu} = \frac{I_{\nu}^{obs}}{B_{\nu}^{sun}}`
     
     1. Handle NaN values in the Sun's dynamic spectrum.
     2. Create a copy of the Sun's dynamic spectrum for bandpass calculation.
