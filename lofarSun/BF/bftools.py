@@ -224,95 +224,161 @@ def avg_1d(x, N):
     return (cumsum[N::N] - cumsum[:-N:N]) / float(N)
 
 
-def averaging_stride(arr_query, n_point, axis=0, n_start=-1, n_end=-1):
+def averaging_stride(arr_query, n_point, axis=0, start_idx=-1, end_idx=-1):
     """
-    Averaging for big 2D-array but small down-sample ratio
-    (n_point should be small, returns a not-very-small array)
-    author: Peijin Zhang
-    datetime: 2022-6-14 11:14:53
+    Perform downsampling of a 2D array by averaging over strided subarrays.
+    
+    This function is designed for scenarios where the 2D array is large but the
+    number of points to average (n_point) is small. The resulting array is not
+    significantly smaller than the original.
+
+    Parameters
+    ----------
+    arr_query : numpy.ndarray
+        The 2D array to be downsampled.
+    n_point : int
+        Number of points in each strided subarray over which the averaging is performed.
+    axis : int, optional
+        The axis along which to average, either 0 or 1. Default is 0.
+    start_idx : int, optional
+        The starting index for averaging. Default is the first index of the array.
+    end_idx : int, optional
+        The ending index for averaging. Default is the last index of the array.
+
+    Returns
+    -------
+    numpy.ndarray
+        The resulting downsampled array.
+
+    Examples
+    --------
+    >>> arr = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
+    >>> averaging_stride(arr, 2, axis=0)
+    Output will be the downsampled array along axis 0.
+
+    Notes
+    -----
+    This function is optimized for small downsampling ratios where n_point is small.
     """
-    if n_start < 0:
-        n_start = 0
-    if n_end < 0:
-        n_end = arr_query.shape[axis]-1
-    out_size = int((n_end-n_start)/n_point)
+    start_idx = 0 if start_idx < 0 else start_idx
+    end_idx = arr_query.shape[axis] if end_idx < 0 else end_idx
+    out_size = ((end_idx-start_idx) // n_point)
 
     res = 0
     if axis == 1:
-        res = np.mean(np.array(([arr_query[:, (n_start+idx):(n_start+(out_size)*n_point+idx):n_point]
+        res = np.mean(np.array(([arr_query[:, (start_idx+idx):(start_idx+(out_size)*n_point+idx):n_point]
                                  for idx in range(n_point)])), axis=0)
     else:
-        res = np.mean(np.array(([arr_query[(n_start+idx):(n_start+(out_size)*n_point+idx):n_point, :]
+        res = np.mean(np.array(([arr_query[(start_idx+idx):(start_idx+(out_size)*n_point+idx):n_point, :]
                                  for idx in range(n_point)])), axis=0)
     return res
 
 
-def averaging_walk(arr_query, n_point, axis=0, n_start=-1, n_end=-1):
+
+def averaging_walk(arr_query, n_point, axis=0, start_idx=-1, end_idx=-1):
     """
-    Averaging for big 2D-array but small big-sample ratio 
-    (n_point should be large, returns a tiny array)
-    author: Peijin Zhang
-    datetime: 2022-6-14 11:41:57
+    Perform downsampling of a 2D array by averaging over contiguous subarrays.
+
+    This function is designed for scenarios where the 2D array is large and the
+    number of points to average (n_point) is also large. The result is a much
+    smaller array.
+
+    Parameters
+    ----------
+    arr_query : numpy.ndarray
+        The 2D array to be downsampled.
+    n_point : int
+        Number of points in each subarray over which the averaging is performed.
+    axis : int, optional
+        The axis along which to average, either 0 or 1. Default is 0.
+    start_idx : int, optional
+        The starting index for averaging. Default is the first index of the array.
+    end_idx : int, optional
+        The ending index for averaging. Default is the last index of the array.
+
+    Returns
+    -------
+    numpy.ndarray
+        The resulting downsampled array.
+
+    Example
+    -------
+    >>> arr = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
+    >>> averaging_walk(arr, 2, axis=0)
+    Output will be the downsampled array along axis 0.
+
+    Notes
+    -----
+    This function is optimized for large downsampling ratios where n_point is large.
     """
-    if n_start < 0:
-        n_start = 0
-    if n_end < 0:
-        n_end = arr_query.shape[axis]
-    out_size = int((n_end-n_start)/n_point)
+    
+    start_idx = 0 if start_idx < 0 else start_idx
+    end_idx = arr_query.shape[axis] if end_idx < 0 else end_idx
+    out_size = ((end_idx-start_idx) // n_point)
 
     res = 0
     if axis == 1:
         res = np.mean(np.stack(
-            ([(arr_query[:, (n_start+idx*n_point):(n_start+(idx+1)*n_point)]) for idx in range(out_size)]), axis=2), axis=axis)
+            ([(arr_query[:, (start_idx+idx*n_point):(start_idx+(idx+1)*n_point)]) for idx in range(out_size)]), axis=2), axis=axis)
     else:
         res = np.mean(np.stack(
-            ([(arr_query[(n_start+idx*n_point):(n_start+(idx+1)*n_point), :]) for idx in range(out_size)]), axis=2).swapaxes(1, 2), axis=axis)
+            ([(arr_query[(start_idx+idx*n_point):(start_idx+(idx+1)*n_point), :]) for idx in range(out_size)]), axis=2).swapaxes(1, 2), axis=axis)
     return res
 
 
 def model_flux(calibrator, frequency):
     '''
-    Calculates the model matrix for flux calibration for a range of known calibrators:
-    J0133-3629, 3C48, Fornax A, 3C 123, J0444+2809, 3C138, Pictor A, Taurus A, 3C147, 3C196, Hydra A, Virgo A, 
-    3C286, 3C295, Hercules A, 3C353, 3C380, Cygnus A, 3C444, Cassiopeia A
-
-    Input: the calibrator name, frequency (in MHz)
-    Output: the calibration matrix (in sfu)
-
-    source https://arxiv.org/pdf/1609.05940.pdf
+    Calculates the model flux for calibration using a known set of calibrators.
+    
+    Parameters:
+    -----------
+    calibrator : str
+        Name of the calibrator source.
+    frequency : float
+        Frequency in MHz for which to calculate the flux.
+        
+    Returns:
+    --------
+    float
+        Model flux in sfu (solar flux units).
+        
+    Notes:
+    ------
+    The parameters for each calibrator source are sourced from https://arxiv.org/pdf/1609.05940.pdf.
     '''
-    parameters = []
-
-    Cal_dict = {'j0133-3629': [1.0440, -0.662, -0.225],
-                '3c48': [1.3253, -0.7553, -0.1914, 0.0498],
-                'fora': [2.218, -0.661],
-                '3c123': [1.8017, -0.7884, -0.1035, -0.0248, 0.0090],
-                'j0444-2809': [0.9710, -0.894, -0.118],
-                '3c138': [1.0088, -0.4981, -0.155, -0.010, 0.022,],
-                'pica': [1.9380, -0.7470, -0.074],
-                'taua': [2.9516, -0.217, -0.047, -0.067],
-                '3c247': [1.4516, -0.6961, -0.201, 0.064, -0.046, 0.029],
-                '3c196': [1.2872, -0.8530, -0.153, -0.0200, 0.0201],
-                'hyda': [1.7795, -0.9176, -0.084, -0.0139, 0.030],
-                'vira': [2.4466, -0.8116, -0.048],
-                '3C286': [1.2481, -0.4507, -0.1798, 0.0357],
-                '3C295': [1.4701, -0.7658, -0.2780, -0.0347, 0.0399],
-                'hera': [1.8298, -1.0247, -0.0951],
-                '3c353': [1.8627, -0.6938, -0.100, -0.032],
-                '3c380': [1.2320, -0.791, 0.095, 0.098, -0.18, -0.16],
-                '3c444': [3.3498, -1.0022, -0.22, 0.023, 0.043],
-                'casa': [3.3584, -0.7518, -0.035, -0.071]}
-    if calibrator.lower() in Cal_dict.keys():
-        parameters = Cal_dict[calibrator.lower()]
-    else:
-        raise ValueError(calibrator, "is not in the calibrators list:", Cal_dict.keys(), "Please check the name")
-
-    flux_model = 0
-    freq_GHz = frequency/1e3 # convert from MHz to GHz
-    for j, p in enumerate(parameters):
-        flux_model += p*np.log10(freq_GHz)**(j*1.0)
-    flux_model = 10**flux_model  # because at first the flux is in log10
-    return flux_model*1e-4  # convert form Jy to sfu
+    
+    cal_params = {
+        'j0133-3629': [1.0440, -0.662, -0.225],
+        '3c48': [1.3253, -0.7553, -0.1914, 0.0498],
+        'fora': [2.218, -0.661],
+        '3c123': [1.8017, -0.7884, -0.1035, -0.0248, 0.0090],
+        'j0444-2809': [0.9710, -0.894, -0.118],
+        '3c138': [1.0088, -0.4981, -0.155, -0.010, 0.022],
+        'pica': [1.9380, -0.7470, -0.074],
+        'taua': [2.9516, -0.217, -0.047, -0.067],
+        '3c247': [1.4516, -0.6961, -0.201, 0.064, -0.046, 0.029],
+        '3c196': [1.2872, -0.8530, -0.153, -0.0200, 0.0201],
+        'hyda': [1.7795, -0.9176, -0.084, -0.0139, 0.030],
+        'vira': [2.4466, -0.8116, -0.048],
+        '3c286': [1.2481, -0.4507, -0.1798, 0.0357],
+        '3c295': [1.4701, -0.7658, -0.2780, -0.0347, 0.0399],
+        'hera': [1.8298, -1.0247, -0.0951],
+        '3c353': [1.8627, -0.6938, -0.100, -0.032],
+        '3c380': [1.2320, -0.791, 0.095, 0.098, -0.18, -0.16],
+        '3c444': [3.3498, -1.0022, -0.22, 0.023, 0.043],
+        'casa': [3.3584, -0.7518, -0.035, -0.071]
+    }
+    # Fetch the parameters
+    params = cal_params.get(calibrator.lower())
+    
+    # Check if the calibrator exists
+    if params is None:
+        raise ValueError(f"Invalid calibrator: {calibrator}")
+        
+    # Calculate the flux model
+    freq_GHz = frequency / 1e3
+    flux_model = sum(p * np.log10(freq_GHz) ** j for j, p in enumerate(params))
+    return 10 ** flux_model * 1e-4
 
 
 def partition_avg(arr, ratio_range):
