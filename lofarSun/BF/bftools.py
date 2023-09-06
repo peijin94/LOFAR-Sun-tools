@@ -513,7 +513,7 @@ def mask_extend_xy_npix(mask, n_pix_x, n_pix_y):
     based on the number of pixels specified. The purpose is to enlarge masked areas in a 2D array 
     by including adjacent pixels.
 
-    Parameters:
+    Parameters
     -------------
     mask : ndarray (2D)
         A 2D boolean mask where 'True' represents areas to keep and 'False' represents areas to mask.
@@ -522,7 +522,7 @@ def mask_extend_xy_npix(mask, n_pix_x, n_pix_y):
     n_pix_y : int
         Number of pixels to extend the mask in the y-direction.
 
-    Returns:
+    Returns
     -------------
     mask_extend : ndarray (2D)
         The extended 2D mask.
@@ -550,16 +550,16 @@ def flag_frequency_slices(dynspec_cal, mask_cal, ratio_flag=1.5, lower_perc=15, 
     This function flags pixels based on a condition that compares the pixel value to
     the mean of a specific range of values in the dynamic spectrum.
 
-    Parameters:
+    Parameters
     -------------
     dynspec_cal : ndarray
         The calibration dynamic spectrum.
     mask_cal : ndarray
         The existing mask for the calibration dynamic spectrum.
     
-    Returns:
+    Returns
     -------------
-    ndarray
+    mask_cal: ndarray
         Updated mask for the calibration dynamic spectrum.
     """
     for freq_idx in np.arange(dynspec_cal.shape[1]):
@@ -580,7 +580,7 @@ def perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal):
     """
     Perform linear interpolation for flagged pixels in each frequency slice of the dynamic spectrum.
 
-    Parameters:
+    Parameters
     -------------
     dynspec_cal_copy : ndarray
         Copy of the calibration dynamic spectrum that will be modified.
@@ -589,9 +589,9 @@ def perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal):
     t_cal : ndarray
         Time array corresponding to the calibration dynamic spectrum.
 
-    Returns:
+    Returns
     -------------
-    ndarray
+    dynspec_cal_copy: ndarray
         The modified calibration dynamic spectrum after performing interpolation.
     """
     
@@ -617,7 +617,7 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
     Calibrate a dynamic spectrum of the Sun using a given calibration dynamic spectrum.
 
     Parameters
-    ----------
+    ------------
     dynspec_sun : ndarray
         2D array representing the dynamic spectrum of the Sun.
     dynspec_cal : ndarray
@@ -634,7 +634,7 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
         Absolute threshold for masking, default is 1e14.
 
     Returns
-    -------
+    ------------
     calibrated_dynspec : ndarray
         Calibrated dynamic spectrum.
     dynspec_cal : ndarray
@@ -647,7 +647,7 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
         Mask after second-round flagging.
 
     Steps
-    -----
+    ------------
     1. Initial masking based on absolute threshold.
     2. Flagging pixels in each frequency slice.
     3. Extending the mask spatially.
@@ -713,7 +713,7 @@ def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
     uses the Sun's own dynamic spectrum to create a bandpass for calibration.
 
     Parameters
-    ----------
+    ------------
     dynspec_sun : ndarray
         Dynamic spectrum of the Sun.
     time_sun : ndarray
@@ -722,7 +722,7 @@ def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
         Frequency array corresponding to dynspec_sun.
 
     Returns
-    -------
+    ------------
     calibrated_dynspec : ndarray
         Calibrated dynamic spectrum.
     mask_cal : ndarray
@@ -731,7 +731,7 @@ def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
         Averaged dynamic spectrum used for bandpass calculation.
 
     Steps
-    -----
+    ------------
     1. Handle NaN values in the Sun's dynamic spectrum.
     2. Create a copy of the Sun's dynamic spectrum for bandpass calculation.
     3. Average the copied dynamic spectrum.
