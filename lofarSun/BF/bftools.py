@@ -301,7 +301,7 @@ def averaging_walk(arr_query, n_point, axis=0, start_idx=-1, end_idx=-1):
     numpy.ndarray
         The resulting downsampled array.
 
-    Example
+    Examples
     -------
     >>> arr = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
     >>> averaging_walk(arr, 2, axis=0)
@@ -330,19 +330,19 @@ def model_flux(calibrator, frequency):
     '''
     Calculates the model flux for calibration using a known set of calibrators.
     
-    Parameters:
+    Parameters
     -----------
     calibrator : str
         Name of the calibrator source.
     frequency : float
         Frequency in MHz for which to calculate the flux.
         
-    Returns:
+    Returns
     --------
     float
         Model flux in sfu (solar flux units).
         
-    Notes:
+    Notes
     ------
     The parameters for each calibrator source are sourced from https://arxiv.org/pdf/1609.05940.pdf.
     '''
@@ -646,8 +646,10 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
     mask_cal_2nd : ndarray
         Mask after second-round flagging.
 
-    Steps
+    Notes
     ------------
+    .. math:: I_{\nu} = \frac{I_{\nu}^{obs}}{B_{\nu}^{model}} \times B_{\nu}^{cal}
+    
     1. Initial masking based on absolute threshold.
     2. Flagging pixels in each frequency slice.
     3. Extending the mask spatially.
@@ -730,8 +732,10 @@ def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
     dynspec_cal_bp : ndarray
         Averaged dynamic spectrum used for bandpass calculation.
 
-    Steps
+    Notes
     ------------
+    .. math:: I_{\nu} = \frac{I_{\nu}^{obs}}{B_{\nu}^{sun}}
+    
     1. Handle NaN values in the Sun's dynamic spectrum.
     2. Create a copy of the Sun's dynamic spectrum for bandpass calculation.
     3. Average the copied dynamic spectrum.
