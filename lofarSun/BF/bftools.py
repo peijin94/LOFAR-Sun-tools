@@ -615,27 +615,39 @@ def perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal):
 def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_cal, abs_thresh=1e14):
     """
     Calibrate a dynamic spectrum of the Sun using a given calibration dynamic spectrum.
-    
-    Parameters:
-    -------------
-    - dynspec_sun (ndarray): 2D array representing the dynamic spectrum of the Sun.
-    - dynspec_cal (ndarray): 2D array representing the calibration dynamic spectrum.
-    - time_sun (ndarray): 1D array of time values corresponding to dynspec_sun.
-    - freq_sun (ndarray): 1D array of frequency values corresponding to dynspec_sun.
-    - t_cal (ndarray): 1D array of time values corresponding to dynspec_cal.
-    - f_cal (ndarray): 1D array of frequency values corresponding to dynspec_cal.
-    - abs_thresh (float, optional): Absolute threshold for masking, default is 1e14.
-    
-    Returns:
-    -------------
-    - calibrated_dynspec (ndarray): Calibrated dynamic spectrum.
-    - dynspec_cal (ndarray): Input calibration dynamic spectrum.
-    - dynspec_cal_copy (ndarray): Dynamic spectrum after interpolation.
-    - mask_cal (ndarray): Mask after initial flagging.
-    - mask_cal_2nd (ndarray): Mask after second-round flagging.
-    
-    Steps:
-    -------------
+
+    Parameters
+    ----------
+    dynspec_sun : ndarray
+        2D array representing the dynamic spectrum of the Sun.
+    dynspec_cal : ndarray
+        2D array representing the calibration dynamic spectrum.
+    time_sun : ndarray
+        1D array of time values corresponding to dynspec_sun.
+    freq_sun : ndarray
+        1D array of frequency values corresponding to dynspec_sun.
+    t_cal : ndarray
+        1D array of time values corresponding to dynspec_cal.
+    f_cal : ndarray
+        1D array of frequency values corresponding to dynspec_cal.
+    abs_thresh : float, optional
+        Absolute threshold for masking, default is 1e14.
+
+    Returns
+    -------
+    calibrated_dynspec : ndarray
+        Calibrated dynamic spectrum.
+    dynspec_cal : ndarray
+        Input calibration dynamic spectrum.
+    dynspec_cal_copy : ndarray
+        Dynamic spectrum after interpolation.
+    mask_cal : ndarray
+        Mask after initial flagging.
+    mask_cal_2nd : ndarray
+        Mask after second-round flagging.
+
+    Steps
+    -----
     1. Initial masking based on absolute threshold.
     2. Flagging pixels in each frequency slice.
     3. Extending the mask spatially.
@@ -694,26 +706,32 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
 def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
     """
     Perform self-calibration on a dynamic spectrum of the Sun.
-    
-    This function takes a dynamic spectrum of the Sun and performs various steps 
-    to calibrate it, including masking based on thresholds, flagging, interpolation, 
+
+    This function takes a dynamic spectrum of the Sun and performs various steps
+    to calibrate it, including masking based on thresholds, flagging, interpolation,
     and averaging. The calibration is done in a 'self-calibration' mode, meaning it
     uses the Sun's own dynamic spectrum to create a bandpass for calibration.
-    
-    Parameters:
-    -------------
-    - dynspec_sun (ndarray): Dynamic spectrum of the Sun.
-    - time_sun (ndarray): Time array corresponding to dynspec_sun.
-    - freq_sun (ndarray): Frequency array corresponding to dynspec_sun.
-    
-    Returns:
-    -------------
-    - calibrated_dynspec (ndarray): Calibrated dynamic spectrum.
-    - mask_cal (ndarray): Mask after initial flagging and extending.
-    - dynspec_cal_bp (ndarray): Averaged dynamic spectrum used for bandpass calculation.
-    
-    Steps:
-    -------------
+
+    Parameters
+    ----------
+    dynspec_sun : ndarray
+        Dynamic spectrum of the Sun.
+    time_sun : ndarray
+        Time array corresponding to dynspec_sun.
+    freq_sun : ndarray
+        Frequency array corresponding to dynspec_sun.
+
+    Returns
+    -------
+    calibrated_dynspec : ndarray
+        Calibrated dynamic spectrum.
+    mask_cal : ndarray
+        Mask after initial flagging and extending.
+    dynspec_cal_bp : ndarray
+        Averaged dynamic spectrum used for bandpass calculation.
+
+    Steps
+    -----
     1. Handle NaN values in the Sun's dynamic spectrum.
     2. Create a copy of the Sun's dynamic spectrum for bandpass calculation.
     3. Average the copied dynamic spectrum.
