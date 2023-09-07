@@ -593,6 +593,10 @@ def perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal):
     -------------
     dynspec_cal_copy: ndarray
         The modified calibration dynamic spectrum after performing interpolation.
+        
+    Examples
+    -------------
+    >>> dynspec_cal_copy = perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal)
     """
     
     robust_fill_value = 0
