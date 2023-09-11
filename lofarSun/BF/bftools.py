@@ -616,7 +616,8 @@ def perform_linear_interpolation(dynspec_cal_copy, mask_cal, t_cal):
     return dynspec_cal_copy
 
 
-def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_cal, abs_thresh=1e14):
+def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, 
+                       t_cal, f_cal, abs_thresh=1e14):
     """
     Calibrate a dynamic spectrum of the Sun using a given calibration dynamic spectrum.
 
@@ -712,7 +713,7 @@ def proc_calib_dynspec(dynspec_sun, dynspec_cal, time_sun, freq_sun, t_cal, f_ca
 
 
 
-def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
+def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun, abs_thresh = 2e14):
     """
     Perform self-calibration on a dynamic spectrum of the Sun.
 
@@ -772,7 +773,6 @@ def proc_selfcalib_dynspec(dynspec_sun, time_sun, freq_sun):
     t_cal_averaging = averaging_stride(time_sun[:, None], 4, 0).ravel()
 
     # Initial masking based on an absolute threshold
-    abs_thresh = 1e14
     mask_cal = dynspec_cal_copy_averaging < abs_thresh
 
     # Further flagging of frequency slices
