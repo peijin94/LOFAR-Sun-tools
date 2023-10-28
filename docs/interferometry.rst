@@ -337,9 +337,6 @@ directory '/HDD/path/to/data/' to '/lofardata'
 .. autofunction:: lofarSun.IM.get_peak_beam_from_psf
 
 
-
-
-
 ========================
 LincSun
 ========================
@@ -347,7 +344,7 @@ LincSun
 The imaging data processing pipeline based on `LINC <https://linc.readthedocs.io/>`__ .
 
 Requirements
-------------
+---------------
 
 - `Singulartiy <https://sylabs.io/singularity/>`__
 - `CWL <https://www.commonwl.org/>`__
@@ -368,11 +365,9 @@ To run the container as a shell:
    singularity -B /my/data:/my/data shell lincsun_latest.sif
 
 
-Calibration with lincsun
-------------------------
 
-Prepare data and lincSun
-~~~~~~~~~~~~~~~~~~~~~~~~
+Prepare data and src
+------------------------
 
 Data can be downloaded from LTA `here <https://lta.lofar.eu/Lofar>`__.
 
@@ -389,8 +384,8 @@ Download the source code:
    cp -r ./LOFAR-Sun-tools/utils/IM/LINC ./
 
 
-Prepare the json
-~~~~~~~~~~~~~~~~
+Calibration overview
+------------------------
 
 The workflows and steps of the data procedure is described in CWL files, can be found in the directory 'LINC/lincSun'
 
@@ -398,7 +393,8 @@ We need to prepare a json file to describe the data and the parameters for the d
 
 For example:
 
-.. code::
+.. code:: json
+
    {
       "msin": [
          {
@@ -419,15 +415,64 @@ For example:
 
 This example json file tells the workflow to process Data001.MS and Data002.MS, with the A-Team skymodel and the reference antenna CS002LBA.
 
-Then we can run the workflow with cwltool command inside the container "LINC":
+Then we can run the workflow with cwltool command inside the container "LINC", for example:
 
 .. code:: bash
-   singularity exec -B /path/to/data/ -B $PWD \
-       /path/to/contianer/linc_latest.sif \
-      cwltool --outdir /path/to/proc/proc/ /path/to/proc/LincSun/workflow/calibrator_sun.cwl \
+
+   singularity exec -B /path/to/data/ /path/to/contianer/linc_latest.sif \
+      cwltool --outdir /path/to/proc/save /path/to/proc/LincSun/workflow/calibrator_sun.cwl \
       /path/to/proc/calib.json
 
 There are two steps in the workflow: **gaincal** and **applycal**, both are done with above way.
+
+The directory or file list of the calibrator or target could be very long when there are many subbands,
+we can use the script 'create_jsonlist.py' to create the list of files.
+
+Gaincal
+--------------
+
+- collect the data for the calibrator files (measurement set files xxx.MS), could be done with the script 'create_jsonlist.py'
+- prepare the script to run the cwl workflow, for example:
+
+.. code:: bash
+
+   #!/bin/bash
+   #SBATCH --ntasks=1
+   #SBATCH --cpus-per-task=20
+   #SBATCH -J LcalibPJ
+   #SBATCH --account=xxxxxxxxxx
+   #SBATCH --mem=128G
+   #SBATCH --partition=xxxxxxxxxxxxxxxxxxx
+   #SBATCH --time=23:59:00
+   #SBATCH --mail-user=xxxxxxxxxxxxxxxxxxxxxxxx
+
+   mytmpdir=/dev/shm/largefastdisk/
+   export SINGULARITY_TMPDIR=$mytmpdir
+   export TMPDIR=$mytmpdir
+   export TEMP=$mytmpdir
+   export TMP=$mytmpdir
+   procDir=/path/to/proc/
+
+   singularity exec -B /path/to/data -B $PWD $procDir/linc_latest.sif \
+         cwltool  --no-container --basedir $procDir \
+         --outdir $procDir/results/ --log-dir $procDir/logs/ \
+         --tmpdir-prefix $mytmpdir \
+         $procDir/lincSun/workflow/calibrator_sun.cwl $procDir/calibLBA.json
+
+The first a few lines of '#SBATCH' is for HPC users, ignore if you are running on local machine or single node.
+
+This will create inspection plots for all antennas.
+
+Please check the phase and amplitude solutions for each antenna.
+
+If there is very bad antenna, we need to do one more extra step to flag out the corrupted antenna.
+
+Successful run will yield a solution.h5 file in the results directory
+
+Applycal
+--------------
+
+Apply the solution file to the target MS
 
 
 .. rubric:: Footnotes
