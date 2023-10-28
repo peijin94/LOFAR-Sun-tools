@@ -340,3 +340,11 @@ directory '/HDD/path/to/data/' to '/lofardata'
 .. rubric:: Footnotes
 
 .. [#] Read: necessary.
+
+
+=============================
+Pipeline
+=============================
+
+
+Run
