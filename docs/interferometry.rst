@@ -337,14 +337,100 @@ directory '/HDD/path/to/data/' to '/lofardata'
 .. autofunction:: lofarSun.IM.get_peak_beam_from_psf
 
 
+
+
+
+========================
+LincSun
+========================
+
+The imaging data processing pipeline based on `LINC <https://linc.readthedocs.io/>`__ .
+
+Requirements
+------------
+
+- `Singulartiy <https://sylabs.io/singularity/>`__
+- `CWL <https://www.commonwl.org/>`__
+- `LINC <https://linc.readthedocs.io/>`__
+
+The tool is packaged as a singularity container, no need to install and configure the dependencies and software.
+
+To pull the container:
+
+.. code:: bash
+
+   singularity pull docker://peijin94/lincsun:latest
+
+To run the container as a shell:
+
+.. code:: bash
+
+   singularity -B /my/data:/my/data shell lincsun_latest.sif
+
+
+Calibration with lincsun
+------------------------
+
+Prepare data and lincSun
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Data can be downloaded from LTA `here <https://lta.lofar.eu/Lofar>`__.
+
+Assuming the data is stored in the directory '/path/to/data', with all MS files in the subdirectory 'MS'.
+
+The data processing directory is '/path/to/proc'.
+
+Download the source code:
+
+.. code:: bash
+
+   cd /path/to/proc
+   git clone https://github.com/peijin94/LOFAR-Sun-tools.git
+   cp -r ./LOFAR-Sun-tools/utils/IM/LINC ./
+
+
+Prepare the json
+~~~~~~~~~~~~~~~~
+
+The workflows and steps of the data procedure is described in CWL files, can be found in the directory 'LINC/lincSun'
+
+We need to prepare a json file to describe the data and the parameters for the data processing.
+
+For example:
+
+.. code:: json
+   {
+      "msin": [
+         {
+               "class": "Directory",
+               "path": "/path/to/data/MS/Data001.MS"
+         },
+         {
+               "class": "Directory",
+               "path": "/path/to/data/MS/Data001.MS"
+         }
+      ],
+      "ATeam_skymodel": {
+         "class": "File",
+         "path": "/path/to/somewhere/else/A-Team_lowres.skymodel"
+      },
+      "refant": "CS002LBA"
+   }
+
+This example json file tells the workflow to process Data001.MS and Data002.MS, with the A-Team skymodel and the reference antenna CS002LBA.
+
+Then we can run the workflow with cwltool command inside the container "LINC":
+
+.. code:: bash
+   singularity exec -B /path/to/data/ -B $PWD \
+       /path/to/contianer/linc_latest.sif \
+      cwltool --outdir /path/to/proc/proc/ /path/to/proc/LincSun/workflow/calibrator_sun.cwl \
+      /path/to/proc/calib.json
+
+There are two steps in the workflow: **gaincal** and **applycal**, both are done with above way.
+
+
 .. rubric:: Footnotes
 
-.. [#] Read: necessary.
+.. [#] LoSoTo: LOFAR solutions tool
 
-
-=============================
-Pipeline
-=============================
-
-
-Run
