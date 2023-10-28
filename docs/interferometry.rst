@@ -398,7 +398,7 @@ We need to prepare a json file to describe the data and the parameters for the d
 
 For example:
 
-.. code:: json
+.. code-block:: json
    {
       "msin": [
          {
@@ -421,7 +421,7 @@ This example json file tells the workflow to process Data001.MS and Data002.MS, 
 
 Then we can run the workflow with cwltool command inside the container "LINC":
 
-.. code:: bash
+.. code-block:: bash
    singularity exec -B /path/to/data/ -B $PWD \
        /path/to/contianer/linc_latest.sif \
       cwltool --outdir /path/to/proc/proc/ /path/to/proc/LincSun/workflow/calibrator_sun.cwl \
