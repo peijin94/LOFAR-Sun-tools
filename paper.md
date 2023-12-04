@@ -12,12 +12,14 @@ authors:
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
   - name: LOFAR SSWKSP
     equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
+    affiliation: 3
 
 affiliations:
  - name: Center for Solar-Terrestrial Research, New Jersey Institute of Technology, Newark, NJ, USA
    index: 1
  - name: Cooperative Programs for the Advancement of Earth System Science, University Corporation for Atmospheric Research, Boulder, CO, USA
    index: 2
+ - name: ASTRON – The Netherlands Institute for Radio Astronomy, Oude Hoogeveensedijk 4, 7991 18 PD Dwingeloo, The Netherlands
 date: 02 December 2023
 bibliography: paper.bib
 
@@ -54,7 +56,7 @@ The RFI flagging [@zhang:2023]
 
 `lofarSun.IM`
 
-Uses the result of lincSun, and do the post processings
+Uses the result of a pipeline based on LINC, and do the post processings
 
 ## Command-Line Interface tools
 
