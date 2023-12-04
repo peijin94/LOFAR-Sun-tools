@@ -18,7 +18,7 @@ outputs:
 - id: skymodel_file
   type: File
   outputBinding:
-    glob: calibrator.skymodel
+    glob: 'calibrator.skymodel'
 - id: target_source
   type: string
   outputBinding:
@@ -33,6 +33,8 @@ baseCommand:
 hints:
   DockerRequirement:
     dockerPull: astronrd/linc
+  NetworkAccess:
+    networkAccess: false
 
 stdout: target_source
 requirements:
@@ -51,11 +53,18 @@ requirements:
           'Cyg': 'CygAGG'
       } # LBA
       CAL_MAP = {
+          'CasA': 'CasA_4_patch',
+          'VirA': 'VirA_4_patch',
+          'Tau': 'TauAGG',
+          'Cyg': 'CygAGG'
+      } # LBA
+      CAL_MAP = {
           'CasA': 'CasA',
           'VirA': 'VirA',
           'Tau': 'TauA',
           'Cyg': 'CygA'
-      } # LBA
-      os.system('cp '+sys.argv[2]+' ./calibrator.skymodel')
+      } # HBA
+      
+      os.system('cp '+sys.argv[2]+' $PWD/calibrator.skymodel')
       ms_in = table(sys.argv[1].split(",")[0] + '/POINTING', ack=False)
       print(CAL_MAP[ms_in[0]['NAME']])

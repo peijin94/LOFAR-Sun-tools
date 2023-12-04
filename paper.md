@@ -44,19 +44,27 @@ The cutting edge performance of LOFAR brings benefit in multiple science field i
 ASTRON has developed a set of software for LOFAR data reduction, while most of which are dedicated for astromical observations.
 To exploite the resolution power of LOFAR for solar and spaceweather studies, we build this toolset `lofarSun` based on the original LOFAR data processing procedures.
 
-# Modules
+Documentation is available at [https://lofar-sun-tools.readthedocs.io/en/latest/](https://lofar-sun-tools.readthedocs.io/en/latest/)
+
+# Data processing procedures
 
 ## Dynamic spectrum (beamformed data)
 
 `lofarSun.BF` 
 
-The RFI flagging [@zhang:2023]
+The RFI flagging uses a feature matching based method [@zhang:2023] available both on CPU and GPU
 
 ## Interferometric imaging
 
+The preprocessing is based on the LINC pipeline [@GasperinCalib:2019]. Correcting the amplitude and phase of solar radio observation with the measurements of A-team sources reference the skymodel  [@GasperinAteam:2019].
+The observaiton of solar interferometry is calibrated with A team sources. During observation, there are simutanously two beams, one pointing at the target (Sun), one pointing at the calibrator.
+
+After pre-processing, the 2DiFFT and de-convolution is done with `WSClean` [@offringa2014wsclean], then we have the imaging in astromocal coordinates.
+
+Then we do post processing with `lofarSun` on the images.
+In this package, the corresponding module is
 `lofarSun.IM`
 
-Uses the result of a pipeline based on LINC, and do the post processings
 
 ## Command-Line Interface tools
 
@@ -66,6 +74,14 @@ Some useful tools to do interactive inspections for the data processing
 
 
 # Acknowledgements
+
+LOFAR is the LOw Frequency ARray designed and constructed by ASTRON. It has observing, data processing, and data storage facilities in several countries, which are owned by various parties (each with their own funding sources), and are collectively operated by the ILT foundation under a joint scientific policy. The ILT resources have benefited from the following recent major funding sources: CNRS-INSU, Observatoire de Paris and
+Universite d’Orleans, France; BMBF, MIWF-NRW, MPG, Germany; Science Foundation Ireland (SFI), Department of Business, Enterprise and Innovation
+(DBEI), Ireland; NWO, The Netherlands; The Science and Technology Facilities
+Council, UK; Ministry of Science and Higher Education, Poland; Istituto
+Nazionale di Astrofisica (INAF). This research has made use of the University of
+Hertfordshire high-performance computing facility (https://uhhpc.herts.ac.uk/) and the LOFAR-UK compute facility, located at the University of
+Hertfordshire and supported by STFC (ST/P000096/1).
 
 We acknowledge contributions from ASTRON and LOFAR SSWKSP for building LOFAR data processing pipeline and operating the observation.
 
