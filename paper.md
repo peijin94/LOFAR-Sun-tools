@@ -10,13 +10,13 @@ authors:
     orcid: 0000-0000-0000-0000
     equal-contrib: true
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
-  - name: LOFAR Solar and Space Weather KSP
+  - name: LOFAR SSWKSP
     equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
 
 affiliations:
- - name: NJIT 
+ - name: Center for Solar-Terrestrial Research, New Jersey Institute of Technology, Newark, NJ, USA
    index: 1
- - name: UCAR
+ - name: Cooperative Programs for the Advancement of Earth System Science, University Corporation for Atmospheric Research, Boulder, CO, USA
    index: 2
 date: 02 December 2023
 bibliography: paper.bib
@@ -34,14 +34,37 @@ We developed a set of Python tools, called `lofarSun`, dedicated for the solar r
 
 # Statement of need
 
-`lofarSun` is a set of Python tools for the solar radio imaging spectroscopy data processing of LOFAR [@vanHaarlem:2013]. 
+The Low Frequency Array (LOFAR) [@vanHaarlem:2013], is an advanced radio telescope network primarily located in the Netherlands, with additional stations spread across Europe. 
+This network is notable for its use of a large number of small antennas rather than a few large dishes, allowing it to operate at low radio frequencies. 
+The cutting edge performance of LOFAR brings benefit in multiple science field in astromony, including solar and spaceweather studies.
+
+
+ASTRON has developed a set of software for LOFAR data reduction, while most of which are dedicated for astromical observations.
+To exploite the resolution power of LOFAR for solar and spaceweather studies, we build this toolset `lofarSun` based on the original LOFAR data processing procedures.
 
 # Modules
 
-Modules
+## Dynamic spectrum (beamformed data)
+
+`lofarSun.BF` 
+
+The RFI flagging [@zhang:2023]
+
+## Interferometric imaging
+
+`lofarSun.IM`
+
+Uses the result of lincSun, and do the post processings
+
+## Command-Line Interface tools
+
+`lofarSun.cli`
+
+Some useful tools to do interactive inspections for the data processing
+
 
 # Acknowledgements
 
-We acknowledge contributions from ASTRON
+We acknowledge contributions from ASTRON and LOFAR SSWKSP for building LOFAR data processing pipeline and operating the observation.
 
 # References
