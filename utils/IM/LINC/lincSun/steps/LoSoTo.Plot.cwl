@@ -158,5 +158,5 @@ stderr: $(inputs.input_h5parm.basename)-losoto_err.log
 
 $namespaces:
   lofar: https://git.astron.nl/eosc/ontologies/raw/master/schema/lofar.owl
-$schema:
+$schemas:
   - https://git.astron.nl/eosc/ontologies/raw/master/schema/lofar.owl
